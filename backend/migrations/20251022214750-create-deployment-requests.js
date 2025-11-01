@@ -41,6 +41,17 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true, // Allowing optional attachment (file upload)
       },
+       // 🔹 User yang membuat task
+      createdByUserId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
       createdAt: {
         type: Sequelize.DATE,
         allowNull: false,

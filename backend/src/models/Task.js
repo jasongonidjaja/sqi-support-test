@@ -73,11 +73,11 @@ const Task = sequelize.define("Task", {
   timestamps: true,
 });
 
-Task.belongsTo(Application, { foreignKey: "applicationId", as: "application" });
-Task.belongsTo(SQIPic, { foreignKey: "sqiPicId", as: "sqiPic" });
-Task.belongsTo(SupportType, { foreignKey: "supportTypeId", as: "supportType" });
-Task.belongsTo(User, { foreignKey: "createdByUserId", as: "createdBy" });
-Task.hasMany(TaskLog, { foreignKey: "taskId" });
+// Task.belongsTo(Application, { foreignKey: "applicationId", as: "taskApplication" });
+// Task.belongsTo(SQIPic, { foreignKey: "sqiPicId", as: "sqiPic" });
+// Task.belongsTo(SupportType, { foreignKey: "supportTypeId", as: "supportType" });
+// Task.belongsTo(User, { foreignKey: "createdByUserId", as: "createdBy" });
+// Task.hasMany(TaskLog, { foreignKey: "taskId" });
 
 
 export default Task;

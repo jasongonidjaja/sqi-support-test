@@ -43,7 +43,7 @@ router.get("/", authenticate, authorize("sqi", "developer"), async (req, res) =>
     const tasks = await Task.findAll({
       where: whereCondition,
       include: [
-        { model: Application, as: "application" },
+        { model: Application, as: "taskApplication" },
         { model: SQIPic, as: "sqiPic" },
         { model: SupportType, as: "supportType" },
         { model: User, as: "createdBy", attributes: ["id", "username", "role"] },
@@ -166,7 +166,7 @@ router.get("/:id", authenticate, authorize("sqi", "developer"), async (req, res)
     const task = await Task.findByPk(id, {
       include: [{
           model: Application,
-          as: "application"
+          as: "taskApplication"
         },
         {
           model: SQIPic,

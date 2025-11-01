@@ -1,12 +1,37 @@
 import React, { useEffect, useState } from "react";
 import api from "../services/api";
-import { Box, Typography, CircularProgress, Paper } from "@mui/material";
+import {
+  Box,
+  Typography,
+  CircularProgress,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from "@mui/material";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 
 const DeploymentCalendarPage = () => {
   const [deploymentRequests, setDeploymentRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleEventClick = (info) => {
+    const { title, extendedProps } = info.event;
+
+    setSelectedEvent({
+      title,
+      implementDate: extendedProps.implementDate,
+      applicationName: extendedProps.applicationName,
+      riskImpact: extendedProps.riskImpact,
+    });
+    setOpenDialog(true);
+  };
+
 
   useEffect(() => {
     const fetchDeploymentRequests = async () => {
@@ -19,8 +44,8 @@ const DeploymentCalendarPage = () => {
               .split("T")[0],
           },
         });
-
         const requests = res.data?.data || res.data || [];
+        console.log("🧩 Deployment Requests Data:", deploymentRequests);
         setDeploymentRequests(requests);
       } catch (err) {
         console.error("❌ Gagal mengambil data deployment requests:", err);
@@ -36,7 +61,9 @@ const DeploymentCalendarPage = () => {
   const calendarEvents = (deploymentRequests || []).map((request) => ({
     title: `${request.title} - ${request.riskImpact}`,
     date: request.implementDate,
-    description: request.applicationName,
+    implementDate: request.implementDate,
+    applicationName: request.application?.name || "Unknown",
+    riskImpact: request.riskImpact,
     backgroundColor:
       request.riskImpact === "Low"
         ? "#A5D6A7" // soft green
@@ -107,6 +134,7 @@ const DeploymentCalendarPage = () => {
             eventTextColor="#000"
             eventBorderColor="#00000030"
             displayEventTime={false} // ⬅️ Hilangkan jam "7a"
+            eventClick={handleEventClick} // ⬅️ ketika event diklik
             eventDidMount={(info) => {
               // Agar teks terlihat lebih rapi di tengah
               info.el.style.padding = "4px 6px";
@@ -115,6 +143,26 @@ const DeploymentCalendarPage = () => {
               info.el.style.textAlign = "center";
             }}
           />
+
+          <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+            <DialogTitle>Detail Deployment Request</DialogTitle>
+            <DialogContent dividers>
+              {selectedEvent ? (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                  <Typography><strong>Judul:</strong> {selectedEvent.title}</Typography>
+                  <Typography><strong>Aplikasi:</strong> {selectedEvent.applicationName}</Typography>
+                  <Typography><strong>Tanggal Implementasi:</strong> {selectedEvent.implementDate}</Typography>
+                  <Typography><strong>Risk Impact:</strong> {selectedEvent.riskImpact}</Typography>
+                </Box>
+              ) : (
+                <Typography>Tidak ada data.</Typography>
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setOpenDialog(false)}>Tutup</Button>
+            </DialogActions>
+          </Dialog>
+
 
         </Paper>
       </Box>

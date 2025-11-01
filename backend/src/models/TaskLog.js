@@ -54,9 +54,9 @@ const TaskLog = sequelize.define(
 );
 
 // 🔹 Relasi dengan model Task dan User
-TaskLog.associate = (models) => {
-  TaskLog.belongsTo(models.Task, { foreignKey: "taskId" });
-  TaskLog.belongsTo(models.User, { foreignKey: "userId" });
-};
+// TaskLog.associate = (models) => {
+//   TaskLog.belongsTo(models.Task, { foreignKey: "taskId" });
+//   TaskLog.belongsTo(models.User, { foreignKey: "userId" });
+// };
 
 export default TaskLog;
