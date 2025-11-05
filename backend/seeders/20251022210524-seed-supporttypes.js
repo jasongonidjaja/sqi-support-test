@@ -13,6 +13,6 @@ export default {
   },
 
   down: async (queryInterface) => {
-    await queryInterface.bulkDelete("SupportTypes", null, {});
+    await queryInterface.bulkDelete("support_types", null, {});
   },
 };

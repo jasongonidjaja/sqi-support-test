@@ -1,6 +1,6 @@
 export default {
   up: async (queryInterface) => {
-    await queryInterface.bulkInsert("Sqi_pics", [
+    await queryInterface.bulkInsert("sqi_pics", [
       { name: "MDA" },
       { name: "FTH" },
       { name: "JSK" },
@@ -10,6 +10,6 @@ export default {
   },
 
   down: async (queryInterface) => {
-    await queryInterface.bulkDelete("SqiPics", null, {});
+    await queryInterface.bulkDelete("sqi_pics", null, {});
   },
 };

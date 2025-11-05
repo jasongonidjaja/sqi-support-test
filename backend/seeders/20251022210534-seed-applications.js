@@ -17,6 +17,6 @@ export default {
   },
 
   down: async (queryInterface) => {
-    await queryInterface.bulkDelete("Applications", null, {});
+    await queryInterface.bulkDelete("applications", null, {});
   },
 };
