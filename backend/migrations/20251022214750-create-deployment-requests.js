@@ -1,5 +1,3 @@
-// src/migrations/create-deployment-requests.js
-
 "use strict";
 
 module.exports = {
@@ -22,7 +20,6 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      // 🔹 Relasi ke aplikasi
       applicationId: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -41,7 +38,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true, // Allowing optional attachment (file upload)
       },
-       // 🔹 User yang membuat task
       createdByUserId: {
         type: Sequelize.INTEGER,
         allowNull: false,

@@ -101,10 +101,6 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.fn("NOW"),
       },
-
-    }, {
-      // ⬇️ Tambahkan ini di SINI, setelah definisi kolom
-      engine: "InnoDB", // ✅ supaya tabel support foreign key
     });
   },
 

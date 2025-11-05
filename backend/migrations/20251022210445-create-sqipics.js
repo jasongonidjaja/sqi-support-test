@@ -1,5 +1,5 @@
-export default {
-  up: async (queryInterface, Sequelize) => {
+module.exports = {
+  async up(queryInterface, Sequelize) {
     await queryInterface.createTable("sqi_pics", {
       id: {
         type: Sequelize.INTEGER,
@@ -22,7 +22,8 @@ export default {
       },
     });
   },
-  down: async (queryInterface) => {
-    await queryInterface.dropTable("SqiPics");
-  },
+
+  async down(queryInterface) {
+    await queryInterface.dropTable("sqi_pics");
+  }
 };

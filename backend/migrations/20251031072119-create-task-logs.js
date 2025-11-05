@@ -1,4 +1,3 @@
-// src/migrations/xxxxxx-create-task-logs.js
 "use strict";
 
 module.exports = {
