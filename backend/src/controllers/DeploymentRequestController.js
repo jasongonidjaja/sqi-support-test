@@ -1,53 +1,136 @@
-// src/controllers/DeploymentRequestController.js
-import DeploymentRequest from "../models/DeploymentRequest.js";
+// src/controllers/deploymentRequestController.js
 import { Op } from "sequelize";
+import multer from "multer";
+import models from "../models/index.js";
 
-// Membuat request deployment baru
+const { DeploymentRequest, Application } = models;
+
+// ======================
+// 📁 File Upload Setup
+// ======================
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+
+export const upload = multer({ storage });
+
+// ======================
+// 🟢 CREATE Deployment Request
+// ======================
 export const createDeploymentRequest = async (req, res) => {
-  const { releaseId, title, implementDate, applicationName, riskImpact } = req.body;
-  const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
-
   try {
-    const newDeploymentRequest = await DeploymentRequest.create({
+    const { releaseId, title, implementDate, applicationId, riskImpact } = req.body;
+    const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
+
+    const newRequest = await DeploymentRequest.create({
       releaseId,
       title,
       implementDate,
-      applicationName,
+      applicationId,
       riskImpact,
       attachment: attachmentPath,
+      createdByUserId: req.user.userId,
     });
 
     res.status(201).json({
-      message: "Request Deployment berhasil dibuat.",
-      data: newDeploymentRequest,
+      message: "✅ Request Deployment berhasil dibuat.",
+      data: newRequest,
     });
   } catch (err) {
-    console.error("Error creating deployment request:", err);
-    res.status(500).json({ error: "Gagal membuat request deployment.", details: err.message });
+    console.error("❌ Error creating request deployment:", err);
+    res.status(500).json({
+      error: "Gagal membuat request deployment.",
+      details: err.message,
+    });
   }
 };
 
-// Mendapatkan request deployment berdasarkan bulan atau 7 hari kerja
+// ======================
+// 🔹 GET all Deployment Requests (Developer & SQI bisa lihat)
+// ======================
 export const getDeploymentRequests = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
-    const deploymentRequests = await DeploymentRequest.findAll({
+    // Validasi query date
+    if (!startDate || !endDate) {
+      return res.status(400).json({
+        error: "Harap sertakan startDate dan endDate di query params.",
+      });
+    }
+
+    const requests = await DeploymentRequest.findAll({
       where: {
         implementDate: {
-          [Op.gte]: new Date(startDate),
-          [Op.lte]: new Date(endDate),
+          [Op.between]: [startDate, endDate],
         },
       },
+      include: [
+        {
+          model: Application,
+          as: "application",
+          attributes: ["id", "name"],
+        },
+      ],
       order: [["implementDate", "ASC"]],
     });
 
-    res.status(200).json({
-      message: "Data request deployment berhasil diambil.",
-      data: deploymentRequests,
+    res.json({
+      message: "✅ Data request deployment berhasil dimuat.",
+      count: requests.length,
+      data: requests,
     });
   } catch (err) {
-    console.error("Error fetching deployment requests:", err);
-    res.status(500).json({ error: "Gagal mengambil data request deployment.", details: err.message });
+    console.error("❌ Error fetching requests:", err);
+    res.status(500).json({
+      error: "Gagal memuat request deployment.",
+      details: err.message,
+    });
+  }
+};
+
+import fs from "fs";
+import path from "path";
+
+// ======================
+// 📦 DOWNLOAD ATTACHMENT
+// ======================
+export const downloadAttachment = async (req, res) => {
+  try {
+    const { filename } = req.params;
+
+    if (!filename) {
+      return res.status(400).json({ error: "Nama file tidak ditemukan di parameter." });
+    }
+
+    // Pastikan path aman (hindari traversal)
+    const filePath = path.join(process.cwd(), "uploads", filename);
+
+    // Periksa apakah file ada
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ error: "File tidak ditemukan di server." });
+    }
+
+    // Tentukan tipe konten berdasarkan ekstensi
+    const extension = path.extname(filename).toLowerCase();
+    let mimeType = "application/octet-stream"; // default
+    if (extension === ".csv") mimeType = "text/csv";
+    if (extension === ".xlsx") mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+    res.setHeader("Content-Type", mimeType);
+    res.download(filePath, filename, (err) => {
+      if (err) {
+        console.error("❌ Error saat mengirim file:", err);
+        res.status(500).json({ error: "Gagal mengunduh file." });
+      }
+    });
+  } catch (err) {
+    console.error("❌ Error di downloadAttachment:", err);
+    res.status(500).json({ error: "Terjadi kesalahan saat mengunduh file." });
   }
 };

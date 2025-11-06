@@ -1,4 +1,6 @@
-import { DataTypes } from "sequelize";
+import {
+  DataTypes
+} from "sequelize";
 import sequelize from "../config/database.js";
 
 const SQIPic = sequelize.define("SQIPic", {

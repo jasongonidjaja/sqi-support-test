@@ -11,6 +11,7 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 
@@ -28,6 +29,7 @@ const DeploymentCalendarPage = () => {
       implementDate: extendedProps.implementDate,
       applicationName: extendedProps.applicationName,
       riskImpact: extendedProps.riskImpact,
+      attachment: extendedProps.attachment, // ✅ tambahkan ini
     });
     setOpenDialog(true);
   };
@@ -64,13 +66,36 @@ const DeploymentCalendarPage = () => {
     implementDate: request.implementDate,
     applicationName: request.application?.name || "Unknown",
     riskImpact: request.riskImpact,
+    attachment: request.attachment, // ✅ tambahkan ini
     backgroundColor:
       request.riskImpact === "Low"
-        ? "#A5D6A7" // soft green
+        ? "#A5D6A7"
         : request.riskImpact === "Medium"
-        ? "#FFF59D" // soft yellow
-        : "#EF9A9A", // soft red
+        ? "#FFF59D"
+        : "#EF9A9A",
   }));
+
+  const handleDownload = async () => {
+  try {
+    if (!selectedEvent?.attachment) return;
+
+    const filename = selectedEvent.attachment.split("/").pop();
+    const response = await api.get(`/deployment-requests/download/${filename}`, {
+      responseType: "blob",
+    });
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+  } catch (err) {
+    console.error("❌ Gagal mengunduh file:", err);
+    alert("Gagal mengunduh file.");
+  }
+  };
 
   if (loading) {
     return (
@@ -159,11 +184,30 @@ const DeploymentCalendarPage = () => {
               )}
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setOpenDialog(false)}>Tutup</Button>
+              {selectedEvent?.attachment && (
+              <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                startIcon={<DownloadIcon />}
+                component="a"
+                href={`http://localhost:4000/${selectedEvent.attachment?.replace(/\\/g, "/")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                download
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 500,
+                }}
+              >
+                Download
+              </Button>
+              )}
+              <Button onClick={() => setOpenDialog(false)} color="primary">
+                Tutup
+              </Button>
             </DialogActions>
           </Dialog>
-
-
         </Paper>
       </Box>
     </Box>

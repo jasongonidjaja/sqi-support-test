@@ -14,60 +14,57 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel,
   Button,
+  Pagination,
 } from "@mui/material";
-
 import DownloadIcon from "@mui/icons-material/Download";
 
 const TaskListPage = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sqiPics, setSqiPics] = useState([]);
-  // const [userRole, setUserRole] = useState(localStorage.getItem("role"));
-  // console.log("User Role dari localStorage:", userRole);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const limit = 5; // jumlah data per halaman
 
   const userData = JSON.parse(localStorage.getItem("user"));
   const userRole = userData?.role || null;
-  console.log("User Role dari localStorage:", userRole);
+  console.log("User Role:", userRole);
 
+  // Fetch semua task (dengan pagination)
+  const fetchTasks = async (currentPage = 1) => {
+    try {
+      setLoading(true);
+      const res = await api.get(`/tasks?page=${currentPage}&limit=${limit}`);
+      setTasks(res.data.data || []);
+      setTotalPages(res.data.totalPages || 1);
+    } catch (err) {
+      console.error("❌ Gagal mengambil data task:", err);
+      setTasks([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Fetch semua task
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const res = await api.get("/tasks");
-        setTasks(res.data.data || []);
-      } catch (err) {
-        console.error("❌ Gagal mengambil data task:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTasks();
-  }, []);
+    fetchTasks(page);
+  }, [page]);
 
   // Fetch daftar PIC SQI (hanya untuk role sqi)
   useEffect(() => {
-     // Cek nilai userRole sebelum melakukan pengecekan
-
     const fetchSqiPics = async () => {
-      if (userRole !== "sqi") {
-        console.log("User bukan SQI, data tidak diambil");
-        return;
-      }
+      if (userRole !== "sqi") return;
       try {
         const res = await api.get("/sqi-pics");
-        console.log("Data SQI yang diterima:", res.data); // Cek data yang diterima
-        setSqiPics(res.data || []);
+        setSqiPics(res.data?.data || res.data || []);
       } catch (err) {
         console.error("❌ Gagal mengambil daftar PIC SQI:", err);
+        setSqiPics([]);
       }
     };
-
     fetchSqiPics();
   }, [userRole]);
-
 
   // Update status
   const handleStatusChange = async (taskId, newStatus) => {
@@ -90,9 +87,7 @@ const TaskListPage = () => {
       const selectedPic = sqiPics.find((p) => p.id === sqiPicId);
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
-          task.id === taskId
-            ? { ...task, sqiPic: selectedPic || null }
-            : task
+          task.id === taskId ? { ...task, sqiPic: selectedPic || null } : task
         )
       );
     } catch (err) {
@@ -125,7 +120,6 @@ const TaskListPage = () => {
           p: 3,
           marginLeft: "220px",
           minHeight: "100vh",
-          backgroundColor: "transparent",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -184,9 +178,7 @@ const TaskListPage = () => {
                   <TableRow
                     key={task.id}
                     sx={{
-                      "&:hover": {
-                        backgroundColor: "rgba(0, 0, 0, 0.05)",
-                      },
+                      "&:hover": { backgroundColor: "rgba(0,0,0,0.05)" },
                     }}
                   >
                     <TableCell>{task.title}</TableCell>
@@ -196,16 +188,13 @@ const TaskListPage = () => {
                         ? task.supportType.name
                         : task.customSupportType || "—"}
                     </TableCell>
-                    <TableCell>{task.application?.name || "—"}</TableCell>
+                    <TableCell>{task.taskApplication?.name || "—"}</TableCell>
 
-                    {/* 🔹 Kolom PIC SQI */}
                     <TableCell>
                       {userRole === "sqi" ? (
                         <FormControl fullWidth size="small">
-                          {/* <InputLabel>PIC SQI</InputLabel> */}
                           <Select
                             value={task.sqiPic?.id || ""}
-                            label="PIC SQI"
                             onChange={(e) =>
                               handleAssignSQI(task.id, e.target.value)
                             }
@@ -222,11 +211,9 @@ const TaskListPage = () => {
                       )}
                     </TableCell>
 
-                    {/* 🔹 Kolom Status */}
                     <TableCell>
                       {userRole === "sqi" ? (
                         <FormControl fullWidth size="small">
-                          {/* <InputLabel>Status</InputLabel> */}
                           <Select
                             value={task.status}
                             onChange={(e) =>
@@ -234,7 +221,9 @@ const TaskListPage = () => {
                             }
                           >
                             <MenuItem value="pending">Pending</MenuItem>
-                            <MenuItem value="in_progress">In Progress</MenuItem>
+                            <MenuItem value="in_progress">
+                              In Progress
+                            </MenuItem>
                             <MenuItem value="completed">Completed</MenuItem>
                             <MenuItem value="approved">Approved</MenuItem>
                             <MenuItem value="rejected">Rejected</MenuItem>
@@ -253,7 +242,10 @@ const TaskListPage = () => {
                           size="small"
                           startIcon={<DownloadIcon />}
                           component="a"
-                          href={`http://localhost:4000/${task.attachment.replace(/\\/g, "/")}`}
+                          href={`http://localhost:4000/${task.attachment.replace(
+                            /\\/g,
+                            "/"
+                          )}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           download
@@ -269,8 +261,6 @@ const TaskListPage = () => {
                       )}
                     </TableCell>
 
-
-
                     <TableCell>
                       {new Date(task.createdAt).toLocaleString("id-ID", {
                         day: "2-digit",
@@ -280,14 +270,12 @@ const TaskListPage = () => {
                         minute: "2-digit",
                       })}
                     </TableCell>
-
-
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={6}
+                    colSpan={8}
                     align="center"
                     sx={{ color: "#757575", py: 4 }}
                   >
@@ -298,6 +286,20 @@ const TaskListPage = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        {/* 🔹 Pagination Section */}
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Pagination
+            count={totalPages}
+            page={page}
+            onChange={(e, newPage) => setPage(newPage)}
+            color="primary"
+            size="medium"
+            sx={{
+              "& .MuiPaginationItem-root": { fontWeight: 500 },
+            }}
+          />
+        </Box>
       </Box>
     </Box>
   );

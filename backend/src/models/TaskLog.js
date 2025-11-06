@@ -1,5 +1,5 @@
 import { Sequelize, DataTypes } from "sequelize";
-import sequelize from "../config/database.js"; // Pastikan koneksi DB sudah benar
+import sequelize from "../config/database.js";
 
 const TaskLog = sequelize.define(
   "TaskLog",
@@ -13,7 +13,7 @@ const TaskLog = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "tasks", // nama tabel di database
+        model: "tasks",
         key: "id",
       },
       onUpdate: "CASCADE",
@@ -35,7 +35,7 @@ const TaskLog = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "users", // pastikan sesuai dengan nama tabel user di DB kamu
+        model: "users",
         key: "id",
       },
       onUpdate: "CASCADE",
@@ -49,14 +49,8 @@ const TaskLog = sequelize.define(
   },
   {
     tableName: "task_logs",
-    timestamps: false, // ❌ Matikan timestamps bawaan Sequelize (karena kita hanya pakai createdAt)
+    timestamps: false,
   }
 );
-
-// 🔹 Relasi dengan model Task dan User
-// TaskLog.associate = (models) => {
-//   TaskLog.belongsTo(models.Task, { foreignKey: "taskId" });
-//   TaskLog.belongsTo(models.User, { foreignKey: "userId" });
-// };
 
 export default TaskLog;

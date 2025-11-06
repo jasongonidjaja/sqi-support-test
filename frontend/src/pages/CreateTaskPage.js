@@ -36,9 +36,9 @@ const CreateTaskPage = () => {
           }),
         ]);
 
-        setSupportTypes(supportRes.data);
-        setApplications(appRes.data);
-        setSqiPics(picRes.data);
+        setSupportTypes(supportRes.data?.data || []);
+        setApplications(appRes.data?.data || []);
+        // setSqiPics(picRes.data);
       } catch (err) {
         console.error("Gagal memuat data dropdown:", err);
       }
