@@ -19,22 +19,26 @@ const CreateDeploymentRequestPage = () => {
   const navigate = useNavigate();
 
   // Ambil data aplikasi dari API
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        const res = await api.get("/applications", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        setApplications(res.data);
-      } catch (err) {
-        console.error("❌ Gagal mengambil data aplikasi:", err);
-      }
-    };
+useEffect(() => {
+  const fetchApplications = async () => {
+    try {
+      const res = await api.get("/applications", {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
-    fetchApplications();
-  }, []);
+      // Pastikan applications selalu array
+      setApplications(res.data?.data || []);
+    } catch (err) {
+      console.error("❌ Gagal mengambil data aplikasi:", err);
+    }
+  };
+
+  fetchApplications();
+}, []);
+
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });

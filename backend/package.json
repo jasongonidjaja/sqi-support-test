@@ -8,10 +8,11 @@
     "dev": "nodemon src/server.js",
     "start": "NODE_ENV=production node src/server.js",
     "lint": "eslint .",
-    "db:migrate": "sequelize-cli db:migrate",
-    "db:seed": "sequelize-cli db:seed:all",
-    "db:drop": "sequelize-cli db:drop",
-    "db:reset": "npm run db:drop && npm run db:migrate && npm run db:seed"
+    "db:drop": "npx sequelize-cli db:drop --config config/config.cjs",
+    "db:create": "npx sequelize-cli db:create --config config/config.cjs",
+    "db:migrate": "npx sequelize-cli db:migrate --config config/config.cjs",
+    "db:seed": "npx sequelize-cli db:seed:all --config config/config.cjs",
+    "db:reset": "node cli/db-reset.cjs"
   },
   "keywords": [
     "express",
@@ -21,7 +22,7 @@
     "backend",
     "sqi-support"
   ],
-  "author": "Jason Amanda H G.",
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.3",
