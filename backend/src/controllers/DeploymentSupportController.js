@@ -1,9 +1,10 @@
-// src/controllers/deploymentRequestController.js
 import { Op } from "sequelize";
 import multer from "multer";
+import fs from "fs";
+import path from "path";
 import models from "../models/index.js";
 
-const { DeploymentRequest, Application } = models;
+const { DeploymentSupport } = models;
 
 // ======================
 // 📁 File Upload Setup
@@ -20,106 +21,87 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage });
 
 // ======================
-// 🟢 CREATE Deployment Request
+// 🟢 CREATE Deployment Support
 // ======================
-export const createDeploymentRequest = async (req, res) => {
+export const createDeploymentSupport = async (req, res) => {
   try {
-    const { releaseId, title, implementDate, applicationId, riskImpact } = req.body;
+    const { application, title, implementDate, impactedApplication, note, riskImpact } = req.body;
     const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
 
-    // ======================
     // 🔍 Validasi tanggal implementasi
-    // ======================
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // reset waktu jadi 00:00:00 agar perbandingan adil
+    today.setHours(0, 0, 0, 0);
     const selectedDate = new Date(implementDate);
 
     if (isNaN(selectedDate.getTime())) {
-      return res.status(400).json({
-        error: "Format tanggal implementasi tidak valid.",
-      });
+      return res.status(400).json({ error: "Format tanggal implementasi tidak valid." });
     }
 
     if (selectedDate < today) {
-      return res.status(400).json({
-        error: "Tanggal implementasi tidak boleh kurang dari hari ini.",
-      });
+      return res.status(400).json({ error: "Tanggal implementasi tidak boleh kurang dari hari ini." });
     }
 
-    // ======================
-    // 🟢 Buat deployment request baru
-    // ======================
-    const newRequest = await DeploymentRequest.create({
-      releaseId,
+    const newSupport = await DeploymentSupport.create({
+      application,
       title,
       implementDate,
-      applicationId,
+      impactedApplication,
+      note,
       riskImpact,
       attachment: attachmentPath,
       createdByUserId: req.user.userId,
-      status: null, // default
-      sqiPicId: null, // default
+      sqiPicId: null,
+      status: null,
     });
 
     res.status(201).json({
-      message: "✅ Request Deployment berhasil dibuat.",
-      data: newRequest,
+      message: "✅ Deployment Support berhasil dibuat.",
+      data: newSupport,
     });
   } catch (err) {
-    console.error("❌ Error creating request deployment:", err);
+    console.error("❌ Error creating deployment support:", err);
     res.status(500).json({
-      error: "Gagal membuat request deployment.",
+      error: "Gagal membuat deployment support.",
       details: err.message,
     });
   }
 };
 
 // ======================
-// 🔹 GET all Deployment Requests (Developer & SQI bisa lihat)
+// 🔹 GET all Deployment Supports
 // ======================
-export const getDeploymentRequests = async (req, res) => {
+export const getDeploymentSupports = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
 
-    // Validasi query date
     if (!startDate || !endDate) {
       return res.status(400).json({
         error: "Harap sertakan startDate dan endDate di query params.",
       });
     }
 
-    const requests = await DeploymentRequest.findAll({
+    const supports = await DeploymentSupport.findAll({
       where: {
         implementDate: {
           [Op.between]: [startDate, endDate],
         },
       },
-      include: [
-        {
-          model: Application,
-          as: "application",
-          attributes: ["id", "name"],
-        },
-      ],
       order: [["implementDate", "ASC"]],
     });
 
     res.json({
-      message: "✅ Data request deployment berhasil dimuat.",
-      count: requests.length,
-      data: requests,
+      message: "✅ Data deployment support berhasil dimuat.",
+      count: supports.length,
+      data: supports,
     });
   } catch (err) {
-    console.error("❌ Error fetching requests:", err);
+    console.error("❌ Error fetching deployment supports:", err);
     res.status(500).json({
-      error: "Gagal memuat request deployment.",
+      error: "Gagal memuat data deployment support.",
       details: err.message,
     });
   }
 };
-
-import fs from "fs";
-import path from "path";
 
 // ======================
 // 📦 DOWNLOAD ATTACHMENT
@@ -132,17 +114,14 @@ export const downloadAttachment = async (req, res) => {
       return res.status(400).json({ error: "Nama file tidak ditemukan di parameter." });
     }
 
-    // Pastikan path aman (hindari traversal)
     const filePath = path.join(process.cwd(), "uploads", filename);
 
-    // Periksa apakah file ada
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ error: "File tidak ditemukan di server." });
     }
 
-    // Tentukan tipe konten berdasarkan ekstensi
     const extension = path.extname(filename).toLowerCase();
-    let mimeType = "application/octet-stream"; // default
+    let mimeType = "application/octet-stream";
     if (extension === ".csv") mimeType = "text/csv";
     if (extension === ".xlsx") mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
@@ -160,40 +139,38 @@ export const downloadAttachment = async (req, res) => {
 };
 
 // ======================
-// 🟡 UPDATE SQI PIC & STATUS Deployment Request
+// 🟡 UPDATE SQI PIC & STATUS
 // ======================
-export const updateDeploymentRequest = async (req, res) => {
+export const updateDeploymentSupport = async (req, res) => {
   try {
     const { id } = req.params;
     const { sqiPicId, status } = req.body;
 
-    const request = await DeploymentRequest.findByPk(id);
-    if (!request) {
-      return res.status(404).json({ error: "Deployment request tidak ditemukan." });
+    const support = await DeploymentSupport.findByPk(id);
+    if (!support) {
+      return res.status(404).json({ error: "Deployment support tidak ditemukan." });
     }
 
-    // Validasi status (jika ada)
-    const validStatuses = [null, "success", "redeploy", "cancel"];
+    const validStatuses = [null, "success", "cancel"];
     if (status && !validStatuses.includes(status)) {
       return res.status(400).json({ error: "Status tidak valid." });
     }
 
-    // Update nilai jika dikirim dari frontend
-    if (sqiPicId !== undefined) request.sqiPicId = sqiPicId || null;
-    if (status !== undefined) request.status = status || null;
+    // ✅ Bisa update terpisah: SQI PIC saja atau status saja
+    if (sqiPicId !== undefined) support.sqiPicId = sqiPicId || null;
+    if (status !== undefined) support.status = status || null;
 
-    await request.save();
+    await support.save();
 
     res.status(200).json({
-      message: "✅ Deployment request berhasil diperbarui.",
-      data: request,
+      message: "✅ Deployment support berhasil diperbarui.",
+      data: support,
     });
   } catch (err) {
-    console.error("❌ Error updating deployment request:", err);
+    console.error("❌ Error updating deployment support:", err);
     res.status(500).json({
-      error: "Gagal memperbarui deployment request.",
+      error: "Gagal memperbarui deployment support.",
       details: err.message,
     });
   }
 };
-

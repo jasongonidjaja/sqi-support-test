@@ -7,6 +7,7 @@ import SQIPic from "./SQIPic.js";
 import User from "./User.js";
 import TaskLog from "./TaskLog.js"
 import DeploymentRequest from "./DeploymentRequest.js";
+import DeploymentSupport from "./DeploymentSupport.js";
 
 // =====================
 // Definisikan Relasi
@@ -72,6 +73,16 @@ TaskLog.belongsTo(User, {
   as: "user"
 });
 
+// User ↔ DeploymentSupport
+User.hasMany(DeploymentSupport, {
+  foreignKey: "createdByUserId",
+  as: "createdSupports",
+});
+DeploymentSupport.belongsTo(User, {
+  foreignKey: "createdByUserId",
+  as: "createdBy",
+});
+
 
 // =====================
 // Export Semua Model
@@ -84,6 +95,7 @@ const models = {
   SQIPic,
   User,
   DeploymentRequest,
+  DeploymentSupport,
   TaskLog,
 };
 

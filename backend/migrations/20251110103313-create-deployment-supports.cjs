@@ -2,13 +2,13 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("deployment_requests", {
+    await queryInterface.createTable("deployment_supports", {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      releaseId: {
+      application: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -20,23 +20,21 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      applicationId: {
-        type: Sequelize.INTEGER,
+      impactedApplication: {
+        type: Sequelize.STRING,
         allowNull: false,
-        references: {
-          model: "applications",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "CASCADE",
+      },
+      note: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      attachment: {
+        type: Sequelize.STRING,
+        allowNull: true, // lokasi file (path upload)
       },
       riskImpact: {
         type: Sequelize.ENUM("Low", "Medium", "High", "Major Release"),
         allowNull: false,
-      },
-      attachment: {
-        type: Sequelize.STRING,
-        allowNull: true, // file upload optional
       },
       createdByUserId: {
         type: Sequelize.INTEGER,
@@ -47,21 +45,6 @@ module.exports = {
         },
         onUpdate: "CASCADE",
         onDelete: "CASCADE",
-      },
-      sqiPicId: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: "sqi_pics",
-          key: "id",
-        },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
-      },
-      status: {
-        type: Sequelize.ENUM("success", "redeploy", "cancel"),
-        allowNull: true,
-        defaultValue: null,
       },
       createdAt: {
         type: Sequelize.DATE,
@@ -77,6 +60,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("deployment_requests");
+    await queryInterface.dropTable("deployment_supports");
   },
 };

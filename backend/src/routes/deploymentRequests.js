@@ -6,6 +6,7 @@ import {
   createDeploymentRequest,
   getDeploymentRequests,
   downloadAttachment,
+  updateDeploymentRequest,
 } from "../controllers/DeploymentRequestController.js";
 
 const router = express.Router();
@@ -29,5 +30,7 @@ router.get(
   authorize("developer", "sqi"), // hanya user terotorisasi yang boleh unduh
   downloadAttachment
 );
+
+router.patch("/:id", authenticate, authorize("sqi"), updateDeploymentRequest);
 
 export default router;

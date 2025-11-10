@@ -1,44 +1,28 @@
-// src/pages/CreateDeploymentRequestPage.js
-import React, { useState, useEffect } from "react";
-import { Box, Typography, TextField, Button, MenuItem, Paper } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Paper,
+  MenuItem
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import UploadFileIcon from "@mui/icons-material/UploadFile"; // Ikon upload
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
-const CreateDeploymentRequestPage = () => {
+const CreateDeploymentSupportPage = () => {
   const [form, setForm] = useState({
-    releaseId: "",
+    application: "",
     title: "",
     implementDate: "",
-    applicationId: "",
-    riskImpact: "Low",
+    impactedApplication: "",
+    note: "",
     attachment: null,
+    riskImpact: "Low",
   });
 
-  const [applications, setApplications] = useState([]);
   const navigate = useNavigate();
-
-  // Ambil data aplikasi dari API
-useEffect(() => {
-  const fetchApplications = async () => {
-    try {
-      const res = await api.get("/applications", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      // Pastikan applications selalu array
-      setApplications(res.data?.data || []);
-    } catch (err) {
-      console.error("❌ Gagal mengambil data aplikasi:", err);
-    }
-  };
-
-  fetchApplications();
-}, []);
-
-
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -50,11 +34,24 @@ useEffect(() => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 🔎 Validasi tanggal implementasi tidak boleh kurang dari hari ini
+    const today = new Date();
+    const selectedDate = new Date(form.implementDate);
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      alert("Tanggal implementasi tidak boleh kurang dari hari ini!");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("releaseId", form.releaseId);
+    formData.append("application", form.application);
     formData.append("title", form.title);
     formData.append("implementDate", form.implementDate);
-    formData.append("applicationId", form.applicationId);
+    formData.append("impactedApplication", form.impactedApplication);
+    formData.append("note", form.note);
     formData.append("riskImpact", form.riskImpact);
 
     if (form.attachment) {
@@ -62,21 +59,22 @@ useEffect(() => {
     }
 
     try {
-      // Mengirim request ke backend untuk menyimpan deployment request
-      await api.post("/deployment-requests", formData, {
+      await api.post("/deployment-supports", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
         },
       });
 
-      alert("Request deployment berhasil dibuat!");
-      navigate("/deployment-calendar"); // Redirect ke kalender deployment setelah berhasil
+      alert("✅ Deployment Support berhasil dibuat!");
+      navigate("/deployment-support-list");
     } catch (err) {
-      console.error("❌ Gagal membuat request deployment:", err);
-      alert("Gagal menyimpan request deployment.");
+      console.error("❌ Gagal membuat Deployment Support:", err);
+      alert("Gagal menyimpan Deployment Support.");
     }
   };
+
+  const todayDate = new Date().toISOString().split("T")[0];
 
   return (
     <Box
@@ -84,18 +82,17 @@ useEffect(() => {
         display: "flex",
       }}
     >
-      {/* Konten utama */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
-          marginLeft: "220px", // jarak sesuai lebar Drawer
+          marginLeft: "220px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
-          backgroundColor: "transparent", // tetap bening
+          backgroundColor: "transparent",
         }}
       >
         <Paper
@@ -115,22 +112,25 @@ useEffect(() => {
               fontWeight: "bold",
             }}
           >
-            Request Deployment Baru
+            Tambah Deployment Support
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit}>
+            {/* Application (free text) */}
             <TextField
-              label="Release ID"
-              name="releaseId"
-              value={form.releaseId}
+              label="Application"
+              name="application"
+              value={form.application}
               onChange={handleChange}
               fullWidth
               sx={{ mb: 2 }}
               required
+              placeholder="Contoh: SQI Support"
             />
 
+            {/* Title */}
             <TextField
-              label="Judul Implementasi"
+              label="Judul Support"
               name="title"
               value={form.title}
               onChange={handleChange}
@@ -139,6 +139,7 @@ useEffect(() => {
               required
             />
 
+            {/* Implement Date */}
             <TextField
               label="Tanggal Implementasi"
               name="implementDate"
@@ -148,31 +149,35 @@ useEffect(() => {
               fullWidth
               sx={{ mb: 2 }}
               required
-              InputLabelProps={{
-                shrink: true,
-              }}
-              inputProps={{
-                min: new Date().toISOString().split("T")[0], // 🚫 tidak boleh kurang dari hari ini
-              }}
+              InputLabelProps={{ shrink: true }}
+              inputProps={{ min: todayDate }}
             />
 
+            {/* Impacted Application */}
             <TextField
-              select
-              label="Aplikasi"
-              name="applicationId"
-              value={form.applicationId}
+              label="Impacted Application"
+              name="impactedApplication"
+              value={form.impactedApplication}
               onChange={handleChange}
               fullWidth
               sx={{ mb: 2 }}
               required
-            >
-              {applications.map((app) => (
-                <MenuItem key={app.id} value={app.id}>
-                  {app.name}
-                </MenuItem>
-              ))}
-            </TextField>
+              placeholder="Contoh: Customer Portal, Internal Dashboard"
+            />
 
+            {/* Note */}
+            <TextField
+              label="Catatan"
+              name="note"
+              value={form.note}
+              onChange={handleChange}
+              multiline
+              rows={3}
+              fullWidth
+              sx={{ mb: 2 }}
+            />
+
+            {/* Risk Impact */}
             <TextField
               select
               label="Risk Impact"
@@ -188,27 +193,18 @@ useEffect(() => {
               <MenuItem value="Major Release">Major Release</MenuItem>
             </TextField>
 
-            {/* Upload File */}
+            {/* Attachment */}
             <Button
               variant="outlined"
               component="label"
               startIcon={<UploadFileIcon />}
               fullWidth
-              sx={{
-                mb: 2,
-                textTransform: "none",
-              }}
+              sx={{ mb: 2, textTransform: "none" }}
             >
               {form.attachment ? "Ganti File" : "Pilih File Attachment"}
-              <input
-                type="file"
-                hidden
-                name="attachment"
-                onChange={handleFileChange}
-              />
+              <input type="file" hidden onChange={handleFileChange} />
             </Button>
 
-            {/* Tampilkan nama file jika sudah dipilih */}
             {form.attachment && (
               <Typography
                 variant="body2"
@@ -219,7 +215,7 @@ useEffect(() => {
             )}
 
             <Button variant="contained" fullWidth type="submit">
-              Simpan Request Deployment
+              Simpan Deployment Support
             </Button>
           </Box>
         </Paper>
@@ -228,4 +224,4 @@ useEffect(() => {
   );
 };
 
-export default CreateDeploymentRequestPage;
+export default CreateDeploymentSupportPage;

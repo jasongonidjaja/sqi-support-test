@@ -107,7 +107,7 @@ const CreateTaskPage = () => {
           marginLeft: "220px", // jarak sesuai lebar Drawer
           display: "flex",
           justifyContent: "center",
-          alignItems: "flex-start", // Menyesuaikan dengan yang kamu inginkan (tidak center vertikal)
+          alignItems: "center",
           minHeight: "100vh",
           backgroundColor: "transparent", // tetap bening
         }}

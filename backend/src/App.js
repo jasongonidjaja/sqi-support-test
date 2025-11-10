@@ -11,6 +11,7 @@ import applicationRoutes from "./routes/applications.js";
 import authRoutes from "./routes/auth.js";
 import taskRoutes from "./routes/tasks.js";
 import deploymentRequestRoutes from "./routes/deploymentRequests.js";
+import deploymentSupportsRoutes from "./routes/deploymentSupports.js";
 
 // Middleware
 import errorHandler from "./middleware/errorHandler.js";
@@ -25,7 +26,7 @@ const app = express();
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true,
   })
 );
@@ -50,6 +51,7 @@ app.use("/api/support-types", supportTypeRoutes);
 app.use("/api/applications", applicationRoutes);
 app.use("/api/sqi-pics", sqiPicRoutes);
 app.use("/api/deployment-requests", deploymentRequestRoutes);
+app.use("/api/deployment-supports", deploymentSupportsRoutes);
 
 // ==========================
 // 🧱 GLOBAL ERROR HANDLER

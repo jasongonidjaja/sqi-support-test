@@ -84,16 +84,30 @@ const TaskListPage = () => {
   const handleAssignSQI = async (taskId, sqiPicId) => {
     try {
       await api.put(`/tasks/${taskId}/assign`, { sqi_pic_id: sqiPicId });
+
       const selectedPic = sqiPics.find((p) => p.id === sqiPicId);
+
+      // 🔹 Update data di state langsung tanpa reload
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
-          task.id === taskId ? { ...task, sqiPic: selectedPic || null } : task
+          task.id === taskId
+            ? {
+                ...task,
+                sqiPic: selectedPic || null,
+                status: "in_progress", // otomatis ubah status di UI
+              }
+            : task
         )
       );
+
+      // 🔹 Atau kalau kamu ingin lebih aman (pastikan data terbaru dari backend)
+      // await fetchTasks(page);
+
     } catch (err) {
       console.error("❌ Gagal assign PIC SQI:", err);
     }
   };
+
 
   if (loading) {
     return (
@@ -103,7 +117,7 @@ const TaskListPage = () => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
-          marginLeft: "220px",
+          marginLeft: "270px",
         }}
       >
         <CircularProgress size={50} />
@@ -118,7 +132,7 @@ const TaskListPage = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          marginLeft: "220px",
+          marginLeft: "270px",
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
@@ -138,8 +152,9 @@ const TaskListPage = () => {
           sx={{
             borderRadius: 2,
             boxShadow: 3,
-            width: "90%",
-            maxWidth: 900,
+            width: "95%",
+            maxWidth: 1300,
+            overflowX: "auto",
           }}
         >
           <Table>

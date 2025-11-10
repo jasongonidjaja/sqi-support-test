@@ -5,16 +5,23 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import TaskListPage from "./pages/TaskListPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
+import DeploymentCalendarPage from "./pages/DeploymentCalendarPage";
+import CreateDeploymentRequestPage from "./pages/CreateDeploymentRequestPage";
+import CreateDeploymentSupportPage from "./pages/CreateDeploymentSupportPage";
+import DeploymentCalendarPage2 from "./pages/DeploymentCalendarPage2";
+import DeploymentCalendarPage3 from "./pages/DeploymentCalendarPage3";
 import MainLayout from "./layout/MainLayout";
-import DeploymentCalendarPage from "./pages/DeploymentCalendarPage"; // Import halaman kalender
-import CreateDeploymentRequestPage from "./pages/CreateDeploymentRequestPage"; // Import halaman form request deployment
+
 const App = () => {
   const { isAuthenticated } = useContext(AuthContext);
 
   return (
     <Router>
       <Routes>
+        {/* 🔹 Login page */}
         <Route path="/login" element={<LoginPage />} />
+
+        {/* 🔒 Protected Routes */}
         <Route
           path="/tasks"
           element={
@@ -25,6 +32,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/create"
           element={
@@ -35,35 +43,65 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        {/* Halaman Request Deployment - hanya untuk developer */}
+
         <Route
           path="/request-deployment"
           element={
-            isAuthenticated ? (
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <MainLayout>
                 <CreateDeploymentRequestPage />
               </MainLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            </ProtectedRoute>
           }
         />
 
-        {/* Halaman Kalender Deployment */}
+        <Route
+          path="/create-deployment-support"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <MainLayout>
+                <CreateDeploymentSupportPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 🔹 Deployment Calendar (3 versi) */}
         <Route
           path="/deployment-calendar"
           element={
-            isAuthenticated ? (
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
               <MainLayout>
                 <DeploymentCalendarPage />
               </MainLayout>
-            ) : (
-              <Navigate to="/login" />
-            )
+            </ProtectedRoute>
           }
         />
 
-        <Route path="/" element={<Navigate to="/tasks" />} />
+        <Route
+          path="/deployment-calendar2"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <MainLayout>
+                <DeploymentCalendarPage2 />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/deployment-calendar3"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <MainLayout>
+                <DeploymentCalendarPage3 />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 🔹 Default redirect */}
+        <Route path="/" element={<Navigate to="/tasks" replace />} />
       </Routes>
     </Router>
   );

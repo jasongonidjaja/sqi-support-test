@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 import React from "react";
 import {
   Drawer,
@@ -16,45 +15,34 @@ import {
   Logout,
   CalendarMonth,
   RocketLaunch,
+  SupportAgent,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 
+const drawerWidth = 240; // 🔹 Lebar sidebar tetap
+
 const Navbar = () => {
   const navigate = useNavigate();
-
-  // 🔹 Ambil data user dari localStorage
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role || "";
 
-  // 🔹 Menu utama (dynamic sesuai role)
   const menuItems = [
-    // Hanya tampil kalau bukan SQI
     ...(role !== "sqi"
       ? [{ text: "Create Support Task", icon: <AddCircleOutline />, path: "/create" }]
       : []),
 
     { text: "Support Task List", icon: <ListAlt />, path: "/tasks" },
 
-    // 🔹 Hanya untuk developer
     ...(role === "developer"
       ? [
-          {
-            text: "Request Deployment",
-            icon: <RocketLaunch />,
-            path: "/request-deployment",
-          },
+          { text: "Request Deployment", icon: <RocketLaunch />, path: "/request-deployment" },
+          { text: "Create Deployment Support", icon: <SupportAgent />, path: "/create-deployment-support" },
         ]
       : []),
 
-    // 🔹 Semua role bisa melihat kalender deployment
-    {
-      text: "Deployment Calendar",
-      icon: <CalendarMonth />,
-      path: "/deployment-calendar",
-    },
+    { text: "Deployment Calendar", icon: <CalendarMonth />, path: "/deployment-calendar" },
   ];
 
-  // 🔹 Logout handler
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -67,9 +55,10 @@ const Navbar = () => {
     <Drawer
       variant="permanent"
       sx={{
+        width: drawerWidth,
+        flexShrink: 0,
         "& .MuiDrawer-paper": {
-          width: "auto",
-          minWidth: "160px",
+          width: drawerWidth,
           boxSizing: "border-box",
           backgroundColor: "#1976d2",
           color: "white",
@@ -81,7 +70,7 @@ const Navbar = () => {
         },
       }}
     >
-      {/* 🔹 Header */}
+      {/* Header */}
       <Box sx={{ p: 2, textAlign: "center" }}>
         <Typography variant="h6" fontWeight="bold">
           SQI Support
@@ -91,7 +80,7 @@ const Navbar = () => {
         </Typography>
       </Box>
 
-      {/* 🔹 Menu utama */}
+      {/* Menu */}
       <List>
         {menuItems.map((item) => (
           <ListItem key={item.text} disablePadding>
@@ -103,7 +92,7 @@ const Navbar = () => {
         ))}
       </List>
 
-      {/* 🔹 Logout */}
+      {/* Logout */}
       <List>
         <ListItem disablePadding>
           <ListItemButton onClick={handleLogout}>
@@ -119,3 +108,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+export { drawerWidth }; // penting agar bisa dipakai di layout
