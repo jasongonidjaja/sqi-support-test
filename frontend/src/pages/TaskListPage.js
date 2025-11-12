@@ -117,7 +117,7 @@ const TaskListPage = () => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
-          marginLeft: "270px",
+          // marginLeft: "270px",
         }}
       >
         <CircularProgress size={50} />
@@ -132,7 +132,7 @@ const TaskListPage = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          marginLeft: "270px",
+          // marginLeft: "270px",
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",

@@ -103,8 +103,8 @@ const CreateTaskPage = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          marginLeft: "220px", // jarak sesuai lebar Drawer
+          p: 0,
+          // marginLeft: "220px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",

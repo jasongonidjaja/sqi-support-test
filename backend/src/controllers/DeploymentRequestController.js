@@ -77,46 +77,64 @@ export const createDeploymentRequest = async (req, res) => {
 // ======================
 // 🔹 GET all Deployment Requests (Developer & SQI bisa lihat)
 // ======================
-export const getDeploymentRequests = async (req, res) => {
-  try {
-    const { startDate, endDate } = req.query;
+// export const getDeploymentRequests = async (req, res) => {
+//   try {
+//     const { startDate, endDate, page = 1, limit = 10 } = req.query;
 
-    // Validasi query date
-    if (!startDate || !endDate) {
-      return res.status(400).json({
-        error: "Harap sertakan startDate dan endDate di query params.",
-      });
-    }
+//     // Validasi query date
+//     if (!startDate || !endDate) {
+//       return res.status(400).json({
+//         error: "Harap sertakan startDate dan endDate di query params.",
+//       });
+//     }
 
-    const requests = await DeploymentRequest.findAll({
-      where: {
-        implementDate: {
-          [Op.between]: [startDate, endDate],
-        },
-      },
-      include: [
-        {
-          model: Application,
-          as: "application",
-          attributes: ["id", "name"],
-        },
-      ],
-      order: [["implementDate", "ASC"]],
-    });
+//     const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    res.json({
-      message: "✅ Data request deployment berhasil dimuat.",
-      count: requests.length,
-      data: requests,
-    });
-  } catch (err) {
-    console.error("❌ Error fetching requests:", err);
-    res.status(500).json({
-      error: "Gagal memuat request deployment.",
-      details: err.message,
-    });
-  }
-};
+//     // Hitung total data
+//     const totalRequests = await DeploymentRequest.count({
+//       where: {
+//         implementDate: {
+//           [Op.between]: [startDate, endDate],
+//         },
+//       },
+//     });
+
+//     // Ambil data sesuai pagination
+//     const requests = await DeploymentRequest.findAll({
+//       where: {
+//         implementDate: {
+//           [Op.between]: [startDate, endDate],
+//         },
+//       },
+//       include: [
+//         {
+//           model: Application,
+//           as: "application",
+//           attributes: ["id", "name"],
+//         },
+//       ],
+//       order: [["implementDate", "ASC"]],
+//       limit: parseInt(limit),
+//       offset,
+//     });
+
+//     res.json({
+//       message: "✅ Data request deployment berhasil dimuat.",
+//       currentPage: parseInt(page),
+//       totalPages: Math.ceil(totalRequests / parseInt(limit)),
+//       totalData: totalRequests,
+//       count: requests.length,
+//       data: requests,
+//     });
+//   } catch (err) {
+//     console.error("❌ Error fetching requests:", err);
+//     res.status(500).json({
+//       error: "Gagal memuat request deployment.",
+//       details: err.message,
+//     });
+//   }
+// };
+
 
 import fs from "fs";
 import path from "path";

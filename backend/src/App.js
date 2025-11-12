@@ -12,6 +12,7 @@ import authRoutes from "./routes/auth.js";
 import taskRoutes from "./routes/tasks.js";
 import deploymentRequestRoutes from "./routes/deploymentRequests.js";
 import deploymentSupportsRoutes from "./routes/deploymentSupports.js";
+import calendarRoutes from "./routes/calendar.js";
 
 // Middleware
 import errorHandler from "./middleware/errorHandler.js";
@@ -52,6 +53,7 @@ app.use("/api/applications", applicationRoutes);
 app.use("/api/sqi-pics", sqiPicRoutes);
 app.use("/api/deployment-requests", deploymentRequestRoutes);
 app.use("/api/deployment-supports", deploymentSupportsRoutes);
+app.use("/api/calendar", calendarRoutes);
 
 // ==========================
 // 🧱 GLOBAL ERROR HANDLER

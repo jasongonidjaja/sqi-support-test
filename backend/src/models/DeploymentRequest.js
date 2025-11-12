@@ -48,6 +48,19 @@ const DeploymentRequest = sequelize.define(
         key: "id"
       },
     },
+    sqiPicId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: { model: "sqi_pics", key: "id" },
+      onDelete: "SET NULL",
+      onUpdate: "CASCADE",
+    },
+    status: {
+      type: DataTypes.ENUM("success", 'redeploy', "cancel"),
+      allowNull: true,
+      defaultValue: "null",
+    },
+
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

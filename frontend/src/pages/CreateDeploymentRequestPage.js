@@ -71,7 +71,7 @@ useEffect(() => {
       });
 
       alert("Request deployment berhasil dibuat!");
-      navigate("/deployment-calendar"); // Redirect ke kalender deployment setelah berhasil
+      navigate("/deployment-board"); // Redirect ke kalender deployment setelah berhasil
     } catch (err) {
       console.error("❌ Gagal membuat request deployment:", err);
       alert("Gagal menyimpan request deployment.");
@@ -89,8 +89,8 @@ useEffect(() => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          marginLeft: "220px", // jarak sesuai lebar Drawer
+          p: 0,
+          // marginLeft: "220px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",

@@ -3,7 +3,7 @@ import { authenticate, authorize } from "../middleware/auth.js";
 import {
   upload,
   createDeploymentSupport,
-  getDeploymentSupports,
+  // getDeploymentSupports,
   downloadAttachment,
   updateDeploymentSupport,
 } from "../controllers/DeploymentSupportController.js";
@@ -20,7 +20,7 @@ router.post(
 );
 
 // 🔹 Get all deployment supports (developer & sqi)
-router.get("/", authenticate, authorize("developer", "sqi"), getDeploymentSupports);
+// router.get("/", authenticate, authorize("developer", "sqi"), getDeploymentSupports);
 
 // 📦 Download attachment
 router.get(

@@ -4,7 +4,7 @@ import { authenticate, authorize } from "../middleware/auth.js";
 import {
   upload,
   createDeploymentRequest,
-  getDeploymentRequests,
+  // getDeploymentRequests,
   downloadAttachment,
   updateDeploymentRequest,
 } from "../controllers/DeploymentRequestController.js";
@@ -21,7 +21,7 @@ router.post(
 );
 
 // 🔹 Get all deployment requests (developer & sqi)
-router.get("/", authenticate, authorize("developer", "sqi"), getDeploymentRequests);
+// router.get("/", authenticate, authorize("developer", "sqi"), getDeploymentRequests);
 
 // 📦 Download attachment
 router.get(

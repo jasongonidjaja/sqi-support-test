@@ -72,7 +72,7 @@ export const createDeploymentSupport = async (req, res) => {
 // ======================
 export const getDeploymentSupports = async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, page = 1, limit = 10 } = req.query;
 
     if (!startDate || !endDate) {
       return res.status(400).json({
@@ -80,6 +80,18 @@ export const getDeploymentSupports = async (req, res) => {
       });
     }
 
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    // Hitung total data
+    const totalSupports = await DeploymentSupport.count({
+      where: {
+        implementDate: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+    });
+
+    // Ambil data sesuai pagination
     const supports = await DeploymentSupport.findAll({
       where: {
         implementDate: {
@@ -87,10 +99,15 @@ export const getDeploymentSupports = async (req, res) => {
         },
       },
       order: [["implementDate", "ASC"]],
+      limit: parseInt(limit),
+      offset,
     });
 
     res.json({
       message: "✅ Data deployment support berhasil dimuat.",
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(totalSupports / parseInt(limit)),
+      totalData: totalSupports,
       count: supports.length,
       data: supports,
     });
@@ -102,6 +119,7 @@ export const getDeploymentSupports = async (req, res) => {
     });
   }
 };
+
 
 // ======================
 // 📦 DOWNLOAD ATTACHMENT

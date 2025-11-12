@@ -67,7 +67,7 @@ const CreateDeploymentSupportPage = () => {
       });
 
       alert("✅ Deployment Support berhasil dibuat!");
-      navigate("/deployment-support-list");
+      navigate("/deployment-board");
     } catch (err) {
       console.error("❌ Gagal membuat Deployment Support:", err);
       alert("Gagal menyimpan Deployment Support.");
@@ -86,8 +86,8 @@ const CreateDeploymentSupportPage = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
-          marginLeft: "220px",
+          p: 0,
+          // marginLeft: "220px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",

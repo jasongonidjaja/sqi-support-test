@@ -1,22 +1,12 @@
-// src/layout/MainLayout.js
 import React from "react";
-import Navbar, { drawerWidth } from "../components/Navbar"; // 🔹 import drawerWidth dari Navbar
-import { Box, CssBaseline } from "@mui/material";
+import { Box } from "@mui/material";
+import Sidebar from "../components/Sidebar";
 
 const MainLayout = ({ children }) => {
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <CssBaseline />
-      <Navbar />
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: 3, // beri sedikit padding agar konten tidak terlalu mepet tepi
-          backgroundColor: "#1868b8ff",
-          ml: `${drawerWidth}px`, // 🔹 offset sesuai lebar sidebar
-        }}
-      >
+    <Box sx={{ display: "flex" }}>
+      <Sidebar />
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         {children}
       </Box>
     </Box>

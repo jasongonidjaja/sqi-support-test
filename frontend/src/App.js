@@ -5,12 +5,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import TaskListPage from "./pages/TaskListPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
-import DeploymentCalendarPage from "./pages/DeploymentCalendarPage";
+// import DeploymentCalendarPage from "./pages/DeploymentCalendarPage";
 import CreateDeploymentRequestPage from "./pages/CreateDeploymentRequestPage";
 import CreateDeploymentSupportPage from "./pages/CreateDeploymentSupportPage";
-import DeploymentCalendarPage2 from "./pages/DeploymentCalendarPage2";
-import DeploymentCalendarPage3 from "./pages/DeploymentCalendarPage3";
+// import DeploymentCalendarPage2 from "./pages/DeploymentCalendarPage2";
+import DeploymentCalendarPage3 from "./pages/DeploymentBoardPage";
 import MainLayout from "./layout/MainLayout";
+import DeploymentBoardPage from "./pages/DeploymentBoardPage";
 
 const App = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -67,7 +68,7 @@ const App = () => {
         />
 
         {/* 🔹 Deployment Calendar (3 versi) */}
-        <Route
+        {/* <Route
           path="/deployment-calendar"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
@@ -87,14 +88,14 @@ const App = () => {
               </MainLayout>
             </ProtectedRoute>
           }
-        />
+        /> */}
 
         <Route
-          path="/deployment-calendar3"
+          path="/deployment-board"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <MainLayout>
-                <DeploymentCalendarPage3 />
+                <DeploymentBoardPage />
               </MainLayout>
             </ProtectedRoute>
           }
