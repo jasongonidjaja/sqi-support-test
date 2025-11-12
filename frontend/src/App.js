@@ -5,13 +5,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import TaskListPage from "./pages/TaskListPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
-// import DeploymentCalendarPage from "./pages/DeploymentCalendarPage";
 import CreateDeploymentRequestPage from "./pages/CreateDeploymentRequestPage";
 import CreateDeploymentSupportPage from "./pages/CreateDeploymentSupportPage";
-// import DeploymentCalendarPage2 from "./pages/DeploymentCalendarPage2";
-import DeploymentCalendarPage3 from "./pages/DeploymentBoardPage";
 import MainLayout from "./layout/MainLayout";
 import DeploymentBoardPage from "./pages/DeploymentBoardPage";
+import KnowledgeCenter from "./pages/KnowledgeCenter";
 
 const App = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -67,29 +65,6 @@ const App = () => {
           }
         />
 
-        {/* 🔹 Deployment Calendar (3 versi) */}
-        {/* <Route
-          path="/deployment-calendar"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <MainLayout>
-                <DeploymentCalendarPage />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/deployment-calendar2"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <MainLayout>
-                <DeploymentCalendarPage2 />
-              </MainLayout>
-            </ProtectedRoute>
-          }
-        /> */}
-
         <Route
           path="/deployment-board"
           element={
@@ -100,6 +75,20 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/knowledge-center"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <MainLayout>
+                <KnowledgeCenter />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/knowledge-center" element={<KnowledgeCenter />} />
+
 
         {/* 🔹 Default redirect */}
         <Route path="/" element={<Navigate to="/tasks" replace />} />

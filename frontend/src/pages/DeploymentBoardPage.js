@@ -1,14 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../services/api";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 import {
   Box,
   Typography,
-  Paper,
   CircularProgress,
-  Card,
-  CardContent,
-  Pagination,
-  Grid,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -21,36 +19,29 @@ import {
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
 
-const riskOrder = {
-  "Major Release": 1,
-  "High": 2,
-  "Medium": 3,
-  "Low": 4,
+const riskColors = {
+  "Major Release": "#000000",
+  High: "#e53935",
+  Medium: "#fdd835",
+  Low: "#43a047",
+  cancel: "#9e9e9e",
+  default: "#90a4ae",
 };
 
-// 🔹 Format tanggal tampilan (Senin, 11 Nov)
-const formatDate = (date) =>
-  new Date(date).toLocaleDateString("id-ID", {
-    weekday: "long",
-    day: "2-digit",
-    month: "short",
-  });
-
-// 🔹 Hitung awal minggu (Senin)
-const getWeekStart = (date) => {
-  if (!date || isNaN(new Date(date))) return new Date();
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(d.setDate(diff));
+// helper: format tanggal jadi YYYY-MM-DD
+const toDateString = (dateInput) => {
+  if (!dateInput) return null;
+  const d = new Date(dateInput);
+  if (isNaN(d)) return null;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 };
 
 const DeploymentBoardPage = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [currentWeek, setCurrentWeek] = useState(0);
-
-  // Popup states
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [statuses] = useState(["null", "success", "redeploy", "cancel"]);
@@ -58,79 +49,60 @@ const DeploymentBoardPage = () => {
   const [sqiPics, setSqiPics] = useState([]);
   const [selectedPic, setSelectedPic] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role?.toLowerCase() || "guest";
 
+  // ✅ Ambil data dari API
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [calendarRes, sqiRes] = await Promise.all([
+        api.get("/calendar"),
+        api.get("/sqi-pics"),
+      ]);
 
-  // 🔹 Fetch data dari endpoint /calendar dan /sqi-pics
-  useEffect(() => {
-    const fetchCalendar = async () => {
-      setLoading(true);
-      try {
-        const res = await api.get("/calendar");
-        const rawData = res.data?.data || [];
-
-        console.log("📦 Data mentah dari /calendar:", rawData);
-
-        const cleaned = rawData
+      const rawData = calendarRes.data?.data || [];
+      const cleaned = rawData
         .map((item) => {
           const dateField = item.implementDate || item.supportDate || item.date;
-
-          // 🔹 Lewati item tanpa tanggal valid
           if (!dateField) return null;
-
-          const parsedDate = new Date(dateField);
-          if (isNaN(parsedDate)) return null;
+          const dateStr = toDateString(dateField);
+          if (!dateStr) return null;
 
           return {
-            ...item,
-            date: parsedDate,
+            id: item.id,
+            title: item.title,
+            start: dateStr,
+            allDay: true,
+            extendedProps: item,
           };
         })
-        .filter((e) => e !== null);
-      // 🧩 Jika hasilnya kosong, isi minimal 1 data dummy agar tidak error
-        if (cleaned.length === 0) {
-          cleaned.push({
-            id: "no-data",
-            title: "Tidak ada data minggu ini",
-            type: "info",
-            date: new Date(), // fallback aman
-            riskImpact: "Low",
-          });
-        }
+        .filter(Boolean);
 
-      console.log("✅ Cleaned data:", cleaned);
       setEvents(cleaned);
-
-      } catch (err) {
-        console.error("❌ Gagal mengambil data calendar:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchSqiPics = async () => {
-      try {
-        const res = await api.get("/sqi-pics");
-        setSqiPics(res.data?.data || []);
-      } catch (err) {
-        console.error("❌ Gagal mengambil data SQI PIC:", err);
-      }
-    };
-
-    fetchCalendar();
-    fetchSqiPics();
+      setSqiPics(sqiRes.data?.data || []);
+    } catch (err) {
+      console.error("❌ Gagal mengambil data:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // 🔹 Klik Card → buka dialog
-  const handleCardClick = (event) => {
-    setSelectedEvent(event);
-    setSelectedStatus(event.status || "null");
-    setSelectedPic(event.sqiPicId || "");
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Klik event
+  const handleEventClick = (clickInfo) => {
+    const eventProps = clickInfo.event.extendedProps;
+    setSelectedEvent(eventProps);
+    setSelectedStatus(eventProps.status || "null");
+    setSelectedPic(eventProps.sqiPicId || "");
     setOpenDialog(true);
   };
 
-  // 🔹 Download attachment
+  // Download attachment
   const handleDownload = async () => {
     try {
       if (!selectedEvent?.attachment) return;
@@ -151,7 +123,7 @@ const DeploymentBoardPage = () => {
     }
   };
 
-  // 🔹 Ganti status
+  // ✅ Update status (otomatis reload)
   const handleStatusChange = async (event) => {
     if (isUpdating) return;
     setIsUpdating(true);
@@ -162,11 +134,9 @@ const DeploymentBoardPage = () => {
       await api.patch(`/deployment-requests/${selectedEvent.id}`, {
         status: newStatus === "null" ? null : newStatus,
       });
-      setSelectedEvent((prev) => ({
-        ...prev,
-        status: newStatus === "null" ? null : newStatus,
-      }));
-      alert("Status berhasil diperbarui!");
+      alert("Status berhasil diubah!");
+      await fetchData(); // 🔄 reload data otomatis
+      setOpenDialog(false);
     } catch (err) {
       console.error("❌ Gagal memperbarui status:", err);
       alert("Gagal memperbarui status.");
@@ -175,7 +145,7 @@ const DeploymentBoardPage = () => {
     }
   };
 
-  // 🔹 Assign SQI PIC
+  // ✅ Assign PIC (otomatis reload)
   const handleAssignPic = async (event) => {
     if (isUpdating) return;
     setIsUpdating(true);
@@ -186,11 +156,9 @@ const DeploymentBoardPage = () => {
       await api.patch(`/deployment-requests/${selectedEvent.id}`, {
         sqiPicId: picId === "" ? null : picId,
       });
-      setSelectedEvent((prev) => ({
-        ...prev,
-        sqiPicId: picId === "" ? null : picId,
-      }));
       alert("PIC berhasil di-assign!");
+      await fetchData(); // 🔄 reload data otomatis
+      setOpenDialog(false);
     } catch (err) {
       console.error("❌ Gagal assign PIC:", err);
       alert("Gagal assign PIC.");
@@ -199,189 +167,197 @@ const DeploymentBoardPage = () => {
     }
   };
 
+  // Custom tampilan per hari
+  const dayCellContent = (arg) => {
+    const dateStr = toDateString(arg.date);
+    const dayEvents = events
+      .filter((e) => e.start === dateStr)
+      .sort((a, b) => {
+        const order = {
+          "Major Release": 1,
+          High: 2,
+          Medium: 3,
+          Low: 4,
+        };
+
+        const aStatus = a.extendedProps.status || "";
+        const bStatus = b.extendedProps.status || "";
+
+        if (aStatus === "cancel" && bStatus !== "cancel") return 1;
+        if (bStatus === "cancel" && aStatus !== "cancel") return -1;
+
+        const aRisk = a.extendedProps.riskImpact || "Medium";
+        const bRisk = b.extendedProps.riskImpact || "Medium";
+
+        const aRank = order[aRisk] || 999;
+        const bRank = order[bRisk] || 999;
+
+        return aRank - bRank;
+      });
+
+    if (dayEvents.length === 0) {
+      return (
+        <div style={{ padding: "4px 6px" }}>
+          <div style={{ fontSize: "0.8rem", fontWeight: "bold" }}>
+            {arg.dayNumberText}
+          </div>
+        </div>
+      );
+    }
+
+    const requests = dayEvents.filter((e) => e.extendedProps.type === "request");
+    const supports = dayEvents.filter((e) => e.extendedProps.type === "support");
+
+    const renderEvent = (ev) => {
+      const color =
+        ev.extendedProps.status === "cancel"
+          ? riskColors.cancel
+          : riskColors[ev.extendedProps.riskImpact] || riskColors.default;
+
+      const textStyle =
+        ev.extendedProps.status === "cancel"
+          ? { textDecoration: "line-through", color: "#9e9e9e" }
+          : { color: "#333" };
+
+      return (
+        <div
+          key={ev.id}
+          onClick={() =>
+            handleEventClick({ event: { extendedProps: ev.extendedProps } })
+          }
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            cursor: "pointer",
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            margin: "2px 0",
+          }}
+        >
+          <span
+            style={{
+              width: "8px",
+              height: "8px",
+              borderRadius: "50%",
+              backgroundColor: color,
+              display: "inline-block",
+            }}
+          />
+          <span style={textStyle}>{ev.title}</span>
+        </div>
+      );
+    };
+
+    return (
+      <div
+        style={{
+          padding: "2px",
+          borderRadius: "6px",
+          minHeight: "80px",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "0.8rem",
+            fontWeight: "bold",
+            marginBottom: "4px",
+            textAlign: "left",
+          }}
+        >
+          {arg.dayNumberText}
+        </div>
+
+        <div
+          style={{
+            borderBottom: "1px solid #e0e0e0",
+            paddingBottom: "4px",
+            marginBottom: "4px",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "0.7rem",
+              fontWeight: "bold",
+              color: "#1565c0",
+              marginBottom: "2px",
+              width: "100%",
+              textAlign: "center",
+              display: "block",
+            }}
+          >
+            Request
+          </div>
+          {requests.length > 0 && requests.map(renderEvent)}
+        </div>
+
+        <div>
+          <div
+            style={{
+              fontSize: "0.7rem",
+              fontWeight: "bold",
+              color: "#2e7d32",
+              marginBottom: "2px",
+              width: "100%",
+              textAlign: "center",
+              display: "block",
+            }}
+          >
+            Support
+          </div>
+          {supports.length > 0 && supports.map(renderEvent)}
+        </div>
+      </div>
+    );
+  };
+
   if (loading)
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
         <CircularProgress />
       </Box>
     );
 
-  // 🔹 Kelompokkan berdasarkan minggu dan hari
-  const eventsByWeek = {};
-  events.forEach((event) => {
-    if (!(event.date instanceof Date) || isNaN(event.date)) return; // skip invalid date
-
-    const weekStart = getWeekStart(event.date);
-    if (!(weekStart instanceof Date) || isNaN(weekStart)) return;
-
-    const weekStartStr = weekStart.toISOString().split("T")[0];
-    if (!eventsByWeek[weekStartStr]) eventsByWeek[weekStartStr] = {};
-
-    const dateStr = event.date.toISOString().split("T")[0];
-    if (!eventsByWeek[weekStartStr][dateStr])
-      eventsByWeek[weekStartStr][dateStr] = [];
-
-    eventsByWeek[weekStartStr][dateStr].push(event);
-  });
-
-
-  const weekKeys = Object.keys(eventsByWeek).sort();
-  const currentWeekKey = weekKeys[currentWeek] || weekKeys[0];
-
-  const weekDays = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(currentWeekKey);
-    d.setDate(d.getDate() + i);
-    return d;
-  });
-
-  const riskColor = (event) => {
-    switch (event.riskImpact) {
-      case "Low":
-        return "#A5D6A7";
-      case "Medium":
-        return "#FFF59D";
-      case "High":
-        return "#EF9A9A";
-      case "Major Release":
-        return "#3a3a3a";
-      default:
-        return "#E0E0E0";
-    }
-  };
-
   return (
     <Box sx={{ px: 2, pb: 5 }}>
-      <Typography variant="h5" fontWeight="bold" sx={{ color: "#1976d2", mb: 3, textAlign: "center" }}>
-        Deployment Board
-      </Typography>
+      {/* <Typography
+        variant="h5"
+        fontWeight="bold"
+        sx={{
+          color: "#1976d2",
+          mb: 3,
+          textAlign: "center",
+          letterSpacing: "0.5px",
+        }}
+      >
+        Deployment Calendar
+      </Typography> */}
 
-      {[0, 4].map((startIdx, rowIndex) => (
-        <Box
-          key={rowIndex}
-          sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 2, mb: 3 }}
-        >
-          {weekDays.slice(startIdx, startIdx + (rowIndex === 0 ? 4 : 3)).map((day) => {
-            const dateStr = day.toISOString().split("T")[0];
-            const eventsToday = eventsByWeek[currentWeekKey]?.[dateStr] || [];
-            const requests = eventsToday.filter((e) => e.type === "request");
-            const supports = eventsToday.filter((e) => e.type === "support");
+      <FullCalendar
+        plugins={[dayGridPlugin, interactionPlugin]}
+        initialView="dayGridMonth"
+        headerToolbar={{
+          left: "prev,next today",
+          center: "title",
+          right: "dayGridMonth,dayGridWeek",
+        }}
+        height="80vh"
+        events={events}
+        eventClick={handleEventClick}
+        dayCellContent={dayCellContent}
+        timeZone="local"
+        eventDisplay="none"
+        className="custom-calendar"
+      />
 
-            return (
-              <Paper
-                key={dateStr}
-                sx={{
-                  p: 2,
-                  width: 280,
-                  backgroundColor: "#f9f9f9",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1, color: "#1976d2" }}>
-                  {formatDate(day)}
-                </Typography>
-
-                <Grid container spacing={1}>
-                  <Grid item xs={6} sx={{ pr: 1, borderRight: "1px solid #ddd" }}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", display: "block", mb: 0.5 }}>
-                      Request
-                    </Typography>
-                    {requests.length === 0 ? (
-                      <Typography variant="caption" sx={{ opacity: 0.6 }}>
-                        (Kosong)
-                      </Typography>
-                    ) : (
-                      requests
-                        .sort((a, b) => (riskOrder[a.riskImpact] || 99) - (riskOrder[b.riskImpact] || 99))
-                        .map((event) => (
-
-                        <Card
-                          key={event.id}
-                          sx={{
-                            mb: 1,
-                            backgroundColor: riskColor(event),
-                            cursor: "pointer",
-                          }}
-                          onClick={() => handleCardClick(event)}
-                        >
-                          <CardContent
-                            sx={{
-                              px: 1,
-                              py: 0,
-                              "&:last-child": { pb: 0 },
-                              height: 48,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Typography variant="body2" fontWeight="bold" noWrap sx={{ width: "100%" }}>
-                              {event.title}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      ))
-                    )}
-                  </Grid>
-
-                  <Grid item xs={6} sx={{ pl: 1 }}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", display: "block", mb: 0.5 }}>
-                      Support
-                    </Typography>
-                    {supports.length === 0 ? (
-                      <Typography variant="caption" sx={{ opacity: 0.6 }}>
-                        (Kosong)
-                      </Typography>
-                    ) : (
-                      supports
-                        .sort((a, b) => (riskOrder[a.riskImpact] || 99) - (riskOrder[b.riskImpact] || 99))
-                        .map((event) => (
-
-                        <Card
-                          key={event.id}
-                          sx={{
-                            mb: 1,
-                            backgroundColor: riskColor(event),
-                            cursor: "pointer",
-                          }}
-                          onClick={() => handleCardClick(event)}
-                        >
-                          <CardContent
-                            sx={{
-                              px: 1,
-                              py: 0,
-                              "&:last-child": { pb: 0 },
-                              height: 48,
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Typography variant="body2" fontWeight="bold" noWrap sx={{ width: "100%" }}>
-                              {event.title}
-                            </Typography>
-                          </CardContent>
-                        </Card>
-                      ))
-                    )}
-                  </Grid>
-                </Grid>
-              </Paper>
-            );
-          })}
-        </Box>
-      ))}
-
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-        <Pagination
-          count={weekKeys.length}
-          page={currentWeek + 1}
-          onChange={(e, val) => setCurrentWeek(val - 1)}
-          color="primary"
-        />
-      </Box>
-
+      {/* Dialog detail */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
         <DialogTitle>Detail Event</DialogTitle>
         <DialogContent dividers>
@@ -393,18 +369,16 @@ const DeploymentBoardPage = () => {
               <Typography>
                 <strong>Judul:</strong> {selectedEvent.title}
               </Typography>
-              {/* <Typography>
-                <strong>Tipe:</strong> {selectedEvent.type}
-              </Typography> */}
               <Typography>
                 <strong>Tanggal:</strong>{" "}
-                {selectedEvent.implementDate || selectedEvent.supportDate}
+                {selectedEvent.implementDate ||
+                  selectedEvent.supportDate ||
+                  selectedEvent.date}
               </Typography>
               <Typography>
                 <strong>Risk Impact:</strong> {selectedEvent.riskImpact || "-"}
               </Typography>
 
-              {/* 🔹 SQI bisa assign PIC */}
               {role === "sqi" && selectedEvent?.type === "request" && (
                 <FormControl size="small" sx={{ mt: 1, width: "100%" }}>
                   <InputLabel id="sqi-pic-label">Assign SQI PIC</InputLabel>
@@ -423,15 +397,14 @@ const DeploymentBoardPage = () => {
                 </FormControl>
               )}
 
-              {/* 🔹 Developer hanya bisa lihat PIC */}
               {role === "developer" && (
                 <Typography sx={{ mt: 1 }}>
                   <strong>PIC SQI:</strong>{" "}
-                  {sqiPics.find((p) => p.id === selectedEvent.sqiPicId)?.name || "-"}
+                  {sqiPics.find((p) => p.id === selectedEvent.sqiPicId)?.name ||
+                    "-"}
                 </Typography>
               )}
 
-              {/* 🔹 SQI bisa ubah status */}
               {role === "sqi" && selectedEvent?.type === "request" && (
                 <FormControl size="small" sx={{ mt: 2, width: "100%" }}>
                   <InputLabel id="status-label">Status</InputLabel>
@@ -450,7 +423,6 @@ const DeploymentBoardPage = () => {
                 </FormControl>
               )}
 
-              {/* 🔹 Developer hanya lihat status */}
               {role === "developer" && (
                 <Typography sx={{ mt: 1 }}>
                   <strong>Status:</strong> {selectedEvent.status || "-"}
@@ -462,23 +434,22 @@ const DeploymentBoardPage = () => {
           )}
         </DialogContent>
 
-<DialogActions>
-  {selectedEvent?.attachment && (
-    <Button
-      variant="outlined"
-      color="primary"
-      size="small"
-      startIcon={<DownloadIcon />}
-      onClick={handleDownload}
-    >
-      Download
-    </Button>
-  )}
-
-  <Button onClick={() => setOpenDialog(false)} color="primary">
-    Tutup
-  </Button>
-</DialogActions>
+        <DialogActions>
+          {selectedEvent?.attachment && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="small"
+              startIcon={<DownloadIcon />}
+              onClick={handleDownload}
+            >
+              Download
+            </Button>
+          )}
+          <Button onClick={() => setOpenDialog(false)} color="primary">
+            Tutup
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

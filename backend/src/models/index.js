@@ -8,6 +8,7 @@ import User from "./User.js";
 import TaskLog from "./TaskLog.js"
 import DeploymentRequest from "./DeploymentRequest.js";
 import DeploymentSupport from "./DeploymentSupport.js";
+import KnowledgeCenter from "./KnowledgeCenter.js";
 
 // =====================
 // Definisikan Relasi
@@ -83,6 +84,17 @@ DeploymentSupport.belongsTo(User, {
   as: "createdBy",
 });
 
+// =====================
+// 🧠 User ↔ KnowledgeCenter
+// =====================
+User.hasMany(KnowledgeCenter, {
+  foreignKey: "createdByUserId",
+  as: "createdKnowledgeCenters",
+});
+KnowledgeCenter.belongsTo(User, {
+  foreignKey: "createdByUserId",
+  as: "createdBy",
+});
 
 // =====================
 // Export Semua Model
@@ -97,6 +109,7 @@ const models = {
   DeploymentRequest,
   DeploymentSupport,
   TaskLog,
+  KnowledgeCenter,
 };
 
 // console.log("Associations initialized successfully");

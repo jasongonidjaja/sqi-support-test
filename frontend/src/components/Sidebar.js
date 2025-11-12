@@ -48,8 +48,10 @@ const Sidebar = () => {
           { text: "Create Deployment Support", icon: <SupportAgent />, path: "/create-deployment-support" },
         ]
       : []),
-
-    { text: "Deployment Calendar", icon: <CalendarMonth />, path: "/deployment-board" },
+      
+      { text: "Deployment Calendar", icon: <CalendarMonth />, path: "/deployment-board" },
+      
+      { text: "Knowledge Center", icon: <ListAlt />, path: "/knowledge-center" },
   ];
 
   // 🔹 Logout

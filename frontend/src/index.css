@@ -11,3 +11,33 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Balikkan posisi tanggal ke kiri */
+/* .fc .fc-daygrid-day-top {
+  flex-direction: row !important; 
+  justify-content: flex-start !important; 
+  padding-left: 4px !important; 
+} */
+
+/* Hilangkan display:flex dari tanggal (day top) */
+.fc .fc-daygrid-day-top {
+  display: block !important;
+  flex-direction: unset !important;
+  justify-content: unset !important;
+  align-items: unset !important;
+  text-align: left !important;
+  padding-left: 4px; /* biar tanggal tetap agak ke kiri */
+}
+
+.fc .fc-button-primary {
+  background-color: #1976d2 !important;      /* warna default */
+  border-color: #1565c0 !important;
+  color: #ffffff !important;
+}
+
+.fc .fc-button-primary.fc-button-active {
+  background-color: #115293 !important;      /* warna saat aktif */
+  border-color: #0d3c71 !important;
+  color: #ffffff !important;
+}
+
