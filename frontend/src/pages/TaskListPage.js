@@ -142,7 +142,7 @@ const TaskListPage = () => {
           fontWeight="bold"
           sx={{ color: "#1976d2", mb: 3, textAlign: "center", mt: 2 }}
         >
-          Daftar Support
+          Support SQI List
         </Typography>
 
         <TableContainer

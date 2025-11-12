@@ -230,7 +230,7 @@ const DeploymentBoardPage = () => {
             alignItems: "center",
             gap: "6px",
             cursor: "pointer",
-            fontSize: "0.75rem",
+            fontSize: "1rem",
             fontWeight: 500,
             margin: "2px 0",
           }}
@@ -277,7 +277,7 @@ const DeploymentBoardPage = () => {
         >
           <div
             style={{
-              fontSize: "0.7rem",
+              fontSize: "1rem",
               fontWeight: "bold",
               color: "#1565c0",
               marginBottom: "2px",
@@ -286,7 +286,7 @@ const DeploymentBoardPage = () => {
               display: "block",
             }}
           >
-            Request
+            Deployment
           </div>
           {requests.length > 0 && requests.map(renderEvent)}
         </div>
@@ -294,7 +294,7 @@ const DeploymentBoardPage = () => {
         <div>
           <div
             style={{
-              fontSize: "0.7rem",
+              fontSize: "1rem",
               fontWeight: "bold",
               color: "#2e7d32",
               marginBottom: "2px",
@@ -327,7 +327,7 @@ const DeploymentBoardPage = () => {
 
   return (
     <Box sx={{ px: 2, pb: 5 }}>
-      {/* <Typography
+      <Typography
         variant="h5"
         fontWeight="bold"
         sx={{
@@ -337,8 +337,8 @@ const DeploymentBoardPage = () => {
           letterSpacing: "0.5px",
         }}
       >
-        Deployment Calendar
-      </Typography> */}
+        Deployment & Support Calendar
+      </Typography>
 
       <FullCalendar
         plugins={[dayGridPlugin, interactionPlugin]}
@@ -356,6 +356,48 @@ const DeploymentBoardPage = () => {
         eventDisplay="none"
         className="custom-calendar"
       />
+
+      {/* 🔹 Legend Warna */}
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          flexWrap: "wrap",
+          gap: 3,
+          mt: 3,
+          mb: 4,
+        }}
+      >
+        {Object.entries(riskColors)
+          .filter(([key]) => key !== "default") // hilangkan default
+          .map(([key, color]) => (
+            <Box
+              key={key}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  width: 16,
+                  height: 16,
+                  borderRadius: "50%",
+                  backgroundColor: color,
+                  border: "1px solid #ccc",
+                }}
+              />
+              <Typography
+                variant="body2"
+                sx={{ textTransform: "capitalize", fontWeight: 500 }}
+              >
+                {key}
+              </Typography>
+            </Box>
+          ))}
+      </Box>
+
 
       {/* Dialog detail */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
