@@ -25,7 +25,7 @@ export const upload = multer({ storage });
 // ======================
 export const createDeploymentSupport = async (req, res) => {
   try {
-    const { application, title, implementDate, impactedApplication, note, riskImpact } = req.body;
+    const { releaseId, application, title, implementDate, impactedApplication, note, riskImpact } = req.body;
     const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
 
     // 🔍 Validasi tanggal implementasi
@@ -42,6 +42,7 @@ export const createDeploymentSupport = async (req, res) => {
     }
 
     const newSupport = await DeploymentSupport.create({
+      releaseId,
       application,
       title,
       implementDate,

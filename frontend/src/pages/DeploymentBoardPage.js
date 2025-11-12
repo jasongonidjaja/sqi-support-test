@@ -73,19 +73,35 @@ const DeploymentBoardPage = () => {
         console.log("📦 Data mentah dari /calendar:", rawData);
 
         const cleaned = rawData
-          .map((item) => {
-            const dateField =
-              item.implementDate || item.supportDate || item.date;
-            const parsedDate = new Date(dateField);
-            if (isNaN(parsedDate)) return null;
-            return {
-              ...item,
-              date: parsedDate,
-            };
-          })
-          .filter((e) => e !== null);
+        .map((item) => {
+          const dateField = item.implementDate || item.supportDate || item.date;
 
-        setEvents(cleaned);
+          // 🔹 Lewati item tanpa tanggal valid
+          if (!dateField) return null;
+
+          const parsedDate = new Date(dateField);
+          if (isNaN(parsedDate)) return null;
+
+          return {
+            ...item,
+            date: parsedDate,
+          };
+        })
+        .filter((e) => e !== null);
+      // 🧩 Jika hasilnya kosong, isi minimal 1 data dummy agar tidak error
+        if (cleaned.length === 0) {
+          cleaned.push({
+            id: "no-data",
+            title: "Tidak ada data minggu ini",
+            type: "info",
+            date: new Date(), // fallback aman
+            riskImpact: "Low",
+          });
+        }
+
+      console.log("✅ Cleaned data:", cleaned);
+      setEvents(cleaned);
+
       } catch (err) {
         console.error("❌ Gagal mengambil data calendar:", err);
       } finally {
@@ -193,12 +209,21 @@ const DeploymentBoardPage = () => {
   // 🔹 Kelompokkan berdasarkan minggu dan hari
   const eventsByWeek = {};
   events.forEach((event) => {
-    const weekStart = getWeekStart(event.date).toISOString().split("T")[0];
-    if (!eventsByWeek[weekStart]) eventsByWeek[weekStart] = {};
+    if (!(event.date instanceof Date) || isNaN(event.date)) return; // skip invalid date
+
+    const weekStart = getWeekStart(event.date);
+    if (!(weekStart instanceof Date) || isNaN(weekStart)) return;
+
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+    if (!eventsByWeek[weekStartStr]) eventsByWeek[weekStartStr] = {};
+
     const dateStr = event.date.toISOString().split("T")[0];
-    if (!eventsByWeek[weekStart][dateStr]) eventsByWeek[weekStart][dateStr] = [];
-    eventsByWeek[weekStart][dateStr].push(event);
+    if (!eventsByWeek[weekStartStr][dateStr])
+      eventsByWeek[weekStartStr][dateStr] = [];
+
+    eventsByWeek[weekStartStr][dateStr].push(event);
   });
+
 
   const weekKeys = Object.keys(eventsByWeek).sort();
   const currentWeekKey = weekKeys[currentWeek] || weekKeys[0];
@@ -363,11 +388,14 @@ const DeploymentBoardPage = () => {
           {selectedEvent ? (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Typography>
-                <strong>Judul:</strong> {selectedEvent.title}
+                <strong>Release ID:</strong> {selectedEvent.releaseId}
               </Typography>
               <Typography>
-                <strong>Tipe:</strong> {selectedEvent.type}
+                <strong>Judul:</strong> {selectedEvent.title}
               </Typography>
+              {/* <Typography>
+                <strong>Tipe:</strong> {selectedEvent.type}
+              </Typography> */}
               <Typography>
                 <strong>Tanggal:</strong>{" "}
                 {selectedEvent.implementDate || selectedEvent.supportDate}

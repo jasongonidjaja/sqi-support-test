@@ -52,6 +52,7 @@ export const getCalendarData = async (req, res) => {
 
     const mappedRequests = requests.map((r) => ({
       id: r.id,
+      releaseId: r.releaseId,
       type: "request",
       title: r.title,
       implementDate: toIsoDate(r.implementDate),
@@ -64,6 +65,7 @@ export const getCalendarData = async (req, res) => {
 
     const mappedSupports = supports.map((s) => ({
       id: s.id,
+      releaseId: s.releaseId,
       type: "support",
       title: s.title,
       implementDate: toIsoDate(s.implementDate),

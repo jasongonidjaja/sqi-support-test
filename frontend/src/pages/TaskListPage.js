@@ -117,7 +117,6 @@ const TaskListPage = () => {
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
-          // marginLeft: "270px",
         }}
       >
         <CircularProgress size={50} />
@@ -132,7 +131,6 @@ const TaskListPage = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          // marginLeft: "270px",
           minHeight: "100vh",
           display: "flex",
           flexDirection: "column",
@@ -160,32 +158,33 @@ const TaskListPage = () => {
           <Table>
             <TableHead>
               <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   Judul
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   Deskripsi
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   Bentuk Support
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   Aplikasi
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   PIC SQI
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   Status
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   Attachment
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", color: "#fff" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   Tanggal Dibuat
                 </TableCell>
               </TableRow>
             </TableHead>
+
 
             <TableBody>
               {tasks.length > 0 ? (

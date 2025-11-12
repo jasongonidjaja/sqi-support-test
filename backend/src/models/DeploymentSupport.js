@@ -9,6 +9,10 @@ const DeploymentSupport = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
+    releaseId: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     application: {
       type: DataTypes.STRING,
       allowNull: false,

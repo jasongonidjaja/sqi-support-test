@@ -13,6 +13,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 const CreateDeploymentSupportPage = () => {
   const [form, setForm] = useState({
+    releaseId: "",
     application: "",
     title: "",
     implementDate: "",
@@ -47,6 +48,7 @@ const CreateDeploymentSupportPage = () => {
     }
 
     const formData = new FormData();
+    formData.append("releaseId", form.releaseId);
     formData.append("application", form.application);
     formData.append("title", form.title);
     formData.append("implementDate", form.implementDate);
@@ -116,6 +118,16 @@ const CreateDeploymentSupportPage = () => {
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit}>
+            <TextField
+              label="Release ID"
+              name="releaseId"
+              value={form.releaseId}
+              onChange={handleChange}
+              fullWidth
+              sx={{ mb: 2 }}
+              required
+            />
+
             {/* Application (free text) */}
             <TextField
               label="Application"
