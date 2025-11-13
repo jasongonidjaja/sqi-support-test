@@ -1,6 +1,6 @@
 // src/routes/sqiPics.js
 import express from "express";
-import { getAllSQIPics, createSQIPic } from "../controllers/sqiPicController.js";
+import { getAllSQIPics } from "../controllers/sqiPicController.js";
 
 const router = express.Router();
 
@@ -8,6 +8,6 @@ const router = express.Router();
 router.get("/", getAllSQIPics);
 
 // 🔹 Tambah PIC SQI baru
-router.post("/", createSQIPic);
+// router.post("/", createSQIPic);
 
 export default router;

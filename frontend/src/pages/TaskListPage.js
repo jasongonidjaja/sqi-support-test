@@ -26,11 +26,11 @@ const TaskListPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const limit = 5; // jumlah data per halaman
+  const limit = 10; // jumlah data per halaman
 
   const userData = JSON.parse(localStorage.getItem("user"));
   const userRole = userData?.role || null;
-  console.log("User Role:", userRole);
+  // console.log("User Role:", userRole);
 
   // Fetch semua task (dengan pagination)
   const fetchTasks = async (currentPage = 1) => {
@@ -87,7 +87,7 @@ const TaskListPage = () => {
 
       const selectedPic = sqiPics.find((p) => p.id === sqiPicId);
 
-      // 🔹 Update data di state langsung tanpa reload
+      // Update data di state langsung tanpa reload
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
           task.id === taskId
@@ -100,11 +100,8 @@ const TaskListPage = () => {
         )
       );
 
-      // 🔹 Atau kalau kamu ingin lebih aman (pastikan data terbaru dari backend)
-      // await fetchTasks(page);
-
     } catch (err) {
-      console.error("❌ Gagal assign PIC SQI:", err);
+      console.error("❌ Failed assign PIC SQI:", err);
     }
   };
 
@@ -159,16 +156,16 @@ const TaskListPage = () => {
             <TableHead>
               <TableRow sx={{ backgroundColor: "#1976d2" }}>
                 <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Judul
+                  Title
                 </TableCell>
                 <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Deskripsi
+                  Description
                 </TableCell>
                 <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Bentuk Support
+                  Support Type
                 </TableCell>
                 <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Aplikasi
+                  Application
                 </TableCell>
                 <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
                   PIC SQI
@@ -180,7 +177,7 @@ const TaskListPage = () => {
                   Attachment
                 </TableCell>
                 <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Tanggal Dibuat
+                  Created Date
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -293,7 +290,7 @@ const TaskListPage = () => {
                     align="center"
                     sx={{ color: "#757575", py: 4 }}
                   >
-                    Belum ada task.
+                    No SQI support requests yet
                   </TableCell>
                 </TableRow>
               )}

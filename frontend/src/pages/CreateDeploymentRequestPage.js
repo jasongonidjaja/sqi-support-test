@@ -1,9 +1,8 @@
-// src/pages/CreateDeploymentRequestPage.js
 import React, { useState, useEffect } from "react";
 import { Box, Typography, TextField, Button, MenuItem, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import UploadFileIcon from "@mui/icons-material/UploadFile"; // Ikon upload
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 const CreateDeploymentRequestPage = () => {
   const [form, setForm] = useState({
@@ -31,7 +30,7 @@ useEffect(() => {
       // Pastikan applications selalu array
       setApplications(res.data?.data || []);
     } catch (err) {
-      console.error("❌ Gagal mengambil data aplikasi:", err);
+      console.error("❌ Failed to retrieve application data:", err);
     }
   };
 
@@ -70,11 +69,11 @@ useEffect(() => {
         },
       });
 
-      alert("Request deployment berhasil dibuat!");
+      alert("Deployment request created successfully!");
       navigate("/deployment-board"); // Redirect ke kalender deployment setelah berhasil
     } catch (err) {
-      console.error("❌ Gagal membuat request deployment:", err);
-      alert("Gagal menyimpan request deployment.");
+      console.error("❌ Failed to create deployment request:", err);
+      alert("Failed to save deployment request.");
     }
   };
 
@@ -90,12 +89,11 @@ useEffect(() => {
         sx={{
           flexGrow: 1,
           p: 0,
-          // marginLeft: "220px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
-          backgroundColor: "transparent", // tetap bening
+          backgroundColor: "transparent",
         }}
       >
         <Paper
@@ -115,7 +113,7 @@ useEffect(() => {
               fontWeight: "bold",
             }}
           >
-            Request Deployment Baru
+            Request Deployment
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit}>
@@ -130,7 +128,7 @@ useEffect(() => {
             />
 
             <TextField
-              label="Judul Implementasi"
+              label="Title"
               name="title"
               value={form.title}
               onChange={handleChange}
@@ -140,7 +138,7 @@ useEffect(() => {
             />
 
             <TextField
-              label="Tanggal Implementasi"
+              label="Select Date"
               name="implementDate"
               type="date"
               value={form.implementDate}
@@ -158,7 +156,7 @@ useEffect(() => {
 
             <TextField
               select
-              label="Aplikasi"
+              label="Application"
               name="applicationId"
               value={form.applicationId}
               onChange={handleChange}
@@ -199,7 +197,7 @@ useEffect(() => {
                 textTransform: "none",
               }}
             >
-              {form.attachment ? "Ganti File" : "Pilih File Attachment"}
+              {form.attachment ? "Change File" : "Select Attachment File"}
               <input
                 type="file"
                 hidden
@@ -219,7 +217,7 @@ useEffect(() => {
             )}
 
             <Button variant="contained" fullWidth type="submit">
-              Simpan Request Deployment
+              Save
             </Button>
           </Box>
         </Paper>

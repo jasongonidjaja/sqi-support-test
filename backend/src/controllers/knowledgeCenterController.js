@@ -1,8 +1,8 @@
-import { Op } from "sequelize"; // ✅ penting untuk search
+import { Op } from "sequelize"; // penting untuk search
 import KnowledgeCenter from "../models/KnowledgeCenter.js";
 
 /**
- * 🔹 Ambil semua data Knowledge Center (dengan live search)
+ * Ambil semua data Knowledge Center (dengan live search)
  */
 export const getAllKnowledge = async (req, res) => {
   try {
@@ -18,17 +18,17 @@ export const getAllKnowledge = async (req, res) => {
     });
 
     res.status(200).json({
-      message: "Data Knowledge Center berhasil diambil.",
+      message: "Knowledge Center data was successfully retrieved.",
       data: knowledge,
     });
   } catch (err) {
-    console.error("❌ Error fetching knowledge:", err);
-    res.status(500).json({ error: "Gagal mengambil data Knowledge Center." });
+    console.error("Error fetching knowledge:", err);
+    res.status(500).json({ error: "Failed to retrieve Knowledge Center data." });
   }
 };
 
 /**
- * 🔹 Tambah entry baru
+ * Tambah entry baru
  */
 export const createKnowledge = async (req, res) => {
   try {
@@ -38,7 +38,7 @@ export const createKnowledge = async (req, res) => {
     if (!problem || !solution)
       return res
         .status(400)
-        .json({ error: "Field 'problem' dan 'solution' wajib diisi." });
+        .json({ error: "The 'problem' and 'solution' fields are mandatory." });
 
     const newEntry = await KnowledgeCenter.create({
       problem,
@@ -48,15 +48,15 @@ export const createKnowledge = async (req, res) => {
 
     res
       .status(201)
-      .json({ message: "Entry berhasil ditambahkan.", data: newEntry });
+      .json({ message: "", data: newEntry });
   } catch (err) {
-    console.error("❌ Error creating knowledge:", err);
-    res.status(500).json({ error: "Gagal menambahkan entry." });
+    console.error("Entry added successfully.", err);
+    res.status(500).json({ error: "Failed to add entry." });
   }
 };
 
 /**
- * 🔹 Update entry
+ * Update entry
  */
 export const updateKnowledge = async (req, res) => {
   try {
@@ -66,34 +66,34 @@ export const updateKnowledge = async (req, res) => {
     if (!problem || !solution)
       return res
         .status(400)
-        .json({ error: "Field 'problem' dan 'solution' wajib diisi." });
+        .json({ error: "The 'problem' and 'solution' fields are mandatory." });
 
     const entry = await KnowledgeCenter.findByPk(id);
-    if (!entry) return res.status(404).json({ error: "Entry tidak ditemukan." });
+    if (!entry) return res.status(404).json({ error: "Entry not found." });
 
     await entry.update({ problem, solution });
 
-    res.status(200).json({ message: "Entry berhasil diperbarui.", data: entry });
+    res.status(200).json({ message: "Entry successfully updated.", data: entry });
   } catch (err) {
-    console.error("❌ Error updating knowledge:", err);
-    res.status(500).json({ error: "Gagal memperbarui entry." });
+    console.error("Error updating knowledge:", err);
+    res.status(500).json({ error: "Failed to update entry." });
   }
 };
 
 /**
- * 🔹 Hapus entry
+ * Hapus entry
  */
 export const deleteKnowledge = async (req, res) => {
   try {
     const { id } = req.params;
 
     const entry = await KnowledgeCenter.findByPk(id);
-    if (!entry) return res.status(404).json({ error: "Entry tidak ditemukan." });
+    if (!entry) return res.status(404).json({ error: "Entry not found." });
 
     await entry.destroy();
-    res.status(200).json({ message: "Entry berhasil dihapus." });
+    res.status(200).json({ message: "Entry successfully deleted." });
   } catch (err) {
-    console.error("❌ Error deleting knowledge:", err);
-    res.status(500).json({ error: "Gagal menghapus entry." });
+    console.error("Error deleting knowledge:", err);
+    res.status(500).json({ error: "Failed to delete entry." });
   }
 };

@@ -134,7 +134,7 @@ const KnowledgeCenter = () => {
         }}
       >
         <Typography variant="h4" fontWeight="bold" mb={1}>
-          Yok Tanya
+          Knowledge Center
         </Typography>
         <Typography variant="body1" mb={3}>
           Find answers to questions and solutions to problems
@@ -229,7 +229,7 @@ const KnowledgeCenter = () => {
           </Box>
         ) : paginatedData.length === 0 ? (
           <Typography color="text.secondary" align="center">
-            No FAQs found.
+            No Data found.
           </Typography>
         ) : (
           <>
@@ -316,7 +316,7 @@ const KnowledgeCenter = () => {
       <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
         <DialogTitle>Delete Confirmation</DialogTitle>
         <DialogContent>
-          <Typography>Are you sure you want to delete this FAQ?</Typography>
+          <Typography>Are you sure you want to delete this?</Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenConfirm(false)}>Cancel</Button>

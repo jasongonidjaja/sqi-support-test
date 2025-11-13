@@ -17,10 +17,10 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        {/* 🔹 Login page */}
+        {/* Login page */}
         <Route path="/login" element={<LoginPage />} />
 
-        {/* 🔒 Protected Routes */}
+        {/* Protected Routes */}
         <Route
           path="/tasks"
           element={
@@ -87,11 +87,8 @@ const App = () => {
           }
         />
 
-        <Route path="/knowledge-center" element={<KnowledgeCenter />} />
-
-
         {/* 🔹 Default redirect */}
-        <Route path="/" element={<Navigate to="/tasks" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );

@@ -8,7 +8,7 @@ import TaskLog from "../models/TaskLog.js";
 import TaskStatus from "../constants/taskStatus.js";
 
 /* ===============================
-   📄 GET semua task
+   GET semua task
    =============================== */
 export const getTasks = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;       // halaman aktif
@@ -35,7 +35,7 @@ export const getTasks = asyncHandler(async (req, res) => {
   });
 
   res.status(200).json({
-    message: "✅ Berhasil mengambil data task.",
+    message: "Successfully retrieved task data.",
     totalData: count,
     totalPages: Math.ceil(count / limit),
     currentPage: page,
@@ -45,7 +45,7 @@ export const getTasks = asyncHandler(async (req, res) => {
 });
 
 /* ===============================
-   👨‍💻 POST buat task baru
+   POST buat task baru
    =============================== */
 export const createTask = asyncHandler(async (req, res) => {
   const {
@@ -59,7 +59,7 @@ export const createTask = asyncHandler(async (req, res) => {
   } = req.body;
 
   if (!title || !description || !applicationId) {
-    const error = new Error("Field wajib tidak boleh kosong: title, description, applicationId.");
+    const error = new Error("Required fields cannot be empty: title, description, applicationId.");
     error.statusCode = 400;
     throw error;
   }
@@ -93,11 +93,11 @@ export const createTask = asyncHandler(async (req, res) => {
     userId: req.user.userId,
   });
 
-  res.status(201).json({ message: "✅ Task berhasil dibuat.", data: newTask });
+  res.status(201).json({ message: "Task created successfully.", data: newTask });
 });
 
 /* ===============================
-   🔍 GET task by ID
+   GET task by ID
    =============================== */
 export const getTaskById = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -112,22 +112,22 @@ export const getTaskById = asyncHandler(async (req, res) => {
   });
 
   if (!task) {
-    const error = new Error("Task tidak ditemukan.");
+    const error = new Error("Task not found.");
     error.statusCode = 404;
     throw error;
   }
 
   if (req.user.role === "developer" && task.createdByUserId !== req.user.userId) {
-    const error = new Error("Anda tidak berhak melihat task ini.");
+    const error = new Error("You are not authorized to view this task.");
     error.statusCode = 403;
     throw error;
   }
 
-  res.status(200).json({ message: "✅ Task ditemukan.", data: task });
+  res.status(200).json({ message: "Task found.", data: task });
 });
 
 /* ===============================
-   🔄 PUT update status (SQI)
+   PUT update status (SQI)
    =============================== */
 export const updateTaskStatus = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -135,14 +135,14 @@ export const updateTaskStatus = asyncHandler(async (req, res) => {
 
   const validStatuses = Object.values(TaskStatus);
   if (!validStatuses.includes(status)) {
-    const error = new Error(`Status tidak valid. Harus salah satu dari: ${validStatuses.join(", ")}.`);
+    const error = new Error(`Status tidak valid. Must be one of these: ${validStatuses.join(", ")}.`);
     error.statusCode = 400;
     throw error;
   }
 
   const task = await Task.findByPk(id);
   if (!task) {
-    const error = new Error("Task tidak ditemukan.");
+    const error = new Error("Task not found.");
     error.statusCode = 404;
     throw error;
   }
@@ -159,32 +159,32 @@ export const updateTaskStatus = asyncHandler(async (req, res) => {
     userId: req.user.userId,
   });
 
-  res.status(200).json({ message: `✅ Status task berhasil diubah menjadi ${status}.`, data: task });
+  res.status(200).json({ message: `Task status successfully changed to ${status}.`, data: task });
 });
 
 /* ===============================
-   👨‍💼 PUT assign PIC SQI
+   PUT assign PIC SQI
    =============================== */
 export const assignSqiPic = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { sqi_pic_id } = req.body;
 
   if (!sqi_pic_id) {
-    const error = new Error("Harap sertakan ID PIC SQI yang akan di-assign.");
+    const error = new Error("Please include the SQI PIC ID that will be assigned.");
     error.statusCode = 400;
     throw error;
   }
 
   const task = await Task.findByPk(id);
   if (!task) {
-    const error = new Error("Task tidak ditemukan.");
+    const error = new Error("Task not found.");
     error.statusCode = 404;
     throw error;
   }
 
   const sqiPic = await SQIPic.findByPk(sqi_pic_id);
   if (!sqiPic) {
-    const error = new Error("PIC SQI tidak ditemukan.");
+    const error = new Error("PIC SQI not found.");
     error.statusCode = 404;
     throw error;
   }
@@ -203,7 +203,7 @@ export const assignSqiPic = asyncHandler(async (req, res) => {
   });
 
   res.status(200).json({
-    message: `✅ Task berhasil di-assign ke ${sqiPic.name}.`,
+    message: `Task successfully assigned to ${sqiPic.name}.`,
     data: task,
   });
 });

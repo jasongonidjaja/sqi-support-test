@@ -36,14 +36,14 @@ const CreateDeploymentSupportPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🔎 Validasi tanggal implementasi tidak boleh kurang dari hari ini
+    // Validasi tanggal implementasi tidak boleh kurang dari hari ini
     const today = new Date();
     const selectedDate = new Date(form.implementDate);
     today.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
 
     if (selectedDate < today) {
-      alert("Tanggal implementasi tidak boleh kurang dari hari ini!");
+      alert("The implementation date must not be less than today!");
       return;
     }
 
@@ -68,11 +68,11 @@ const CreateDeploymentSupportPage = () => {
         },
       });
 
-      alert("✅ Deployment Support berhasil dibuat!");
+      alert("Deployment Support successfully created");
       navigate("/deployment-board");
     } catch (err) {
-      console.error("❌ Gagal membuat Deployment Support:", err);
-      alert("Gagal menyimpan Deployment Support.");
+      console.error("Failed to create Deployment Support:", err);
+      alert("Failed to save Deployment Support.");
     }
   };
 
@@ -89,7 +89,6 @@ const CreateDeploymentSupportPage = () => {
         sx={{
           flexGrow: 1,
           p: 0,
-          // marginLeft: "220px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -137,12 +136,12 @@ const CreateDeploymentSupportPage = () => {
               fullWidth
               sx={{ mb: 2 }}
               required
-              placeholder="Contoh: SQI Support"
+              // placeholder="Example: SQI Support"
             />
 
             {/* Title */}
             <TextField
-              label="Judul Support"
+              label="Title"
               name="title"
               value={form.title}
               onChange={handleChange}
@@ -153,7 +152,7 @@ const CreateDeploymentSupportPage = () => {
 
             {/* Implement Date */}
             <TextField
-              label="Tanggal Implementasi"
+              label="Select Date"
               name="implementDate"
               type="date"
               value={form.implementDate}
@@ -174,12 +173,12 @@ const CreateDeploymentSupportPage = () => {
               fullWidth
               sx={{ mb: 2 }}
               required
-              placeholder="Contoh: Customer Portal, Internal Dashboard"
+              // placeholder="Example: Customer Portal, Internal Dashboard"
             />
 
             {/* Note */}
             <TextField
-              label="Catatan"
+              label="Note"
               name="note"
               value={form.note}
               onChange={handleChange}
@@ -213,7 +212,7 @@ const CreateDeploymentSupportPage = () => {
               fullWidth
               sx={{ mb: 2, textTransform: "none" }}
             >
-              {form.attachment ? "Ganti File" : "Pilih File Attachment"}
+              {form.attachment ? "Change File" : "Select Attachment File"}
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
 
@@ -227,7 +226,7 @@ const CreateDeploymentSupportPage = () => {
             )}
 
             <Button variant="contained" fullWidth type="submit">
-              Simpan Deployment Support
+              Save
             </Button>
           </Box>
         </Paper>

@@ -26,7 +26,7 @@ export const getCalendarData = async (req, res) => {
       const e = toIsoDate(weekEnd);
       if (!s || !e) {
         return res.status(400).json({
-          error: "weekStart / weekEnd harus berupa tanggal valid (YYYY-MM-DD)",
+          error: "weekStart / weekEnd must be a valid date (YYYY-MM-DD)",
         });
       }
       whereClause.implementDate = { [Op.between]: [s, e] };
@@ -81,15 +81,15 @@ export const getCalendarData = async (req, res) => {
     );
 
     res.json({
-      message: "✅ Calendar data loaded (all dates)",
+      message: "Calendar data loaded (all dates)",
       total: combined.length,
       count: combined.length,
       data: combined,
     });
   } catch (err) {
-    console.error("❌ Error in getCalendarData:", err);
+    console.error("Error in getCalendarData:", err);
     res.status(500).json({
-      error: "Gagal memuat data kalender",
+      error: "Failed to load calendar data",
       details: err.message,
     });
   }

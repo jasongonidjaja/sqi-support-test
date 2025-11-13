@@ -12,13 +12,6 @@ code {
     monospace;
 }
 
-/* Balikkan posisi tanggal ke kiri */
-/* .fc .fc-daygrid-day-top {
-  flex-direction: row !important; 
-  justify-content: flex-start !important; 
-  padding-left: 4px !important; 
-} */
-
 /* Hilangkan display:flex dari tanggal (day top) */
 .fc .fc-daygrid-day-top {
   display: block !important;
@@ -26,18 +19,21 @@ code {
   justify-content: unset !important;
   align-items: unset !important;
   text-align: left !important;
-  padding-left: 4px; /* biar tanggal tetap agak ke kiri */
+  padding-left: 4px; 
 }
 
 .fc .fc-button-primary {
-  background-color: #1976d2 !important;      /* warna default */
+  background-color: #1976d2 !important;
   border-color: #1565c0 !important;
   color: #ffffff !important;
 }
 
 .fc .fc-button-primary.fc-button-active {
-  background-color: #115293 !important;      /* warna saat aktif */
+  background-color: #115293 !important;
   border-color: #0d3c71 !important;
   color: #ffffff !important;
 }
 
+.MuiAccordion-root::before {
+  display: none !important;
+}

@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// ✅ Login Controller
 export const login = async (req, res) => {
   const { username, password } = req.body;
 

@@ -7,7 +7,7 @@ import models from "../models/index.js";
 const { DeploymentSupport } = models;
 
 // ======================
-// 📁 File Upload Setup
+// File Upload Setup
 // ======================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -21,24 +21,24 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage });
 
 // ======================
-// 🟢 CREATE Deployment Support
+// CREATE Deployment Support
 // ======================
 export const createDeploymentSupport = async (req, res) => {
   try {
     const { releaseId, application, title, implementDate, impactedApplication, note, riskImpact } = req.body;
     const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
 
-    // 🔍 Validasi tanggal implementasi
+    // Validasi tanggal implementasi
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const selectedDate = new Date(implementDate);
 
     if (isNaN(selectedDate.getTime())) {
-      return res.status(400).json({ error: "Format tanggal implementasi tidak valid." });
+      return res.status(400).json({ error: "Implementation date format is invalid." });
     }
 
     if (selectedDate < today) {
-      return res.status(400).json({ error: "Tanggal implementasi tidak boleh kurang dari hari ini." });
+      return res.status(400).json({ error: "The implementation date must not be less than today." });
     }
 
     const newSupport = await DeploymentSupport.create({
@@ -56,87 +56,87 @@ export const createDeploymentSupport = async (req, res) => {
     });
 
     res.status(201).json({
-      message: "✅ Deployment Support berhasil dibuat.",
+      message: "Deployment Support successfully created.",
       data: newSupport,
     });
   } catch (err) {
-    console.error("❌ Error creating deployment support:", err);
+    console.error("Error creating deployment support:", err);
     res.status(500).json({
-      error: "Gagal membuat deployment support.",
+      error: "Failed to create deployment support.",
       details: err.message,
     });
   }
 };
 
 // ======================
-// 🔹 GET all Deployment Supports
+// GET all Deployment Supports, fungsi ini dipindahkan ke calendarController
 // ======================
-export const getDeploymentSupports = async (req, res) => {
-  try {
-    const { startDate, endDate, page = 1, limit = 10 } = req.query;
+// export const getDeploymentSupports = async (req, res) => {
+//   try {
+//     const { startDate, endDate, page = 1, limit = 10 } = req.query;
 
-    if (!startDate || !endDate) {
-      return res.status(400).json({
-        error: "Harap sertakan startDate dan endDate di query params.",
-      });
-    }
+//     if (!startDate || !endDate) {
+//       return res.status(400).json({
+//         error: "Harap sertakan startDate dan endDate di query params.",
+//       });
+//     }
 
-    const offset = (parseInt(page) - 1) * parseInt(limit);
+//     const offset = (parseInt(page) - 1) * parseInt(limit);
 
-    // Hitung total data
-    const totalSupports = await DeploymentSupport.count({
-      where: {
-        implementDate: {
-          [Op.between]: [startDate, endDate],
-        },
-      },
-    });
+//     // Hitung total data
+//     const totalSupports = await DeploymentSupport.count({
+//       where: {
+//         implementDate: {
+//           [Op.between]: [startDate, endDate],
+//         },
+//       },
+//     });
 
-    // Ambil data sesuai pagination
-    const supports = await DeploymentSupport.findAll({
-      where: {
-        implementDate: {
-          [Op.between]: [startDate, endDate],
-        },
-      },
-      order: [["implementDate", "ASC"]],
-      limit: parseInt(limit),
-      offset,
-    });
+//     // Ambil data sesuai pagination
+//     const supports = await DeploymentSupport.findAll({
+//       where: {
+//         implementDate: {
+//           [Op.between]: [startDate, endDate],
+//         },
+//       },
+//       order: [["implementDate", "ASC"]],
+//       limit: parseInt(limit),
+//       offset,
+//     });
 
-    res.json({
-      message: "✅ Data deployment support berhasil dimuat.",
-      currentPage: parseInt(page),
-      totalPages: Math.ceil(totalSupports / parseInt(limit)),
-      totalData: totalSupports,
-      count: supports.length,
-      data: supports,
-    });
-  } catch (err) {
-    console.error("❌ Error fetching deployment supports:", err);
-    res.status(500).json({
-      error: "Gagal memuat data deployment support.",
-      details: err.message,
-    });
-  }
-};
+//     res.json({
+//       message: "✅ Data deployment support berhasil dimuat.",
+//       currentPage: parseInt(page),
+//       totalPages: Math.ceil(totalSupports / parseInt(limit)),
+//       totalData: totalSupports,
+//       count: supports.length,
+//       data: supports,
+//     });
+//   } catch (err) {
+//     console.error("❌ Error fetching deployment supports:", err);
+//     res.status(500).json({
+//       error: "Gagal memuat data deployment support.",
+//       details: err.message,
+//     });
+//   }
+// };
 
 
 // ======================
-// 📦 DOWNLOAD ATTACHMENT
+// DOWNLOAD ATTACHMENT
 // ======================
 export const downloadAttachment = async (req, res) => {
   try {
     const { filename } = req.params;
 
     if (!filename) {
-      return res.status(400).json({ error: "Nama file tidak ditemukan di parameter." });
+      return res.status(400).json({ error: "File name not found in parameters." });
     }
 
     const filePath = path.join(process.cwd(), "uploads", filename);
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "File tidak ditemukan di server." });
+      return res.status(404).json({ error: "File not found on server." });
     }
 
     const extension = path.extname(filename).toLowerCase();
@@ -147,18 +147,18 @@ export const downloadAttachment = async (req, res) => {
     res.setHeader("Content-Type", mimeType);
     res.download(filePath, filename, (err) => {
       if (err) {
-        console.error("❌ Error saat mengirim file:", err);
-        res.status(500).json({ error: "Gagal mengunduh file." });
+        console.error("Error while sending file:", err);
+        res.status(500).json({ error: "Failed to download file." });
       }
     });
   } catch (err) {
-    console.error("❌ Error di downloadAttachment:", err);
-    res.status(500).json({ error: "Terjadi kesalahan saat mengunduh file." });
+    console.error("Error in downloadAttachment:", err);
+    res.status(500).json({ error: "An error occurred while downloading the file." });
   }
 };
 
 // ======================
-// 🟡 UPDATE SQI PIC & STATUS
+// UPDATE SQI PIC & STATUS
 // ======================
 export const updateDeploymentSupport = async (req, res) => {
   try {
@@ -167,28 +167,28 @@ export const updateDeploymentSupport = async (req, res) => {
 
     const support = await DeploymentSupport.findByPk(id);
     if (!support) {
-      return res.status(404).json({ error: "Deployment support tidak ditemukan." });
+      return res.status(404).json({ error: "Deployment support not found." });
     }
 
     const validStatuses = [null, "success", "cancel"];
     if (status && !validStatuses.includes(status)) {
-      return res.status(400).json({ error: "Status tidak valid." });
+      return res.status(400).json({ error: "Invalid status." });
     }
 
-    // ✅ Bisa update terpisah: SQI PIC saja atau status saja
+    // Bisa update terpisah: SQI PIC saja atau status saja
     if (sqiPicId !== undefined) support.sqiPicId = sqiPicId || null;
     if (status !== undefined) support.status = status || null;
 
     await support.save();
 
     res.status(200).json({
-      message: "✅ Deployment support berhasil diperbarui.",
+      message: "Deployment support successfully updated.",
       data: support,
     });
   } catch (err) {
-    console.error("❌ Error updating deployment support:", err);
+    console.error("Error updating deployment support:", err);
     res.status(500).json({
-      error: "Gagal memperbarui deployment support.",
+      error: "Failed to update deployment support.",
       details: err.message,
     });
   }

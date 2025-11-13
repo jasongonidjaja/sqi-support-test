@@ -53,7 +53,7 @@ const DeploymentBoardPage = () => {
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role?.toLowerCase() || "guest";
 
-  // ✅ Ambil data dari API
+  // Ambil data dari API
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
@@ -83,7 +83,7 @@ const DeploymentBoardPage = () => {
       setEvents(cleaned);
       setSqiPics(sqiRes.data?.data || []);
     } catch (err) {
-      console.error("❌ Gagal mengambil data:", err);
+      console.error("❌ Failed to retrieve data:", err);
     } finally {
       setLoading(false);
     }
@@ -118,12 +118,12 @@ const DeploymentBoardPage = () => {
       link.click();
       link.remove();
     } catch (err) {
-      console.error("❌ Gagal mengunduh file:", err);
-      alert("Gagal mengunduh file.");
+      console.error("Failed to download file:", err);
+      alert("Failed to download file.");
     }
   };
 
-  // ✅ Update status (otomatis reload)
+  // Update status (otomatis reload)
   const handleStatusChange = async (event) => {
     if (isUpdating) return;
     setIsUpdating(true);
@@ -135,17 +135,17 @@ const DeploymentBoardPage = () => {
         status: newStatus === "null" ? null : newStatus,
       });
       alert("Status berhasil diubah!");
-      await fetchData(); // 🔄 reload data otomatis
+      await fetchData(); // reload data otomatis
       setOpenDialog(false);
     } catch (err) {
-      console.error("❌ Gagal memperbarui status:", err);
-      alert("Gagal memperbarui status.");
+      console.error("Failed to update status:", err);
+      alert("Failed to update status");
     } finally {
       setIsUpdating(false);
     }
   };
 
-  // ✅ Assign PIC (otomatis reload)
+  // Assign PIC (otomatis reload)
   const handleAssignPic = async (event) => {
     if (isUpdating) return;
     setIsUpdating(true);
@@ -157,11 +157,11 @@ const DeploymentBoardPage = () => {
         sqiPicId: picId === "" ? null : picId,
       });
       alert("PIC berhasil di-assign!");
-      await fetchData(); // 🔄 reload data otomatis
+      await fetchData(); // reload data otomatis
       setOpenDialog(false);
     } catch (err) {
-      console.error("❌ Gagal assign PIC:", err);
-      alert("Gagal assign PIC.");
+      console.error("Failed to assign PIC:", err);
+      alert("Failed to assign PIC.");
     } finally {
       setIsUpdating(false);
     }
@@ -401,7 +401,7 @@ const DeploymentBoardPage = () => {
 
       {/* Dialog detail */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
-        <DialogTitle>Detail Event</DialogTitle>
+        <DialogTitle>Event Detail</DialogTitle>
         <DialogContent dividers>
           {selectedEvent ? (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
@@ -409,10 +409,10 @@ const DeploymentBoardPage = () => {
                 <strong>Release ID:</strong> {selectedEvent.releaseId}
               </Typography>
               <Typography>
-                <strong>Judul:</strong> {selectedEvent.title}
+                <strong>Title:</strong> {selectedEvent.title}
               </Typography>
               <Typography>
-                <strong>Tanggal:</strong>{" "}
+                <strong>Date:</strong>{" "}
                 {selectedEvent.implementDate ||
                   selectedEvent.supportDate ||
                   selectedEvent.date}
@@ -472,7 +472,7 @@ const DeploymentBoardPage = () => {
               )}
             </Box>
           ) : (
-            <Typography>Tidak ada data.</Typography>
+            <Typography>No Data.</Typography>
           )}
         </DialogContent>
 
@@ -489,7 +489,7 @@ const DeploymentBoardPage = () => {
             </Button>
           )}
           <Button onClick={() => setOpenDialog(false)} color="primary">
-            Tutup
+            Close
           </Button>
         </DialogActions>
       </Dialog>

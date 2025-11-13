@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Box, Typography, TextField, Button, MenuItem, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import UploadFileIcon from "@mui/icons-material/UploadFile"; // 🔹 Ikon upload
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 
 const CreateTaskPage = () => {
   const [supportTypes, setSupportTypes] = useState([]);
@@ -20,7 +20,7 @@ const CreateTaskPage = () => {
 
   const navigate = useNavigate();
 
-  // 🔹 Ambil data dari API (SupportType, Application, SQI)
+  // Ambil data dari API (SupportType, Application, SQI)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -40,14 +40,14 @@ const CreateTaskPage = () => {
         setApplications(appRes.data?.data || []);
         // setSqiPics(picRes.data);
       } catch (err) {
-        console.error("Gagal memuat data dropdown:", err);
+        console.error("Failed to load dropdown data:", err);
       }
     };
 
     fetchData();
   }, []);
 
-  // 🔹 Handle perubahan input
+  // Handle perubahan input
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -56,7 +56,7 @@ const CreateTaskPage = () => {
     setForm({ ...form, attachment: e.target.files[0] });
   };
 
-  // 🔹 Handle submit
+  // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -79,18 +79,17 @@ const CreateTaskPage = () => {
       await axios.post("http://localhost:4000/api/tasks", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data", // Pastikan header ini ada untuk upload file
+          "Content-Type": "multipart/form-data", // Header untuk upload file
         },
       });
 
-      alert("Task berhasil dibuat!");
+      alert("Task created successfully!");
       navigate("/tasks"); // Redirect ke daftar task setelah berhasil
     } catch (err) {
       console.error("Error creating task:", err);
-      alert("Gagal menyimpan task. Lihat console untuk detail error.");
+      alert("Failed to save task. See console for error details.");
     }
   };
-
 
   return (
     <Box
@@ -104,12 +103,11 @@ const CreateTaskPage = () => {
         sx={{
           flexGrow: 1,
           p: 0,
-          // marginLeft: "220px",
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
           minHeight: "100vh",
-          backgroundColor: "transparent", // tetap bening
+          backgroundColor: "transparent",
         }}
       >
         <Paper
@@ -134,7 +132,7 @@ const CreateTaskPage = () => {
 
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
-              label="Judul Task"
+              label="Title"
               name="title"
               value={form.title}
               onChange={handleChange}
@@ -145,7 +143,7 @@ const CreateTaskPage = () => {
 
             <TextField
               select
-              label="Bentuk Support"
+              label="Support Type"
               name="supportType"
               value={form.supportType}
               onChange={handleChange}
@@ -176,7 +174,7 @@ const CreateTaskPage = () => {
 
             <TextField
               select
-              label="Aplikasi"
+              label="Application"
               name="applicationId"
               value={form.applicationId}
               onChange={handleChange}
@@ -192,7 +190,7 @@ const CreateTaskPage = () => {
             </TextField>
 
             <TextField
-              label="Deskripsi"
+              label="Description"
               name="description"
               value={form.description}
               onChange={handleChange}
@@ -214,7 +212,7 @@ const CreateTaskPage = () => {
                 textTransform: "none",
               }}
             >
-              {form.attachment ? "Ganti File" : "Pilih File Attachment"}
+              {form.attachment ? "Change File" : "Select Attachment File"}
               <input
                 type="file"
                 hidden
@@ -234,7 +232,7 @@ const CreateTaskPage = () => {
             )}
 
             <Button variant="contained" fullWidth type="submit">
-              Simpan Task
+              Save
             </Button>
           </Box>
         </Paper>
