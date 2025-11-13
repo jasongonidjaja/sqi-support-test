@@ -5,7 +5,9 @@ import {
   TextField,
   Button,
   Paper,
-  MenuItem
+  MenuItem,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
@@ -23,6 +25,10 @@ const CreateDeploymentSupportPage = () => {
     riskImpact: "Low",
   });
 
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState("success");
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -33,17 +39,27 @@ const CreateDeploymentSupportPage = () => {
     setForm({ ...form, attachment: e.target.files[0] });
   };
 
+  const handleAlert = (message, severity = "success") => {
+    setAlertMessage(message);
+    setAlertSeverity(severity);
+    setAlertOpen(true);
+  };
+
+  const handleCloseAlert = (_, reason) => {
+    if (reason === "clickaway") return;
+    setAlertOpen(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validasi tanggal implementasi tidak boleh kurang dari hari ini
     const today = new Date();
     const selectedDate = new Date(form.implementDate);
     today.setHours(0, 0, 0, 0);
     selectedDate.setHours(0, 0, 0, 0);
 
     if (selectedDate < today) {
-      alert("The implementation date must not be less than today!");
+      handleAlert("The implementation date must not be less than today!", "warning");
       return;
     }
 
@@ -68,22 +84,20 @@ const CreateDeploymentSupportPage = () => {
         },
       });
 
-      alert("Deployment Support successfully created");
-      navigate("/deployment-board");
+      handleAlert("Deployment Support successfully created!", "success");
+
+      // delay 2 detik sebelum pindah halaman
+      setTimeout(() => navigate("/deployment-board"), 2000);
     } catch (err) {
       console.error("Failed to create Deployment Support:", err);
-      alert("Failed to save Deployment Support.");
+      handleAlert("Failed to save Deployment Support.", "error");
     }
   };
 
   const todayDate = new Date().toISOString().split("T")[0];
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-      }}
-    >
+    <Box sx={{ display: "flex" }}>
       <Box
         component="main"
         sx={{
@@ -127,7 +141,6 @@ const CreateDeploymentSupportPage = () => {
               required
             />
 
-            {/* Application (free text) */}
             <TextField
               label="Application"
               name="application"
@@ -136,10 +149,8 @@ const CreateDeploymentSupportPage = () => {
               fullWidth
               sx={{ mb: 2 }}
               required
-              // placeholder="Example: SQI Support"
             />
 
-            {/* Title */}
             <TextField
               label="Title"
               name="title"
@@ -150,7 +161,6 @@ const CreateDeploymentSupportPage = () => {
               required
             />
 
-            {/* Implement Date */}
             <TextField
               label="Select Date"
               name="implementDate"
@@ -164,7 +174,6 @@ const CreateDeploymentSupportPage = () => {
               inputProps={{ min: todayDate }}
             />
 
-            {/* Impacted Application */}
             <TextField
               label="Impacted Application"
               name="impactedApplication"
@@ -173,10 +182,8 @@ const CreateDeploymentSupportPage = () => {
               fullWidth
               sx={{ mb: 2 }}
               required
-              // placeholder="Example: Customer Portal, Internal Dashboard"
             />
 
-            {/* Note */}
             <TextField
               label="Note"
               name="note"
@@ -188,7 +195,6 @@ const CreateDeploymentSupportPage = () => {
               sx={{ mb: 2 }}
             />
 
-            {/* Risk Impact */}
             <TextField
               select
               label="Risk Impact"
@@ -204,7 +210,6 @@ const CreateDeploymentSupportPage = () => {
               <MenuItem value="Major Release">Major Release</MenuItem>
             </TextField>
 
-            {/* Attachment */}
             <Button
               variant="outlined"
               component="label"
@@ -230,6 +235,23 @@ const CreateDeploymentSupportPage = () => {
             </Button>
           </Box>
         </Paper>
+
+        {/* Snackbar Alert */}
+        <Snackbar
+          open={alertOpen}
+          autoHideDuration={3000}
+          onClose={handleCloseAlert}
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleCloseAlert}
+            severity={alertSeverity}
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            {alertMessage}
+          </Alert>
+        </Snackbar>
       </Box>
     </Box>
   );

@@ -21,6 +21,18 @@ module.exports = {
         allowNull: false,
       },
 
+      // 🔹 Relasi ke aplikasi
+      applicationId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "applications",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "CASCADE",
+      },
+
       // 🔹 User pembuat entry (developer / SQI)
       createdByUserId: {
         type: Sequelize.INTEGER,

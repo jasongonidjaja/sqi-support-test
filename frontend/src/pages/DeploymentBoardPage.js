@@ -102,6 +102,61 @@ const DeploymentBoardPage = () => {
     setOpenDialog(true);
   };
 
+// ✅ Tutup dialog dan reload hanya jika role SQI & type event Deployment
+const handleCloseDialog = async () => {
+  setOpenDialog(false);
+
+  // Pastikan event dan role cocok
+  if (role === "sqi" && selectedEvent?.type === "request") {
+    await fetchData();
+  }
+};
+
+
+  // 🔹 Update status tanpa reload
+  const handleStatusChange = async (event) => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+    const newStatus = event.target.value;
+    setSelectedStatus(newStatus);
+
+    try {
+      await api.patch(`/deployment-requests/${selectedEvent.id}`, {
+        status: newStatus === "null" ? null : newStatus,
+      });
+      // alert("Status changed successfully!");
+      // ❌ Tidak reload, tidak menutup popup
+      setSelectedEvent((prev) => ({ ...prev, status: newStatus }));
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      alert("Failed to update status");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  // 🔹 Assign PIC tanpa reload
+  const handleAssignPic = async (event) => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+    const picId = event.target.value;
+    setSelectedPic(picId);
+
+    try {
+      await api.patch(`/deployment-requests/${selectedEvent.id}`, {
+        sqiPicId: picId === "" ? null : picId,
+      });
+      // alert("PIC assigned successfully!");
+      // ❌ Tidak reload, tidak menutup popup
+      setSelectedEvent((prev) => ({ ...prev, sqiPicId: picId }));
+    } catch (err) {
+      console.error("Failed to assign PIC:", err);
+      alert("Failed to assign PIC.");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   // Download attachment
   const handleDownload = async () => {
     try {
@@ -120,50 +175,6 @@ const DeploymentBoardPage = () => {
     } catch (err) {
       console.error("Failed to download file:", err);
       alert("Failed to download file.");
-    }
-  };
-
-  // Update status (otomatis reload)
-  const handleStatusChange = async (event) => {
-    if (isUpdating) return;
-    setIsUpdating(true);
-    const newStatus = event.target.value;
-    setSelectedStatus(newStatus);
-
-    try {
-      await api.patch(`/deployment-requests/${selectedEvent.id}`, {
-        status: newStatus === "null" ? null : newStatus,
-      });
-      alert("Status berhasil diubah!");
-      await fetchData(); // reload data otomatis
-      setOpenDialog(false);
-    } catch (err) {
-      console.error("Failed to update status:", err);
-      alert("Failed to update status");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  // Assign PIC (otomatis reload)
-  const handleAssignPic = async (event) => {
-    if (isUpdating) return;
-    setIsUpdating(true);
-    const picId = event.target.value;
-    setSelectedPic(picId);
-
-    try {
-      await api.patch(`/deployment-requests/${selectedEvent.id}`, {
-        sqiPicId: picId === "" ? null : picId,
-      });
-      alert("PIC berhasil di-assign!");
-      await fetchData(); // reload data otomatis
-      setOpenDialog(false);
-    } catch (err) {
-      console.error("Failed to assign PIC:", err);
-      alert("Failed to assign PIC.");
-    } finally {
-      setIsUpdating(false);
     }
   };
 
@@ -369,16 +380,9 @@ const DeploymentBoardPage = () => {
         }}
       >
         {Object.entries(riskColors)
-          .filter(([key]) => key !== "default") // hilangkan default
+          .filter(([key]) => key !== "default")
           .map(([key, color]) => (
-            <Box
-              key={key}
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-              }}
-            >
+            <Box key={key} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Box
                 sx={{
                   width: 16,
@@ -398,15 +402,17 @@ const DeploymentBoardPage = () => {
           ))}
       </Box>
 
-
       {/* Dialog detail */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth>
+      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth>
         <DialogTitle>Event Detail</DialogTitle>
         <DialogContent dividers>
           {selectedEvent ? (
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <Typography>
                 <strong>Release ID:</strong> {selectedEvent.releaseId}
+              </Typography>
+              <Typography>
+                <strong>Application:</strong> {selectedEvent.application}
               </Typography>
               <Typography>
                 <strong>Title:</strong> {selectedEvent.title}
@@ -417,58 +423,79 @@ const DeploymentBoardPage = () => {
                   selectedEvent.supportDate ||
                   selectedEvent.date}
               </Typography>
+
+              {/* Hanya tampil untuk SUPPORT */}
+              {selectedEvent?.type === "support" && (
+                <>
+                  <Typography>
+                    <strong>Impacted Application:</strong>{" "}
+                    {selectedEvent.impactedApplication || "-"}
+                  </Typography>
+                  <Typography>
+                    <strong>Note:</strong> {selectedEvent.note || "-"}
+                  </Typography>
+                </>
+              )}
+
+              <Typography>
+                <strong>Created By:</strong> {selectedEvent.createdByUserId}
+              </Typography>
               <Typography>
                 <strong>Risk Impact:</strong> {selectedEvent.riskImpact || "-"}
               </Typography>
 
-              {role === "sqi" && selectedEvent?.type === "request" && (
-                <FormControl size="small" sx={{ mt: 1, width: "100%" }}>
-                  <InputLabel id="sqi-pic-label">Assign SQI PIC</InputLabel>
-                  <Select
-                    labelId="sqi-pic-label"
-                    value={selectedPic}
-                    onChange={handleAssignPic}
-                    label="Assign SQI PIC"
-                  >
-                    {sqiPics.map((pic) => (
-                      <MenuItem key={pic.id} value={pic.id}>
-                        {pic.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
+              {/* Hanya tampil untuk REQUEST */}
+              {selectedEvent?.type === "request" && (
+                <>
+                  {role === "sqi" && (
+                    <FormControl size="small" sx={{ mt: 1, width: "100%" }}>
+                      <InputLabel id="sqi-pic-label">Assign SQI PIC</InputLabel>
+                      <Select
+                        labelId="sqi-pic-label"
+                        value={selectedPic}
+                        onChange={handleAssignPic}
+                        label="Assign SQI PIC"
+                      >
+                        {sqiPics.map((pic) => (
+                          <MenuItem key={pic.id} value={pic.id}>
+                            {pic.name}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
 
-              {role === "developer" && (
-                <Typography sx={{ mt: 1 }}>
-                  <strong>PIC SQI:</strong>{" "}
-                  {sqiPics.find((p) => p.id === selectedEvent.sqiPicId)?.name ||
-                    "-"}
-                </Typography>
-              )}
+                  {role === "developer" && (
+                    <Typography sx={{ mt: 1 }}>
+                      <strong>PIC SQI:</strong>{" "}
+                      {sqiPics.find((p) => p.id === selectedEvent.sqiPicId)?.name || "-"}
+                    </Typography>
+                  )}
 
-              {role === "sqi" && selectedEvent?.type === "request" && (
-                <FormControl size="small" sx={{ mt: 2, width: "100%" }}>
-                  <InputLabel id="status-label">Status</InputLabel>
-                  <Select
-                    labelId="status-label"
-                    value={selectedStatus}
-                    onChange={handleStatusChange}
-                    label="Status"
-                  >
-                    {statuses.map((status) => (
-                      <MenuItem key={status} value={status}>
-                        {status === "null" ? "-" : status}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              )}
+                  {role === "sqi" && (
+                    <FormControl size="small" sx={{ mt: 2, width: "100%" }}>
+                      <InputLabel id="status-label">Status</InputLabel>
+                      <Select
+                        labelId="status-label"
+                        value={selectedStatus}
+                        onChange={handleStatusChange}
+                        label="Status"
+                      >
+                        {statuses.map((status) => (
+                          <MenuItem key={status} value={status}>
+                            {status === "null" ? "-" : status}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
 
-              {role === "developer" && (
-                <Typography sx={{ mt: 1 }}>
-                  <strong>Status:</strong> {selectedEvent.status || "-"}
-                </Typography>
+                  {role === "developer" && (
+                    <Typography sx={{ mt: 1 }}>
+                      <strong>Status:</strong> {selectedEvent.status || "-"}
+                    </Typography>
+                  )}
+                </>
               )}
             </Box>
           ) : (
@@ -488,7 +515,7 @@ const DeploymentBoardPage = () => {
               Download
             </Button>
           )}
-          <Button onClick={() => setOpenDialog(false)} color="primary">
+          <Button onClick={handleCloseDialog} color="primary">
             Close
           </Button>
         </DialogActions>

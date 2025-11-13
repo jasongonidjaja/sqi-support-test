@@ -17,6 +17,13 @@ const KnowledgeCenter = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
+    applicationId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: { model: "applications", key: "id" },
+      onDelete: "SET NULL",
+      onUpdate: "CASCADE",
+    },
     createdByUserId: {
       type: DataTypes.INTEGER,
       allowNull: false,

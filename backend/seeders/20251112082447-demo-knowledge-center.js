@@ -74,9 +74,10 @@ export async function up(queryInterface, Sequelize) {
     const solutionIndex = i % solutions.length;
 
     data.push({
-      problem: `${problems[problemIndex]}`,
-      solution: `${solutions[solutionIndex]}`,
+      problem: problems[problemIndex],
+      solution: solutions[solutionIndex],
       createdByUserId: (i % 10) + 1, // userId 1–10
+      applicationId: Math.floor(Math.random() * 12) + 1, // ✅ random 1–12
       createdAt: new Date(),
       updatedAt: new Date(),
     });

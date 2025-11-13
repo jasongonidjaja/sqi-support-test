@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 import models from "../models/index.js";
+import { application } from "express";
 
 const { DeploymentRequest, DeploymentSupport, Application } = models;
 
@@ -56,11 +57,12 @@ export const getCalendarData = async (req, res) => {
       type: "request",
       title: r.title,
       implementDate: toIsoDate(r.implementDate),
-      applicationName: r.application?.name || null,
+      application: r.application?.name || null,
       riskImpact: r.riskImpact || null,
       attachment: r.attachment || null,
       status: r.status || null,
       sqiPicId: r.sqiPicId || null,
+      createdByUserId: r.createdByUserId,
     }));
 
     const mappedSupports = supports.map((s) => ({
@@ -69,11 +71,14 @@ export const getCalendarData = async (req, res) => {
       type: "support",
       title: s.title,
       implementDate: toIsoDate(s.implementDate),
-      applicationName: s.application || s.impactedApplication || null,
+      application: s.application,
+      impactedApplication: s.impactedApplication,
       riskImpact: s.riskImpact || null,
       attachment: s.attachment || null,
       status: s.status || null,
       sqiPicId: s.sqiPicId || null,
+      createdByUserId: s.createdByUserId,
+      note: s.note,
     }));
 
     const combined = [...mappedRequests, ...mappedSupports].sort(

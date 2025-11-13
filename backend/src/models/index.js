@@ -96,6 +96,18 @@ KnowledgeCenter.belongsTo(User, {
   as: "createdBy",
 });
 
+// Application ↔ KnowledgeCenter
+Application.hasMany(KnowledgeCenter, {
+  foreignKey: "applicationId",
+  as: "knowledgeCenters", 
+});
+
+KnowledgeCenter.belongsTo(Application, {
+  foreignKey: "applicationId",
+  as: "application", 
+});
+
+
 // =====================
 // Export Semua Model
 // =====================

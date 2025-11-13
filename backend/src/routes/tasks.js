@@ -27,7 +27,7 @@ const fileFilter = (req, file, cb) => {
     "text/csv",
   ];
   if (!allowed.includes(file.mimetype)) {
-    return cb(new Error("❌ Hanya file .xlsx atau .csv yang diizinkan."), false);
+    return cb(new Error("Only .xlsx or .csv files are allowed."), false);
   }
   cb(null, true);
 };

@@ -17,6 +17,10 @@ import {
   CircularProgress,
   Pagination,
   InputAdornment,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
@@ -27,6 +31,10 @@ const KnowledgeCenter = () => {
   const [data, setData] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Dropdown aplikasi
+  const [applications, setApplications] = useState([]);
+  const [selectedApp, setSelectedApp] = useState("");
 
   // Modal Add
   const [problem, setProblem] = useState("");
@@ -47,37 +55,61 @@ const KnowledgeCenter = () => {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Fetch data
-  const fetchData = async (searchTerm = "") => {
+  // Ambil daftar aplikasi dari backend
+  const fetchApplications = async () => {
+    try {
+      const res = await api.get("/applications");
+      setApplications(res.data.data || []);
+    } catch (err) {
+      console.error("Failed to load applications:", err);
+    }
+  };
+
+  // Ambil semua knowledge dengan filter dan search
+  const fetchData = async (searchTerm = "", appFilter = "") => {
     setLoading(true);
     try {
-      const res = await api.get(`/knowledge-center?search=${searchTerm}`);
+      const query = new URLSearchParams();
+      if (searchTerm) query.append("search", searchTerm);
+      if (appFilter) query.append("application", appFilter);
+
+      const res = await api.get(`/knowledge-center?${query.toString()}`);
       setData(res.data.data || []);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch knowledge center data:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  // Live search
+  // Load awal
+  useEffect(() => {
+    fetchApplications();
+    fetchData();
+  }, []);
+
+  // Live search dan filter aplikasi
   useEffect(() => {
     const delay = setTimeout(() => {
-      fetchData(search);
+      fetchData(search, selectedApp);
       setPage(1);
-    }, 300);
+    }, 400);
     return () => clearTimeout(delay);
-  }, [search]);
+  }, [search, selectedApp]);
 
   // Add new
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!problem || !solution) return;
-    await api.post("/knowledge-center", { problem, solution });
+    await api.post("/knowledge-center", {
+      problem,
+      solution,
+      applicationId: selectedApp || null,
+    });
     setProblem("");
     setSolution("");
     setOpenAddModal(false);
-    fetchData(search);
+    fetchData(search, selectedApp);
   };
 
   // Open edit modal
@@ -96,7 +128,7 @@ const KnowledgeCenter = () => {
       solution: editSolution,
     });
     setOpenEditModal(false);
-    fetchData(search);
+    fetchData(search, selectedApp);
   };
 
   // Open delete confirm
@@ -111,7 +143,7 @@ const KnowledgeCenter = () => {
     await api.delete(`/knowledge-center/${deleteId}`);
     setOpenConfirm(false);
     setOpenEditModal(false);
-    fetchData(search);
+    fetchData(search, selectedApp);
   };
 
   // Pagination
@@ -139,21 +171,56 @@ const KnowledgeCenter = () => {
         <Typography variant="body1" mb={3}>
           Find answers to questions and solutions to problems
         </Typography>
-        <TextField
-          placeholder="Type keywords here..."
-          variant="outlined"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          sx={{ width: "50%", backgroundColor: "white", borderRadius: 2 }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-            endAdornment: loading && <CircularProgress size={20} />,
+
+        {/* FILTER & SEARCH */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2,
           }}
-        />
+        >
+          <FormControl
+            size="small"
+            sx={{
+              minWidth: 180,
+              backgroundColor: "white",
+              borderRadius: 2,
+            }}
+          >
+            <InputLabel>Application</InputLabel>      
+            <Select
+              value={selectedApp}
+              label="Application"
+              onChange={(e) => setSelectedApp(e.target.value)}
+            >
+              <MenuItem value="">All Applications</MenuItem>
+              {applications.map((app) => (
+                <MenuItem key={app.id} value={app.id}>
+                  {app.name}
+                </MenuItem>
+              ))}
+          </Select>
+
+          </FormControl>
+
+          <TextField
+            placeholder="Type keywords here..."
+            variant="outlined"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={{ width: "40%", backgroundColor: "white", borderRadius: 2 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+              endAdornment: loading && <CircularProgress size={20} />,
+            }}
+          />
+        </Box>
       </Box>
 
       {/* CONTENT */}
@@ -170,7 +237,7 @@ const KnowledgeCenter = () => {
         }}
       >
         <Typography variant="h5" fontWeight="bold" mb={3}>
-          List of Problem
+          List of Problems
         </Typography>
 
         {/* Tombol Add */}
@@ -183,43 +250,67 @@ const KnowledgeCenter = () => {
             Add New
           </Button>
 
-          {/* Modal Add */}
-          <Dialog
-            open={openAddModal}
-            onClose={() => setOpenAddModal(false)}
-            fullWidth
-            maxWidth="sm"
-          >
-            <DialogTitle>Add New Problem & Solution</DialogTitle>
-            <DialogContent>
-              <Stack spacing={2} mt={1}>
-                <TextField
-                  placeholder="Problem"
-                  variant="outlined"
-                  fullWidth
-                  value={problem}
-                  onChange={(e) => setProblem(e.target.value)}
-                />
-                <TextField
-                  placeholder="Solution"
-                  variant="outlined"
-                  fullWidth
-                  value={solution}
-                  onChange={(e) => setSolution(e.target.value)}
-                />
-              </Stack>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => setOpenAddModal(false)}>Cancel</Button>
-              <Button
-                variant="contained"
-                sx={{ backgroundColor: "#1976d2" }}
-                onClick={handleSubmit}
-              >
-                Add
-              </Button>
-            </DialogActions>
-          </Dialog>
+        {/* Modal Add */}
+        <Dialog
+          open={openAddModal}
+          onClose={() => setOpenAddModal(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Add New Problem & Solution</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} mt={1}>
+              {/* Dropdown Application */}
+              <FormControl fullWidth size="small">
+                <InputLabel>Application</InputLabel>
+                <Select
+                  value={selectedApp}
+                  label="Application"
+                  onChange={(e) => setSelectedApp(e.target.value)}
+                >
+                  <MenuItem value="">Select Application</MenuItem>
+                  {applications.map((app) => (
+                    <MenuItem key={app.id} value={app.id}>
+                      {app.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              {/* Problem */}
+              <TextField
+                placeholder="Problem"
+                variant="outlined"
+                fullWidth
+                value={problem}
+                onChange={(e) => setProblem(e.target.value)}
+              />
+
+              {/* Solution */}
+              <TextField
+                placeholder="Solution"
+                variant="outlined"
+                fullWidth
+                multiline
+                minRows={2}
+                value={solution}
+                onChange={(e) => setSolution(e.target.value)}
+              />
+            </Stack>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setOpenAddModal(false)}>Cancel</Button>
+            <Button
+              variant="contained"
+              sx={{ backgroundColor: "#1976d2" }}
+              onClick={handleSubmit}
+            >
+              Add
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         </Box>
 
         {/* Accordion list */}
@@ -297,7 +388,11 @@ const KnowledgeCenter = () => {
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => confirmDelete(editId)} color="error" startIcon={<DeleteIcon />}>
+          <Button
+            onClick={() => confirmDelete(editId)}
+            color="error"
+            startIcon={<DeleteIcon />}
+          >
             Delete
           </Button>
           <Box flexGrow={1} />

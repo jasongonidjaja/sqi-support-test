@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-// 🟢 Create Deployment Request (developer only)
+// Create Deployment Request (developer only)
 router.post(
   "/",
   authenticate,
@@ -20,10 +20,10 @@ router.post(
   createDeploymentRequest
 );
 
-// 🔹 Get all deployment requests (developer & sqi)
+// Get all deployment requests (developer & sqi)
 // router.get("/", authenticate, authorize("developer", "sqi"), getDeploymentRequests);
 
-// 📦 Download attachment
+// Download attachment
 router.get(
   "/download/:filename",
   authenticate,

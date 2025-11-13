@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, TextField, Button, MenuItem, Paper } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  Paper,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -15,29 +24,30 @@ const CreateDeploymentRequestPage = () => {
   });
 
   const [applications, setApplications] = useState([]);
+
+  // 🔹 State untuk Snackbar
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertType, setAlertType] = useState("success");
+  const [alertMessage, setAlertMessage] = useState("");
+
   const navigate = useNavigate();
 
   // Ambil data aplikasi dari API
-useEffect(() => {
-  const fetchApplications = async () => {
-    try {
-      const res = await api.get("/applications", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      // Pastikan applications selalu array
-      setApplications(res.data?.data || []);
-    } catch (err) {
-      console.error("❌ Failed to retrieve application data:", err);
-    }
-  };
-
-  fetchApplications();
-}, []);
-
-
+  useEffect(() => {
+    const fetchApplications = async () => {
+      try {
+        const res = await api.get("/applications", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setApplications(res.data?.data || []);
+      } catch (err) {
+        console.error("❌ Failed to retrieve application data:", err);
+      }
+    };
+    fetchApplications();
+  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -45,6 +55,12 @@ useEffect(() => {
 
   const handleFileChange = (e) => {
     setForm({ ...form, attachment: e.target.files[0] });
+  };
+
+  // 🔹 Fungsi untuk menutup Snackbar
+  const handleAlertClose = (_, reason) => {
+    if (reason === "clickaway") return;
+    setAlertOpen(false);
   };
 
   const handleSubmit = async (e) => {
@@ -61,7 +77,6 @@ useEffect(() => {
     }
 
     try {
-      // Mengirim request ke backend untuk menyimpan deployment request
       await api.post("/deployment-requests", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -69,21 +84,23 @@ useEffect(() => {
         },
       });
 
-      alert("Deployment request created successfully!");
-      navigate("/deployment-board"); // Redirect ke kalender deployment setelah berhasil
+      // 🔹 Ganti alert biasa dengan Snackbar modern
+      setAlertType("success");
+      setAlertMessage("Deployment request created successfully!");
+      setAlertOpen(true);
+
+      // Redirect setelah beberapa detik agar user bisa lihat pesan sukses
+      setTimeout(() => navigate("/deployment-board"), 2000);
     } catch (err) {
       console.error("❌ Failed to create deployment request:", err);
-      alert("Failed to save deployment request.");
+      setAlertType("error");
+      setAlertMessage("Failed to save deployment request.");
+      setAlertOpen(true);
     }
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-      }}
-    >
-      {/* Konten utama */}
+    <Box sx={{ display: "flex" }}>
       <Box
         component="main"
         sx={{
@@ -96,14 +113,7 @@ useEffect(() => {
           backgroundColor: "transparent",
         }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            width: 400,
-            borderRadius: 2,
-          }}
-        >
+        <Paper elevation={3} sx={{ p: 4, width: 400, borderRadius: 2 }}>
           <Typography
             variant="h6"
             sx={{
@@ -150,7 +160,7 @@ useEffect(() => {
                 shrink: true,
               }}
               inputProps={{
-                min: new Date().toISOString().split("T")[0], // 🚫 tidak boleh kurang dari hari ini
+                min: new Date().toISOString().split("T")[0],
               }}
             />
 
@@ -186,7 +196,6 @@ useEffect(() => {
               <MenuItem value="Major Release">Major Release</MenuItem>
             </TextField>
 
-            {/* Upload File */}
             <Button
               variant="outlined"
               component="label"
@@ -206,7 +215,6 @@ useEffect(() => {
               />
             </Button>
 
-            {/* Tampilkan nama file jika sudah dipilih */}
             {form.attachment && (
               <Typography
                 variant="body2"
@@ -222,6 +230,23 @@ useEffect(() => {
           </Box>
         </Paper>
       </Box>
+
+      {/* 🔹 Snackbar Modern */}
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={3000}
+        onClose={handleAlertClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleAlertClose}
+          severity={alertType}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -10,7 +10,7 @@ import {
 
 const router = express.Router();
 
-// 🟢 Create Deployment Support (developer only)
+// Create Deployment Support (developer only)
 router.post(
   "/",
   authenticate,
@@ -19,10 +19,10 @@ router.post(
   createDeploymentSupport
 );
 
-// 🔹 Get all deployment supports (developer & sqi)
+// Get all deployment supports (developer & sqi)
 // router.get("/", authenticate, authorize("developer", "sqi"), getDeploymentSupports);
 
-// 📦 Download attachment
+// Download attachment
 router.get(
   "/download/:filename",
   authenticate,
@@ -30,7 +30,7 @@ router.get(
   downloadAttachment
 );
 
-// 🟡 Update SQI PIC & Status
+// Update SQI PIC & Status
 router.patch("/:id", authenticate, authorize("sqi"), updateDeploymentSupport);
 
 export default router;

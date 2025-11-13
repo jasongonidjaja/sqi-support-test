@@ -4,10 +4,10 @@ import { getAllSQIPics } from "../controllers/sqiPicController.js";
 
 const router = express.Router();
 
-// 🔹 Ambil semua PIC SQI
+// Ambil semua PIC SQI
 router.get("/", getAllSQIPics);
 
-// 🔹 Tambah PIC SQI baru
+// Tambah PIC SQI baru
 // router.post("/", createSQIPic);
 
 export default router;

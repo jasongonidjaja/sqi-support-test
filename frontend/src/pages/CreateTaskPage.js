@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Box, Typography, TextField, Button, MenuItem, Paper } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  MenuItem,
+  Paper,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 
@@ -18,9 +27,13 @@ const CreateTaskPage = () => {
     attachment: null,
   });
 
+  // 🔹 Tambahkan state untuk Snackbar
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertType, setAlertType] = useState("success"); // 'success' | 'error'
+  const [alertMessage, setAlertMessage] = useState("");
+
   const navigate = useNavigate();
 
-  // Ambil data dari API (SupportType, Application, SQI)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -38,7 +51,6 @@ const CreateTaskPage = () => {
 
         setSupportTypes(supportRes.data?.data || []);
         setApplications(appRes.data?.data || []);
-        // setSqiPics(picRes.data);
       } catch (err) {
         console.error("Failed to load dropdown data:", err);
       }
@@ -47,7 +59,6 @@ const CreateTaskPage = () => {
     fetchData();
   }, []);
 
-  // Handle perubahan input
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -56,48 +67,54 @@ const CreateTaskPage = () => {
     setForm({ ...form, attachment: e.target.files[0] });
   };
 
-  // Handle submit
+  // 🔹 Snackbar close handler
+  const handleAlertClose = (_, reason) => {
+    if (reason === "clickaway") return;
+    setAlertOpen(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Membuat objek FormData untuk menangani file upload
     const formData = new FormData();
     formData.append("title", form.title);
     formData.append("description", form.description);
     formData.append("supportType", form.supportType);
-    formData.append("customSupportType", form.supportType === "Other" ? form.customSupportType : null);
+    formData.append(
+      "customSupportType",
+      form.supportType === "Other" ? form.customSupportType : null
+    );
     formData.append("applicationId", form.applicationId);
     formData.append("sqiPicId", form.sqiPicId);
 
-    // Jika ada file attachment, tambahkan ke FormData
     if (form.attachment) {
       formData.append("attachment", form.attachment);
     }
 
     try {
-      // Mengirim request ke backend dengan FormData dan header untuk file upload
       await axios.post("http://localhost:4000/api/tasks", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data", // Header untuk upload file
+          "Content-Type": "multipart/form-data",
         },
       });
 
-      alert("Task created successfully!");
-      navigate("/tasks"); // Redirect ke daftar task setelah berhasil
+      // 🔹 Ganti alert() dengan Snackbar modern
+      setAlertType("success");
+      setAlertMessage("Task created successfully!");
+      setAlertOpen(true);
+
+      setTimeout(() => navigate("/tasks"), 2000);
     } catch (err) {
       console.error("Error creating task:", err);
-      alert("Failed to save task. See console for error details.");
+      setAlertType("error");
+      setAlertMessage("Failed to save task. Please try again.");
+      setAlertOpen(true);
     }
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-      }}
-    >
-      {/* Konten utama */}
+    <Box sx={{ display: "flex" }}>
       <Box
         component="main"
         sx={{
@@ -110,14 +127,7 @@ const CreateTaskPage = () => {
           backgroundColor: "transparent",
         }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            width: 400,
-            borderRadius: 2,
-          }}
-        >
+        <Paper elevation={3} sx={{ p: 4, width: 400, borderRadius: 2 }}>
           <Typography
             variant="h6"
             sx={{
@@ -159,7 +169,6 @@ const CreateTaskPage = () => {
               <MenuItem value="Other">Other</MenuItem>
             </TextField>
 
-            {/* Custom Support Type hanya muncul jika "Other" dipilih */}
             {form.supportType === "Other" && (
               <TextField
                 label="Custom Support Type"
@@ -201,27 +210,17 @@ const CreateTaskPage = () => {
               required
             />
 
-            {/* 🔹 Upload File Modern */}
             <Button
               variant="outlined"
               component="label"
               startIcon={<UploadFileIcon />}
               fullWidth
-              sx={{
-                mb: 2,
-                textTransform: "none",
-              }}
+              sx={{ mb: 2, textTransform: "none" }}
             >
               {form.attachment ? "Change File" : "Select Attachment File"}
-              <input
-                type="file"
-                hidden
-                name="attachment"
-                onChange={handleFileChange}
-              />
+              <input type="file" hidden name="attachment" onChange={handleFileChange} />
             </Button>
 
-            {/* Tampilkan nama file jika sudah dipilih */}
             {form.attachment && (
               <Typography
                 variant="body2"
@@ -237,6 +236,23 @@ const CreateTaskPage = () => {
           </Box>
         </Paper>
       </Box>
+
+      {/* 🔹 Snackbar + Alert modern */}
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={3000}
+        onClose={handleAlertClose}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={handleAlertClose}
+          severity={alertType}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

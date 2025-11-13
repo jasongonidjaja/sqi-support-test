@@ -1,6 +1,6 @@
 const sequelize = require('./db');
 const SupportType = require('./models/SupportType');
-const SqiPic = require('./models/SqiPic');
+const SqiPic = require('./models/SQIPic');
 
 (async () => {
   // 🔧 Matikan foreign key constraint sementara
