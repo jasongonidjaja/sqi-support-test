@@ -181,29 +181,29 @@ const KnowledgeCenter = () => {
             gap: 2,
           }}
         >
-          <FormControl
-            size="small"
+
+          <FormControl>
+          <Select
+            displayEmpty
+            value={selectedApp}
+            onChange={(e) => setSelectedApp(e.target.value)}
             sx={{
               minWidth: 180,
               backgroundColor: "white",
               borderRadius: 2,
             }}
           >
-            <InputLabel>Application</InputLabel>      
-            <Select
-              value={selectedApp}
-              label="Application"
-              onChange={(e) => setSelectedApp(e.target.value)}
-            >
-              <MenuItem value="">All Applications</MenuItem>
-              {applications.map((app) => (
-                <MenuItem key={app.id} value={app.id}>
-                  {app.name}
-                </MenuItem>
-              ))}
+            <MenuItem value="">
+              <em>All Application</em>
+            </MenuItem>
+            {applications.map((app) => (
+              <MenuItem key={app.id} value={app.id}>
+                {app.name}
+              </MenuItem>
+            ))}
           </Select>
+        </FormControl>
 
-          </FormControl>
 
           <TextField
             placeholder="Type keywords here..."
