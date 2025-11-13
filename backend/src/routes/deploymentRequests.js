@@ -1,6 +1,7 @@
 // src/routes/deploymentRequests.js
 import express from "express";
 import { authenticate, authorize } from "../middleware/auth.js";
+import { checkFreezeDate } from "../middleware/checkFreezeDate.js";
 import {
   upload,
   createDeploymentRequest,
@@ -17,6 +18,7 @@ router.post(
   authenticate,
   authorize("developer"),
   upload.single("attachment"),
+  checkFreezeDate, 
   createDeploymentRequest
 );
 

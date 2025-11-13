@@ -52,15 +52,21 @@ const DeploymentBoardPage = () => {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role?.toLowerCase() || "guest";
+  const [freezeDates, setFreezeDates] = useState([]);
+
 
   // Ambil data dari API
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [calendarRes, sqiRes] = await Promise.all([
+      const [calendarRes, sqiRes, freezeRes] = await Promise.all([
         api.get("/calendar"),
         api.get("/sqi-pics"),
+        api.get("/freeze-dates"), // ✅ ambil freeze dates
       ]);
+
+      const freezeData = freezeRes.data || []; // ✅ tambahkan ini
+      setFreezeDates(freezeData); // ✅ simpan ke state
 
       const rawData = calendarRes.data?.data || [];
       const cleaned = rawData
@@ -181,6 +187,13 @@ const handleCloseDialog = async () => {
   // Custom tampilan per hari
   const dayCellContent = (arg) => {
     const dateStr = toDateString(arg.date);
+    const isFreezeDay = freezeDates.some(fd => {
+      const start = new Date(fd.startDate);
+      const end = new Date(fd.endDate);
+      const current = new Date(dateStr);
+      return current >= start && current <= end;
+    });
+
     const dayEvents = events
       .filter((e) => e.start === dateStr)
       .sort((a, b) => {
@@ -190,7 +203,6 @@ const handleCloseDialog = async () => {
           Medium: 3,
           Low: 4,
         };
-
         const aStatus = a.extendedProps.status || "";
         const bStatus = b.extendedProps.status || "";
 
@@ -200,25 +212,13 @@ const handleCloseDialog = async () => {
         const aRisk = a.extendedProps.riskImpact || "Medium";
         const bRisk = b.extendedProps.riskImpact || "Medium";
 
-        const aRank = order[aRisk] || 999;
-        const bRank = order[bRisk] || 999;
-
-        return aRank - bRank;
+        return (order[aRisk] || 999) - (order[bRisk] || 999);
       });
-
-    if (dayEvents.length === 0) {
-      return (
-        <div style={{ padding: "4px 6px" }}>
-          <div style={{ fontSize: "0.8rem", fontWeight: "bold" }}>
-            {arg.dayNumberText}
-          </div>
-        </div>
-      );
-    }
 
     const requests = dayEvents.filter((e) => e.extendedProps.type === "request");
     const supports = dayEvents.filter((e) => e.extendedProps.type === "support");
 
+    // helper untuk render event
     const renderEvent = (ev) => {
       const color =
         ev.extendedProps.status === "cancel"
@@ -241,7 +241,7 @@ const handleCloseDialog = async () => {
             alignItems: "center",
             gap: "6px",
             cursor: "pointer",
-            fontSize: "1rem",
+            fontSize: "0.9rem",
             fontWeight: 500,
             margin: "2px 0",
           }}
@@ -263,11 +263,14 @@ const handleCloseDialog = async () => {
     return (
       <div
         style={{
-          padding: "2px",
+          padding: "4px",
           borderRadius: "6px",
           minHeight: "80px",
+          backgroundColor: isFreezeDay ? "#ffebee" : "transparent",
+          border: isFreezeDay ? "1px solid #e53935" : "none",
         }}
       >
+        {/* Hari dan label freeze */}
         <div
           style={{
             fontSize: "0.8rem",
@@ -277,50 +280,64 @@ const handleCloseDialog = async () => {
           }}
         >
           {arg.dayNumberText}
+          {isFreezeDay && (
+            <div
+              style={{
+                fontSize: "0.7rem",
+                color: "#e53935",
+                fontWeight: "bold",
+              }}
+            >
+              🔒 Freeze Day
+            </div>
+          )}
         </div>
 
-        <div
-          style={{
-            borderBottom: "1px solid #e0e0e0",
-            paddingBottom: "4px",
-            marginBottom: "4px",
-          }}
-        >
+        {/* Tampilkan hanya jika ada request */}
+        {requests.length > 0 && (
           <div
             style={{
-              fontSize: "1rem",
-              fontWeight: "bold",
-              color: "#1565c0",
-              marginBottom: "2px",
-              width: "100%",
-              textAlign: "center",
-              display: "block",
+              borderBottom: supports.length > 0 ? "1px solid #e0e0e0" : "none",
+              paddingBottom: "4px",
+              marginBottom: "4px",
             }}
           >
-            Deployment
+            <div
+              style={{
+                fontSize: "1rem",
+                fontWeight: "bold",
+                color: "#1565c0",
+                marginBottom: "2px",
+                textAlign: "center",
+              }}
+            >
+              Deployment
+            </div>
+            {requests.map(renderEvent)}
           </div>
-          {requests.length > 0 && requests.map(renderEvent)}
-        </div>
+        )}
 
-        <div>
-          <div
-            style={{
-              fontSize: "1rem",
-              fontWeight: "bold",
-              color: "#2e7d32",
-              marginBottom: "2px",
-              width: "100%",
-              textAlign: "center",
-              display: "block",
-            }}
-          >
-            Support
+        {/* Tampilkan hanya jika ada support */}
+        {supports.length > 0 && (
+          <div>
+            <div
+              style={{
+                fontSize: "1rem",
+                fontWeight: "bold",
+                color: "#2e7d32",
+                marginBottom: "2px",
+                textAlign: "center",
+              }}
+            >
+              Support
+            </div>
+            {supports.map(renderEvent)}
           </div>
-          {supports.length > 0 && supports.map(renderEvent)}
-        </div>
+        )}
       </div>
     );
   };
+
 
   if (loading)
     return (
