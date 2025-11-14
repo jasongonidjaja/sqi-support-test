@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 import models from "../models/index.js";
 import { application } from "express";
 
-const { DeploymentRequest, DeploymentSupport, Application } = models;
+const { DeploymentRequest, Support, Application } = models;
 
 const toIsoDate = (value) => {
   if (!value) return null;
@@ -45,7 +45,7 @@ export const getCalendarData = async (req, res) => {
         ],
         order: [["implementDate", "ASC"]],
       }),
-      DeploymentSupport.findAll({
+      Support.findAll({
         where: whereClause,
         order: [["implementDate", "ASC"]],
       }),

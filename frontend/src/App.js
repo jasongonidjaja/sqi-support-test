@@ -6,7 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import TaskListPage from "./pages/TaskListPage";
 import CreateTaskPage from "./pages/CreateTaskPage";
 import CreateDeploymentRequestPage from "./pages/CreateDeploymentRequestPage";
-import CreateDeploymentSupportPage from "./pages/CreateDeploymentSupportPage";
+import CreateSupportPage from "./pages/CreateSupportPage";
 import MainLayout from "./layout/MainLayout";
 import DeploymentBoardPage from "./pages/DeploymentBoardPage";
 import KnowledgeCenter from "./pages/KnowledgeCenter";
@@ -55,11 +55,11 @@ const App = () => {
         />
 
         <Route
-          path="/create-deployment-support"
+          path="/create-support"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <MainLayout>
-                <CreateDeploymentSupportPage />
+                <CreateSupportPage />
               </MainLayout>
             </ProtectedRoute>
           }

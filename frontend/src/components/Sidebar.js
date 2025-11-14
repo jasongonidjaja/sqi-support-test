@@ -45,7 +45,7 @@ const Sidebar = () => {
     ...(role === "developer"
       ? [
           { text: "Request Deployment", icon: <RocketLaunch />, path: "/request-deployment" },
-          { text: "Add Support", icon: <SupportAgent />, path: "/create-deployment-support" },
+          { text: "Add Support", icon: <SupportAgent />, path: "/create-support" },
         ]
       : []),
       

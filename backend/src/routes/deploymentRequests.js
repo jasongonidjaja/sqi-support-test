@@ -8,7 +8,7 @@ import {
   // getDeploymentRequests,
   downloadAttachment,
   updateDeploymentRequest,
-} from "../controllers/DeploymentRequestController.js";
+} from "../controllers/deploymentRequestController.js";
 
 const router = express.Router();
 

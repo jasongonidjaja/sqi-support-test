@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 
-const CreateDeploymentSupportPage = () => {
+const CreateSupportPage = () => {
   const [form, setForm] = useState({
     releaseId: "",
     application: "",
@@ -130,7 +130,7 @@ const CreateDeploymentSupportPage = () => {
     }
 
     try {
-      await api.post("/deployment-supports", formData, {
+      await api.post("/supports", formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
@@ -140,8 +140,8 @@ const CreateDeploymentSupportPage = () => {
       handleAlert("Deployment Support successfully created!", "success");
       setTimeout(() => navigate("/deployment-board"), 2000);
     } catch (err) {
-      console.error("❌ Failed to create Deployment Support:", err);
-      handleAlert("Failed to save Deployment Support.", "error");
+      console.error("❌ Failed to create Support:", err);
+      handleAlert("Failed to save Support.", "error");
     }
   };
 
@@ -303,4 +303,4 @@ const CreateDeploymentSupportPage = () => {
   );
 };
 
-export default CreateDeploymentSupportPage;
+export default CreateSupportPage;

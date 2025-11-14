@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import models from "../models/index.js";
 
-const { DeploymentSupport } = models;
+const { Support } = models;
 
 // ======================
 // File Upload Setup
@@ -21,9 +21,9 @@ const storage = multer.diskStorage({
 export const upload = multer({ storage });
 
 // ======================
-// CREATE Deployment Support
+// CREATE Support
 // ======================
-export const createDeploymentSupport = async (req, res) => {
+export const createSupport = async (req, res) => {
   try {
     const { releaseId, application, title, implementDate, impactedApplication, note, riskImpact } = req.body;
     const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
@@ -41,7 +41,7 @@ export const createDeploymentSupport = async (req, res) => {
       return res.status(400).json({ error: "The implementation date must not be less than today." });
     }
 
-    const newSupport = await DeploymentSupport.create({
+    const newSupport = await Support.create({
       releaseId,
       application,
       title,
@@ -56,13 +56,13 @@ export const createDeploymentSupport = async (req, res) => {
     });
 
     res.status(201).json({
-      message: "Deployment Support successfully created.",
+      message: "Support successfully created.",
       data: newSupport,
     });
   } catch (err) {
-    console.error("Error creating deployment support:", err);
+    console.error("Error creating support:", err);
     res.status(500).json({
-      error: "Failed to create deployment support.",
+      error: "Failed to create support.",
       details: err.message,
     });
   }
@@ -160,14 +160,14 @@ export const downloadAttachment = async (req, res) => {
 // ======================
 // UPDATE SQI PIC & STATUS
 // ======================
-export const updateDeploymentSupport = async (req, res) => {
+export const updateSupport = async (req, res) => {
   try {
     const { id } = req.params;
     const { sqiPicId, status } = req.body;
 
-    const support = await DeploymentSupport.findByPk(id);
+    const support = await Support.findByPk(id);
     if (!support) {
-      return res.status(404).json({ error: "Deployment support not found." });
+      return res.status(404).json({ error: "Support support not found." });
     }
 
     const validStatuses = [null, "success", "cancel"];
@@ -182,13 +182,13 @@ export const updateDeploymentSupport = async (req, res) => {
     await support.save();
 
     res.status(200).json({
-      message: "Deployment support successfully updated.",
+      message: "Support successfully updated.",
       data: support,
     });
   } catch (err) {
-    console.error("Error updating deployment support:", err);
+    console.error("Error updating support:", err);
     res.status(500).json({
-      error: "Failed to update deployment support.",
+      error: "Failed to update support.",
       details: err.message,
     });
   }

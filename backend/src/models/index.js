@@ -7,7 +7,7 @@ import SQIPic from "./SQIPic.js";
 import User from "./User.js";
 import TaskLog from "./TaskLog.js"
 import DeploymentRequest from "./DeploymentRequest.js";
-import DeploymentSupport from "./DeploymentSupport.js";
+import Support from "./Support.js";
 import KnowledgeCenter from "./KnowledgeCenter.js";
 
 // =====================
@@ -74,12 +74,12 @@ TaskLog.belongsTo(User, {
   as: "user"
 });
 
-// User ↔ DeploymentSupport
-User.hasMany(DeploymentSupport, {
+// User ↔ Support
+User.hasMany(Support, {
   foreignKey: "createdByUserId",
   as: "createdSupports",
 });
-DeploymentSupport.belongsTo(User, {
+Support.belongsTo(User, {
   foreignKey: "createdByUserId",
   as: "createdBy",
 });
@@ -119,7 +119,7 @@ const models = {
   SQIPic,
   User,
   DeploymentRequest,
-  DeploymentSupport,
+  Support,
   TaskLog,
   KnowledgeCenter,
 };

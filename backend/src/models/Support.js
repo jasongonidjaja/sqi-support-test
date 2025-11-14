@@ -1,8 +1,8 @@
 import { Sequelize, DataTypes } from "sequelize";
 import sequelize from "../config/database.js";
 
-const DeploymentSupport = sequelize.define(
-  "DeploymentSupport",
+const Support = sequelize.define(
+  "Support",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -61,8 +61,8 @@ const DeploymentSupport = sequelize.define(
     },
   },
   {
-    tableName: "deployment_supports",
+    tableName: "supports",
   }
 );
 
-export default DeploymentSupport;
+export default Support;

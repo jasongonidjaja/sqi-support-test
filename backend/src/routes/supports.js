@@ -2,24 +2,24 @@ import express from "express";
 import { authenticate, authorize } from "../middleware/auth.js";
 import {
   upload,
-  createDeploymentSupport,
+  createSupport,
   // getDeploymentSupports,
   downloadAttachment,
-  updateDeploymentSupport,
-} from "../controllers/DeploymentSupportController.js";
+  updateSupport,
+} from "../controllers/supportController.js";
 
 const router = express.Router();
 
-// Create Deployment Support (developer only)
+// Create Support (developer only)
 router.post(
   "/",
   authenticate,
   authorize("developer"),
   upload.single("attachment"),
-  createDeploymentSupport
+  createSupport
 );
 
-// Get all deployment supports (developer & sqi)
+// Get all supports (developer & sqi)
 // router.get("/", authenticate, authorize("developer", "sqi"), getDeploymentSupports);
 
 // Download attachment
@@ -31,6 +31,6 @@ router.get(
 );
 
 // Update SQI PIC & Status
-router.patch("/:id", authenticate, authorize("sqi"), updateDeploymentSupport);
+router.patch("/:id", authenticate, authorize("sqi"), updateSupport);
 
 export default router;
