@@ -8,7 +8,7 @@ import CreateTaskPage from "./pages/CreateTaskPage";
 import CreateDeploymentRequestPage from "./pages/CreateDeploymentRequestPage";
 import CreateSupportPage from "./pages/CreateSupportPage";
 import MainLayout from "./layout/MainLayout";
-import DeploymentBoardPage from "./pages/DeploymentBoardPage";
+import CalendarPage from "./pages/CalendarPage";
 import KnowledgeCenter from "./pages/KnowledgeCenter";
 
 const App = () => {
@@ -22,7 +22,7 @@ const App = () => {
 
         {/* Protected Routes */}
         <Route
-          path="/tasks"
+          path="/task-list"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <MainLayout>
@@ -33,7 +33,7 @@ const App = () => {
         />
 
         <Route
-          path="/create"
+          path="/create-task"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <MainLayout>
@@ -66,11 +66,11 @@ const App = () => {
         />
 
         <Route
-          path="/deployment-board"
+          path="/calendar"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <MainLayout>
-                <DeploymentBoardPage />
+                <CalendarPage />
               </MainLayout>
             </ProtectedRoute>
           }

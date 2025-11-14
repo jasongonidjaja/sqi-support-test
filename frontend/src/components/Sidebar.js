@@ -37,10 +37,10 @@ const Sidebar = () => {
   // 🔹 Menu utama
   const menuItems = [
     ...(role !== "sqi"
-      ? [{ text: "Request Support SQI", icon: <AddCircleOutline />, path: "/create" }]
+      ? [{ text: "Request Support SQI", icon: <AddCircleOutline />, path: "/create-task" }]
       : []),
 
-    { text: "Support SQI List", icon: <ListAlt />, path: "/tasks" },
+    { text: "Support SQI List", icon: <ListAlt />, path: "/task-list" },
 
     ...(role === "developer"
       ? [
@@ -49,7 +49,7 @@ const Sidebar = () => {
         ]
       : []),
       
-      { text: "Calendar", icon: <CalendarMonth />, path: "/deployment-board" },
+      { text: "Calendar", icon: <CalendarMonth />, path: "/calendar" },
 
       { text: "Knowledge Center", icon: <ListAlt />, path: "/knowledge-center" },
   ];
