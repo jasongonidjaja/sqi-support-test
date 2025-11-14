@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -9,6 +9,8 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -18,21 +20,65 @@ const CreateDeploymentSupportPage = () => {
     releaseId: "",
     application: "",
     title: "",
-    implementDate: "",
+    implementDate: null,
     impactedApplication: "",
     note: "",
     attachment: null,
     riskImpact: "Low",
   });
 
+  const [freezeDates, setFreezeDates] = useState([]);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState("success");
 
   const navigate = useNavigate();
 
+  // 🧊 Ambil freeze date dari API
+  useEffect(() => {
+    const fetchFreezeDates = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const freezeRes = await api.get("/freeze-dates", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const freezeArray = Array.isArray(freezeRes.data)
+          ? freezeRes.data
+          : freezeRes.data.data || [];
+
+        const expanded = [];
+        freezeArray.forEach((range) => {
+          const start = new Date(range.startDate);
+          const end = new Date(range.endDate);
+
+          for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+            expanded.push(d.toLocaleDateString("en-CA"));
+          }
+        });
+
+        setFreezeDates(expanded);
+      } catch (err) {
+        console.error("❌ Failed to fetch freeze dates:", err);
+      }
+    };
+
+    fetchFreezeDates();
+  }, []);
+
+  // 🔒 Disable tanggal freeze
+  const isDateDisabled = (date) => {
+    const formatted = date.toLocaleDateString("en-CA");
+    return freezeDates.includes(formatted);
+  };
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleDateChange = (value) => {
+    setForm({ ...form, implementDate: value });
   };
 
   const handleFileChange = (e) => {
@@ -53,13 +99,20 @@ const CreateDeploymentSupportPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const today = new Date();
-    const selectedDate = new Date(form.implementDate);
-    today.setHours(0, 0, 0, 0);
-    selectedDate.setHours(0, 0, 0, 0);
+    if (!form.implementDate) {
+      handleAlert("Implementation date is required!", "warning");
+      return;
+    }
 
-    if (selectedDate < today) {
-      handleAlert("The implementation date must not be less than today!", "warning");
+    // Format tanggal (menghindari minus 1 hari)
+    const d = new Date(form.implementDate);
+    const implementDate = `${d.getFullYear()}-${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+    // ❌ Tidak boleh freeze date
+    if (freezeDates.includes(implementDate)) {
+      handleAlert("Selected date is within a freeze period!", "warning");
       return;
     }
 
@@ -67,7 +120,7 @@ const CreateDeploymentSupportPage = () => {
     formData.append("releaseId", form.releaseId);
     formData.append("application", form.application);
     formData.append("title", form.title);
-    formData.append("implementDate", form.implementDate);
+    formData.append("implementDate", implementDate);
     formData.append("impactedApplication", form.impactedApplication);
     formData.append("note", form.note);
     formData.append("riskImpact", form.riskImpact);
@@ -85,16 +138,12 @@ const CreateDeploymentSupportPage = () => {
       });
 
       handleAlert("Deployment Support successfully created!", "success");
-
-      // delay 2 detik sebelum pindah halaman
       setTimeout(() => navigate("/deployment-board"), 2000);
     } catch (err) {
-      console.error("Failed to create Deployment Support:", err);
+      console.error("❌ Failed to create Deployment Support:", err);
       handleAlert("Failed to save Deployment Support.", "error");
     }
   };
-
-  const todayDate = new Date().toISOString().split("T")[0];
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -110,14 +159,7 @@ const CreateDeploymentSupportPage = () => {
           backgroundColor: "transparent",
         }}
       >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            width: 400,
-            borderRadius: 2,
-          }}
-        >
+        <Paper elevation={3} sx={{ p: 4, width: 400, borderRadius: 2 }}>
           <Typography
             variant="h6"
             sx={{
@@ -161,18 +203,23 @@ const CreateDeploymentSupportPage = () => {
               required
             />
 
-            <TextField
-              label="Select Date"
-              name="implementDate"
-              type="date"
-              value={form.implementDate}
-              onChange={handleChange}
-              fullWidth
-              sx={{ mb: 2 }}
-              required
-              InputLabelProps={{ shrink: true }}
-              inputProps={{ min: todayDate }}
-            />
+            {/* 📅 DatePicker with Freeze Date Support */}
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DatePicker
+                label="Implement Date"
+                value={form.implementDate}
+                onChange={handleDateChange}
+                shouldDisableDate={isDateDisabled}
+                minDate={new Date()}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    required: true,
+                    sx: { mb: 2 },
+                  },
+                }}
+              />
+            </LocalizationProvider>
 
             <TextField
               label="Impacted Application"
@@ -236,7 +283,6 @@ const CreateDeploymentSupportPage = () => {
           </Box>
         </Paper>
 
-        {/* Snackbar Alert */}
         <Snackbar
           open={alertOpen}
           autoHideDuration={3000}

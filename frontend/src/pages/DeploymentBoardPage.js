@@ -99,6 +99,39 @@ const DeploymentBoardPage = () => {
     fetchData();
   }, [fetchData]);
 
+  const handleDayCellDidMount = (arg) => {
+    const dateStr = toDateString(arg.date);
+
+    const freezeItem = freezeDates.find(fd => {
+      const start = new Date(fd.startDate);
+      const end = new Date(fd.endDate);
+      const current = new Date(dateStr);
+      return current >= start && current <= end;
+    });
+
+    if (freezeItem) {
+      arg.el.style.position = "relative";
+      arg.el.style.backgroundColor = "rgba(255, 0, 0, 0.12)";
+      arg.el.style.border = ""; // default border
+
+      arg.el.innerHTML = ""; // hapus isi
+
+      const reasonText = document.createElement("div");
+      reasonText.innerText = freezeItem.reason || "Freeze";
+      reasonText.style.position = "absolute";
+      reasonText.style.top = "50%";
+      reasonText.style.left = "50%";
+      reasonText.style.transform = "translate(-50%, -50%)";
+      reasonText.style.fontSize = "1rem";
+      reasonText.style.fontWeight = "bold";
+      reasonText.style.color = "#b71c1c";
+      reasonText.style.textAlign = "center";
+      reasonText.style.width = "90%";
+
+      arg.el.appendChild(reasonText);
+    }
+  };
+
   // Klik event
   const handleEventClick = (clickInfo) => {
     const eventProps = clickInfo.event.extendedProps;
@@ -108,15 +141,15 @@ const DeploymentBoardPage = () => {
     setOpenDialog(true);
   };
 
-// ✅ Tutup dialog dan reload hanya jika role SQI & type event Deployment
-const handleCloseDialog = async () => {
-  setOpenDialog(false);
+  // ✅ Tutup dialog dan reload hanya jika role SQI & type event Deployment
+  const handleCloseDialog = async () => {
+    setOpenDialog(false);
 
-  // Pastikan event dan role cocok
-  if (role === "sqi" && selectedEvent?.type === "request") {
-    await fetchData();
-  }
-};
+    // Pastikan event dan role cocok
+    if (role === "sqi" && selectedEvent?.type === "request") {
+      await fetchData();
+    }
+  };
 
 
   // 🔹 Update status tanpa reload
@@ -266,8 +299,8 @@ const handleCloseDialog = async () => {
           padding: "4px",
           borderRadius: "6px",
           minHeight: "80px",
-          backgroundColor: isFreezeDay ? "#ffebee" : "transparent",
-          border: isFreezeDay ? "1px solid #e53935" : "none",
+          // backgroundColor: isFreezeDay ? "#ffebee" : "transparent",
+          // border: isFreezeDay ? "1px solid #e53935" : "none",
         }}
       >
         {/* Hari dan label freeze */}
@@ -275,22 +308,34 @@ const handleCloseDialog = async () => {
           style={{
             fontSize: "0.8rem",
             fontWeight: "bold",
-            marginBottom: "4px",
-            textAlign: "left",
+            margin: "4px 0px",
+            textAlign: "center",
           }}
         >
           {arg.dayNumberText}
-          {isFreezeDay && (
-            <div
-              style={{
-                fontSize: "0.7rem",
-                color: "#e53935",
-                fontWeight: "bold",
-              }}
-            >
-              🔒 Freeze Day
-            </div>
-          )}
+          {/* {isFreezeDay && (
+            freezeDates
+              .filter(fd => {
+                const start = new Date(fd.startDate);
+                const end = new Date(fd.endDate);
+                const current = new Date(dateStr);
+                return current >= start && current <= end;
+              })
+              .map((fd, index) => (
+                <div
+                  key={index}
+                  style={{
+                    fontSize: "0.7rem",
+                    color: "#e53935",
+                    fontWeight: "bold",
+                    lineHeight: "1rem",
+                  }}
+                >
+                  🔒 {fd.reason}
+                </div>
+              ))
+          )} */}
+
         </div>
 
         {/* Tampilkan hanya jika ada request */}
@@ -383,6 +428,7 @@ const handleCloseDialog = async () => {
         timeZone="local"
         eventDisplay="none"
         className="custom-calendar"
+        dayCellDidMount={handleDayCellDidMount}
       />
 
       {/* 🔹 Legend Warna */}

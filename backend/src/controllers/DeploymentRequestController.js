@@ -19,59 +19,6 @@ const storage = multer.diskStorage({
 
 export const upload = multer({ storage });
 
-// =========================
-// CREATE Deployment Request
-// =========================
-// export const createDeploymentRequest = async (req, res) => {
-//   try {
-//     const { releaseId, title, implementDate, applicationId, riskImpact } = req.body;
-//     const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
-
-//     // Validasi tanggal implementasi
-//     const today = new Date();
-//     today.setHours(0, 0, 0, 0); // reset waktu jadi 00:00:00 agar perbandingan adil
-//     const selectedDate = new Date(implementDate);
-
-//     if (isNaN(selectedDate.getTime())) {
-//       return res.status(400).json({
-//         error: "Implementation date format is invalid.",
-//       });
-//     }
-
-//     if (selectedDate < today) {
-//       return res.status(400).json({
-//         error: "The implementation date must not be less than today.",
-//       });
-//     }
-
-//     // Buat deployment request baru
-//     const newRequest = await DeploymentRequest.create({
-//       releaseId,
-//       title,
-//       implementDate,
-//       applicationId,
-//       riskImpact,
-//       attachment: attachmentPath,
-//       createdByUserId: req.user.userId,
-//       status: null, // default
-//       sqiPicId: null, // default
-//     });
-
-//     res.status(201).json({
-//       message: "Deployment Request created successfully.",
-//       data: newRequest,
-//     });
-//   } catch (err) {
-//     console.error("Error creating request deployment:", err);
-//     res.status(500).json({
-//       error: "Failed to create deployment request.",
-//       details: err.message,
-//     });
-//   }
-// };
-
-// import DeploymentRequest from "../models/DeploymentRequest.js";
-
 /**
  * =========================
  * CREATE Deployment Request
@@ -124,12 +71,6 @@ export const createDeploymentRequest = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
 
 // ======================
 // 🔹 GET all Deployment Requests (Developer & SQI bisa lihat), fungsi ini dipindah di calendarController
