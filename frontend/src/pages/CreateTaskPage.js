@@ -28,7 +28,6 @@ const CreateTaskPage = () => {
   });
 
   // 🔹 Tambahkan state untuk Snackbar
-  const [alertOpen, setAlertOpen] = useState(false);
   const [alertType, setAlertType] = useState("success"); // 'success' | 'error'
   const [alertMessage, setAlertMessage] = useState("");
 
@@ -67,12 +66,6 @@ const CreateTaskPage = () => {
     setForm({ ...form, attachment: e.target.files[0] });
   };
 
-  // 🔹 Snackbar close handler
-  const handleAlertClose = (_, reason) => {
-    if (reason === "clickaway") return;
-    setAlertOpen(false);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -99,17 +92,21 @@ const CreateTaskPage = () => {
         },
       });
 
-      // 🔹 Ganti alert() dengan Snackbar modern
-      setAlertType("success");
-      setAlertMessage("Task created successfully!");
-      setAlertOpen(true);
-
-      setTimeout(() => navigate("/tasks"), 2000);
+      navigate("/task-list", {
+        state: {
+          alert: "Task created successfully!",
+          type: "success",
+        },
+      });
     } catch (err) {
       console.error("Error creating task:", err);
-      setAlertType("error");
-      setAlertMessage("Failed to save task. Please try again.");
-      setAlertOpen(true);
+
+      navigate("/task-list", {
+        state: {
+          alert: "Failed to save task. Please try again.",
+          type: "error",
+        },
+      });
     }
   };
 
@@ -236,23 +233,6 @@ const CreateTaskPage = () => {
           </Box>
         </Paper>
       </Box>
-
-      {/* 🔹 Snackbar + Alert modern */}
-      <Snackbar
-        open={alertOpen}
-        autoHideDuration={3000}
-        onClose={handleAlertClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={handleAlertClose}
-          severity={alertType}
-          variant="filled"
-          sx={{ width: "100%" }}
-        >
-          {alertMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   );
 };

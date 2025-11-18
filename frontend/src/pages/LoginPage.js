@@ -27,7 +27,7 @@ const LoginPage = () => {
       localStorage.setItem("user", JSON.stringify({ token, role, username }));
 
       login(token, role, username);
-      navigate("/tasks");
+      navigate("/calendar");
     } catch (err) {
       console.error("Login error:", err);
       if (err.response?.status === 401) setError("Username atau password salah.");

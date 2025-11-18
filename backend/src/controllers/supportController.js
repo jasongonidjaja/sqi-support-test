@@ -3,6 +3,7 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import models from "../models/index.js";
+import Log from "../models/Log.js"
 
 const { Support } = models;
 
@@ -53,6 +54,16 @@ export const createSupport = async (req, res) => {
       createdByUserId: req.user.userId,
       sqiPicId: null,
       status: null,
+    });
+
+    await Log.create({
+      username: req.user.username,
+      title: newSupport.title,
+      action: "Support Created",
+      oldValue: null,
+      newValue: `Support Created with Release ID: ${newSupport.releaseId}`,
+      support_releaseId: newSupport.releaseId,
+      support_impactedApp: newSupport.impactedApplication,
     });
 
     res.status(201).json({
@@ -125,6 +136,7 @@ export const createSupport = async (req, res) => {
 // ======================
 // DOWNLOAD ATTACHMENT
 // ======================
+
 export const downloadAttachment = async (req, res) => {
   try {
     const { filename } = req.params;
@@ -154,42 +166,5 @@ export const downloadAttachment = async (req, res) => {
   } catch (err) {
     console.error("Error in downloadAttachment:", err);
     res.status(500).json({ error: "An error occurred while downloading the file." });
-  }
-};
-
-// ======================
-// UPDATE SQI PIC & STATUS
-// ======================
-export const updateSupport = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { sqiPicId, status } = req.body;
-
-    const support = await Support.findByPk(id);
-    if (!support) {
-      return res.status(404).json({ error: "Support support not found." });
-    }
-
-    const validStatuses = [null, "success", "cancel"];
-    if (status && !validStatuses.includes(status)) {
-      return res.status(400).json({ error: "Invalid status." });
-    }
-
-    // Bisa update terpisah: SQI PIC saja atau status saja
-    if (sqiPicId !== undefined) support.sqiPicId = sqiPicId || null;
-    if (status !== undefined) support.status = status || null;
-
-    await support.save();
-
-    res.status(200).json({
-      message: "Support successfully updated.",
-      data: support,
-    });
-  } catch (err) {
-    console.error("Error updating support:", err);
-    res.status(500).json({
-      error: "Failed to update support.",
-      details: err.message,
-    });
   }
 };

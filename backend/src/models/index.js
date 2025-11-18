@@ -5,7 +5,7 @@ import Application from "./Application.js";
 import SupportType from "./SupportType.js";
 import SQIPic from "./SQIPic.js";
 import User from "./User.js";
-import TaskLog from "./TaskLog.js"
+import Log from "./Log.js";            // <-- updated
 import DeploymentRequest from "./DeploymentRequest.js";
 import Support from "./Support.js";
 import KnowledgeCenter from "./KnowledgeCenter.js";
@@ -44,7 +44,7 @@ Task.belongsTo(SQIPic, {
   as: "sqiPic"
 });
 
-// User ↔ Task
+// User ↔ Task (createdBy)
 User.hasMany(Task, {
   foreignKey: "createdByUserId",
   as: "createdTasks"
@@ -64,15 +64,9 @@ DeploymentRequest.belongsTo(Application, {
   as: "application",
 });
 
-// User ↔ TaskLog
-User.hasMany(TaskLog, {
-  foreignKey: "userId",
-  as: "taskLogs"
-});
-TaskLog.belongsTo(User, {
-  foreignKey: "userId",
-  as: "user"
-});
+// ❌ HAPUS relasi User ↔ TaskLog karena tidak ada foreign key lagi
+// User.hasMany(TaskLog, { ... })
+// TaskLog.belongsTo(User, { ... })
 
 // User ↔ Support
 User.hasMany(Support, {
@@ -84,9 +78,7 @@ Support.belongsTo(User, {
   as: "createdBy",
 });
 
-// =====================
-// 🧠 User ↔ KnowledgeCenter
-// =====================
+// User ↔ KnowledgeCenter
 User.hasMany(KnowledgeCenter, {
   foreignKey: "createdByUserId",
   as: "createdKnowledgeCenters",
@@ -101,18 +93,15 @@ Application.hasMany(KnowledgeCenter, {
   foreignKey: "applicationId",
   as: "knowledgeCenters", 
 });
-
 KnowledgeCenter.belongsTo(Application, {
   foreignKey: "applicationId",
   as: "application", 
 });
 
-
 // =====================
 // Export Semua Model
 // =====================
 const models = {
-  // sequelize,
   Task,
   Application,
   SupportType,
@@ -120,10 +109,8 @@ const models = {
   User,
   DeploymentRequest,
   Support,
-  TaskLog,
   KnowledgeCenter,
+  Log,     // <-- updated
 };
-
-// console.log("Associations initialized successfully");
 
 export default models;

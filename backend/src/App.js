@@ -16,7 +16,6 @@ import calendarRoutes from "./routes/calendar.js";
 import knowledgeCenterRoutes from "./routes/knowledgeCenter.js";
 import freezeDatesRoutes from "./routes/freezeDate.js";
 
-
 // Middleware
 import errorHandler from "./middleware/errorHandler.js";
 

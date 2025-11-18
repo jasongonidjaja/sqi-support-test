@@ -18,6 +18,9 @@ import {
   Pagination,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
+import { useLocation } from "react-router-dom";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const TaskListPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -25,12 +28,32 @@ const TaskListPage = () => {
   const [sqiPics, setSqiPics] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const location = useLocation();
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
 
   const limit = 10; // jumlah data per halaman
 
   const userData = JSON.parse(localStorage.getItem("user"));
   const userRole = userData?.role || null;
-  // console.log("User Role:", userRole);
+
+  useEffect(() => {
+    if (location.state?.alert) {
+      setSnackbar({
+        open: true,
+        message: location.state.alert,
+        severity: location.state.type || "success",
+      });
+
+      // Hapus state agar tidak repeat saat refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
 
   // Fetch semua task (dengan pagination)
   const fetchTasks = async (currentPage = 1) => {
@@ -70,15 +93,30 @@ const TaskListPage = () => {
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       await api.put(`/tasks/${taskId}`, { status: newStatus });
+
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
           task.id === taskId ? { ...task, status: newStatus } : task
         )
       );
+
+      // 🔥 SNACKBAR BERHASIL
+      setSnackbar({
+        open: true,
+        message: `Status berhasil diubah menjadi ${newStatus}`,
+        severity: "success",
+      });
+
     } catch (err) {
-      console.error("❌ Error updating task status:", err);
+      // 🔥 SNACKBAR ERROR
+      setSnackbar({
+        open: true,
+        message: "Gagal mengubah status",
+        severity: "error",
+      });
     }
   };
+
 
   // Assign PIC SQI
   const handleAssignSQI = async (taskId, sqiPicId) => {
@@ -87,24 +125,34 @@ const TaskListPage = () => {
 
       const selectedPic = sqiPics.find((p) => p.id === sqiPicId);
 
-      // Update data di state langsung tanpa reload
       setTasks((prevTasks) =>
         prevTasks.map((task) =>
           task.id === taskId
             ? {
                 ...task,
                 sqiPic: selectedPic || null,
-                status: "in_progress", // otomatis ubah status di UI
+                status: "in_progress",
               }
             : task
         )
       );
 
+      // 🔥 SNACKBAR BERHASIL
+      setSnackbar({
+        open: true,
+        message: `PIC SQI berhasil di-assign ke ${selectedPic?.name}`,
+        severity: "success",
+      });
+
     } catch (err) {
-      console.error("❌ Failed assign PIC SQI:", err);
+      // 🔥 SNACKBAR ERROR
+      setSnackbar({
+        open: true,
+        message: "Gagal assign PIC SQI",
+        severity: "error",
+      });
     }
   };
-
 
   if (loading) {
     return (
@@ -205,7 +253,7 @@ const TaskListPage = () => {
                       {userRole === "sqi" ? (
                         <FormControl fullWidth size="small">
                           <Select
-                            value={task.sqiPic?.id || ""}
+                            value={task.sqiPic?.id ?? ""}
                             onChange={(e) =>
                               handleAssignSQI(task.id, e.target.value)
                             }
@@ -312,6 +360,21 @@ const TaskListPage = () => {
           />
         </Box>
       </Box>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

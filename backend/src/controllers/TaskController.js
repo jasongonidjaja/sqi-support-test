@@ -4,7 +4,7 @@ import Application from "../models/Application.js";
 import SQIPic from "../models/SQIPic.js";
 import SupportType from "../models/SupportType.js";
 import User from "../models/User.js";
-import TaskLog from "../models/TaskLog.js";
+import Log from "../models/Log.js";
 import TaskStatus from "../constants/taskStatus.js";
 
 /* ===============================
@@ -84,14 +84,16 @@ export const createTask = asyncHandler(async (req, res) => {
     attachment: attachmentPath,
     status,
   });
+  console.log("REQ USER", req.user);
 
-  await TaskLog.create({
-    taskId: newTask.id,
+  await Log.create({
+    username: req.user.username,
+    title: newTask.title,
     action: "Task Created",
     oldValue: null,
     newValue: status,
-    userId: req.user.userId,
   });
+
 
   res.status(201).json({ message: "Task created successfully.", data: newTask });
 });
@@ -148,18 +150,22 @@ export const updateTaskStatus = asyncHandler(async (req, res) => {
   }
 
   const oldStatus = task.status;
+
   task.status = status;
   await task.save();
 
-  await TaskLog.create({
-    taskId: task.id,
+  await Log.create({
+    username: req.user.username,     
+    title: task.title,               
     action: "Status Change",
-    oldValue: oldStatus,
+    oldValue: oldStatus,            
     newValue: status,
-    userId: req.user.userId,
   });
 
-  res.status(200).json({ message: `Task status successfully changed to ${status}.`, data: task });
+  res.status(200).json({
+    message: `Task status successfully changed to ${status}.`,
+    data: task,
+  });
 });
 
 /* ===============================
@@ -190,20 +196,43 @@ export const assignSqiPic = asyncHandler(async (req, res) => {
   }
 
   const oldPic = task.sqiPicId;
+
+  // --- Cek perubahan status ---
+  const oldStatus = task.status;
+  let statusChanged = false;
+
+  if (task.status === "pending") {
+    task.status = "in_progress";
+    statusChanged = true;
+  }
+
+  // Assign PIC
   task.sqiPicId = sqi_pic_id;
-  if (task.status === "pending") task.status = "in_progress";
   await task.save();
 
-  await TaskLog.create({
-    taskId: task.id,
+  // Log assign PIC
+  await Log.create({
+    username: req.user.username,
+    title: task.title,
     action: "PIC Assigned",
     oldValue: oldPic ? `PIC ID: ${oldPic}` : "None",
     newValue: `PIC ID: ${sqi_pic_id}`,
-    userId: req.user.userId,
   });
+
+  // Log perubahan status (jika terjadi)
+  if (statusChanged) {
+    await Log.create({
+      username: req.user.username,
+      title: task.title,
+      action: "Status Change",
+      oldValue: oldStatus,
+      newValue: task.status,
+    });
+  }
 
   res.status(200).json({
     message: `Task successfully assigned to ${sqiPic.name}.`,
     data: task,
   });
 });
+

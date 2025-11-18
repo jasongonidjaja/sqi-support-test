@@ -33,7 +33,7 @@ export const getCalendarData = async (req, res) => {
       whereClause.implementDate = { [Op.between]: [s, e] };
     }
 
-    const [requests, supports] = await Promise.all([
+    const [deployment, supports] = await Promise.all([
       DeploymentRequest.findAll({
         where: whereClause,
         include: [
@@ -51,10 +51,10 @@ export const getCalendarData = async (req, res) => {
       }),
     ]);
 
-    const mappedRequests = requests.map((r) => ({
+    const mappedDeployment = deployment.map((r) => ({
       id: r.id,
       releaseId: r.releaseId,
-      type: "request",
+      type: "deployment",
       title: r.title,
       implementDate: toIsoDate(r.implementDate),
       application: r.application?.name || null,
@@ -81,7 +81,7 @@ export const getCalendarData = async (req, res) => {
       note: s.note,
     }));
 
-    const combined = [...mappedRequests, ...mappedSupports].sort(
+    const combined = [...mappedDeployment, ...mappedSupports].sort(
       (a, b) => new Date(a.implementDate) - new Date(b.implementDate)
     );
 

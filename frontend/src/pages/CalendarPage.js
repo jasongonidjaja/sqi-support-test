@@ -18,6 +18,9 @@ import {
   InputLabel,
 } from "@mui/material";
 import DownloadIcon from "@mui/icons-material/Download";
+import { useLocation } from "react-router-dom";
+import { Snackbar, Alert } from "@mui/material";
+import timeGridPlugin from "@fullcalendar/timegrid";
 
 const riskColors = {
   "Major Release": "#000000",
@@ -49,10 +52,34 @@ const DeploymentBoardPage = () => {
   const [sqiPics, setSqiPics] = useState([]);
   const [selectedPic, setSelectedPic] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  
+  // buat alert success
+  const location = useLocation();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertType, setAlertType] = useState("success");
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const showAlert = (type, message) => {
+  setAlertType(type);
+  setAlertMessage(message);
+  setAlertOpen(true);
+};
 
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role?.toLowerCase() || "guest";
   const [freezeDates, setFreezeDates] = useState([]);
+
+  // ambil informasi alert dari page sebelumnya
+  useEffect(() => {
+    if (location.state?.alertMessage) {
+      setAlertType(location.state.alertType);
+      setAlertMessage(location.state.alertMessage);
+      setAlertOpen(true);
+
+      // 🔹 Hapus state supaya tidak repeat saat reload
+      window.history.replaceState({}, "");
+    }
+  }, [location.state]);  
 
 
   // Ambil data dari API
@@ -146,11 +173,10 @@ const DeploymentBoardPage = () => {
     setOpenDialog(false);
 
     // Pastikan event dan role cocok
-    if (role === "sqi" && selectedEvent?.type === "request") {
+    if (role === "sqi" && selectedEvent?.type === "deployment") {
       await fetchData();
     }
   };
-
 
   // 🔹 Update status tanpa reload
   const handleStatusChange = async (event) => {
@@ -163,12 +189,12 @@ const DeploymentBoardPage = () => {
       await api.patch(`/deployment-requests/${selectedEvent.id}`, {
         status: newStatus === "null" ? null : newStatus,
       });
-      // alert("Status changed successfully!");
+      showAlert("success", "Status updated successfully!");
       // ❌ Tidak reload, tidak menutup popup
       setSelectedEvent((prev) => ({ ...prev, status: newStatus }));
     } catch (err) {
       console.error("Failed to update status:", err);
-      alert("Failed to update status");
+      showAlert("error", "Failed to update status.");
     } finally {
       setIsUpdating(false);
     }
@@ -185,12 +211,12 @@ const DeploymentBoardPage = () => {
       await api.patch(`/deployment-requests/${selectedEvent.id}`, {
         sqiPicId: picId === "" ? null : picId,
       });
-      // alert("PIC assigned successfully!");
+      showAlert("success", "PIC assigned successfully!");
       // ❌ Tidak reload, tidak menutup popup
       setSelectedEvent((prev) => ({ ...prev, sqiPicId: picId }));
     } catch (err) {
       console.error("Failed to assign PIC:", err);
-      alert("Failed to assign PIC.");
+      showAlert("error", "Failed to assign PIC.");
     } finally {
       setIsUpdating(false);
     }
@@ -248,7 +274,7 @@ const DeploymentBoardPage = () => {
         return (order[aRisk] || 999) - (order[bRisk] || 999);
       });
 
-    const requests = dayEvents.filter((e) => e.extendedProps.type === "request");
+    const deployment = dayEvents.filter((e) => e.extendedProps.type === "deployment");
     const supports = dayEvents.filter((e) => e.extendedProps.type === "support");
 
     // helper untuk render event
@@ -338,8 +364,8 @@ const DeploymentBoardPage = () => {
 
         </div>
 
-        {/* Tampilkan hanya jika ada request */}
-        {requests.length > 0 && (
+        {/* Tampilkan hanya jika ada deployment */}
+        {deployment.length > 0 && (
           <div
             style={{
               borderBottom: supports.length > 0 ? "1px solid #e0e0e0" : "none",
@@ -358,7 +384,7 @@ const DeploymentBoardPage = () => {
             >
               Deployment
             </div>
-            {requests.map(renderEvent)}
+            {deployment.map(renderEvent)}
           </div>
         )}
 
@@ -414,8 +440,8 @@ const DeploymentBoardPage = () => {
       </Typography>
 
       <FullCalendar
-        plugins={[dayGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
+        plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
+        initialView="dayGridWeek"
         headerToolbar={{
           left: "prev,next today",
           center: "title",
@@ -508,7 +534,7 @@ const DeploymentBoardPage = () => {
               </Typography>
 
               {/* Hanya tampil untuk REQUEST */}
-              {selectedEvent?.type === "request" && (
+              {selectedEvent?.type === "deployment" && (
                 <>
                   {role === "sqi" && (
                     <FormControl size="small" sx={{ mt: 1, width: "100%" }}>
@@ -583,6 +609,20 @@ const DeploymentBoardPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={alertOpen}
+        autoHideDuration={3000}
+        onClose={() => setAlertOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+        <Alert
+          severity={alertType}
+          variant="filled"
+          onClose={() => setAlertOpen(false)}
+        >
+          {alertMessage}
+        </Alert>
+      </Snackbar>      
     </Box>
   );
 };

@@ -35,7 +35,6 @@ const CreateDeploymentRequestPage = () => {
 
   const navigate = useNavigate();
 
-  // 🔹 Ambil data aplikasi dan freeze date
 // 🔹 Ambil data aplikasi dan freeze date
 useEffect(() => {
   const fetchData = async () => {
@@ -141,7 +140,14 @@ const isDateDisabled = (date) => {
       setAlertType("success");
       setAlertMessage("Deployment request created successfully!");
       setAlertOpen(true);
-      setTimeout(() => navigate("/deployment-board"), 2000);
+      // setTimeout(() => navigate("/calendar"), 2000);
+      navigate("/calendar", {
+        state: {
+          alertType: "success",
+          alertMessage: "Deployment request created successfully!",
+        },
+      });
+      
     } catch (err) {
       console.error("❌ Failed to create deployment request:", err);
       setAlertType("error");

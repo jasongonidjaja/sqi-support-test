@@ -136,12 +136,21 @@ const CreateSupportPage = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      handleAlert("Deployment Support successfully created!", "success");
-      setTimeout(() => navigate("/deployment-board"), 2000);
+      // setTimeout(() => navigate("/calendar"), 2000);
+      navigate("/calendar", {
+        state: {
+          alertMessage: "Support successfully created!",
+          alertType: "success",
+        },
+      });
     } catch (err) {
+      navigate("/calendar", {
+        state: {
+          alertMessage: "Gagal membuat support",
+          alertType: "error",
+        },
+      });
       console.error("❌ Failed to create Support:", err);
-      handleAlert("Failed to save Support.", "error");
     }
   };
 

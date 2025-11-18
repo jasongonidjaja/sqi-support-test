@@ -2,6 +2,7 @@
 import { Op } from "sequelize";
 import multer from "multer";
 import models from "../models/index.js";
+import Log from "../models/Log.js"
 
 const { DeploymentRequest, Application } = models;
 
@@ -47,7 +48,7 @@ export const createDeploymentRequest = async (req, res) => {
     }
 
     // Buat deployment request baru
-    const newRequest = await DeploymentRequest.create({
+    const newDeployment = await DeploymentRequest.create({
       releaseId,
       title,
       implementDate,
@@ -59,9 +60,17 @@ export const createDeploymentRequest = async (req, res) => {
       sqiPicId: null, // default
     });
 
+    await Log.create({
+      username: req.user.username,
+      title: newDeployment.title,
+      action: "Deployment Request Created",
+      oldValue: null,
+      newValue: `Deployment Created with Release ID: ${newDeployment.releaseId}`,
+    });
+
     res.status(201).json({
       message: "Deployment Request created successfully.",
-      data: newRequest,
+      data: newDeployment,
     });
   } catch (err) {
     console.error("Error creating request deployment:", err);
@@ -71,68 +80,6 @@ export const createDeploymentRequest = async (req, res) => {
     });
   }
 };
-
-// ======================
-// 🔹 GET all Deployment Requests (Developer & SQI bisa lihat), fungsi ini dipindah di calendarController
-// ======================
-// export const getDeploymentRequests = async (req, res) => {
-//   try {
-//     const { startDate, endDate, page = 1, limit = 10 } = req.query;
-
-//     // Validasi query date
-//     if (!startDate || !endDate) {
-//       return res.status(400).json({
-//         error: "Harap sertakan startDate dan endDate di query params.",
-//       });
-//     }
-
-//     const offset = (parseInt(page) - 1) * parseInt(limit);
-
-//     // Hitung total data
-//     const totalRequests = await DeploymentRequest.count({
-//       where: {
-//         implementDate: {
-//           [Op.between]: [startDate, endDate],
-//         },
-//       },
-//     });
-
-//     // Ambil data sesuai pagination
-//     const requests = await DeploymentRequest.findAll({
-//       where: {
-//         implementDate: {
-//           [Op.between]: [startDate, endDate],
-//         },
-//       },
-//       include: [
-//         {
-//           model: Application,
-//           as: "application",
-//           attributes: ["id", "name"],
-//         },
-//       ],
-//       order: [["implementDate", "ASC"]],
-//       limit: parseInt(limit),
-//       offset,
-//     });
-
-//     res.json({
-//       message: "✅ Data request deployment berhasil dimuat.",
-//       currentPage: parseInt(page),
-//       totalPages: Math.ceil(totalRequests / parseInt(limit)),
-//       totalData: totalRequests,
-//       count: requests.length,
-//       data: requests,
-//     });
-//   } catch (err) {
-//     console.error("❌ Error fetching requests:", err);
-//     res.status(500).json({
-//       error: "Gagal memuat request deployment.",
-//       details: err.message,
-//     });
-//   }
-// };
-
 
 import fs from "fs";
 import path from "path";
@@ -183,26 +130,67 @@ export const updateDeploymentRequest = async (req, res) => {
     const { id } = req.params;
     const { sqiPicId, status } = req.body;
 
-    const request = await DeploymentRequest.findByPk(id);
-    if (!request) {
+    const deployment = await DeploymentRequest.findByPk(id);
+    if (!deployment) {
       return res.status(404).json({ error: "Deployment request not found." });
     }
 
-    // Validasi status (jika ada)
+    // Validasi status
     const validStatuses = [null, "success", "redeploy", "cancel"];
     if (status && !validStatuses.includes(status)) {
       return res.status(400).json({ error: "Status not valid." });
     }
 
-    // Update nilai jika dikirim dari frontend
-    if (sqiPicId !== undefined) request.sqiPicId = sqiPicId || null;
-    if (status !== undefined) request.status = status || null;
+    const logsToCreate = [];
 
-    await request.save();
+    // ====== LOGIC PERUBAHAN PIC ======
+    if (sqiPicId !== undefined) {
+      const oldPic = deployment.sqiPicId;
+      const newPic = sqiPicId || null;
+
+      if (oldPic !== newPic) {
+        logsToCreate.push({
+          username: req.user.username,
+          title: deployment.title,
+          action: "PIC Assigned",
+          oldValue: oldPic ? `PIC ID: ${oldPic}` : "None",
+          newValue: newPic ? `PIC ID: ${newPic}` : "None",
+          deployment_releaseId: deployment.releaseId || null,
+        });
+      }
+
+      deployment.sqiPicId = newPic;
+    }
+
+    // ====== LOGIC PERUBAHAN STATUS ======
+    if (status !== undefined) {
+      const oldStatus = deployment.status;
+      const newStatus = status || null;
+
+      if (oldStatus !== newStatus) {
+        logsToCreate.push({
+          username: req.user.username,
+          title: deployment.title,
+          action: "Status Change",
+          oldValue: oldStatus || "None",
+          newValue: newStatus || "None",
+          deployment_releaseId: deployment.releaseId || null,
+        });
+      }
+
+      deployment.status = newStatus;
+    }
+
+    await deployment.save();
+
+    // ====== SIMPAN LOG JIKA ADA ======
+    if (logsToCreate.length > 0) {
+      await Log.bulkCreate(logsToCreate);
+    }
 
     res.status(200).json({
       message: "Deployment request successfully updated.",
-      data: request,
+      data: deployment,
     });
   } catch (err) {
     console.error("Error updating deployment request:", err);
@@ -212,4 +200,3 @@ export const updateDeploymentRequest = async (req, res) => {
     });
   }
 };
-

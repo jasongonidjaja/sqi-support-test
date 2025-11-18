@@ -8,7 +8,7 @@ import {
   getTaskById,
   updateTaskStatus,
   assignSqiPic,
-} from "../controllers/TaskController.js";
+} from "../controllers/taskController.js";
 
 const router = express.Router();
 
