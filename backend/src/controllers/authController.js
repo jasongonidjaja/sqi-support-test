@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt"; // ← ADD
 
 dotenv.config();
 
@@ -11,13 +12,14 @@ export const login = async (req, res) => {
     // Cari user berdasarkan username
     const user = await User.findOne({ where: { username } });
 
-    // Jika user tidak ditemukan
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
 
-    // Periksa password (tanpa enkripsi)
-    if (user.password !== password) {
+    // Bandingkan password input vs hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
       return res.status(401).json({ error: "Invalid password" });
     }
 
@@ -32,12 +34,10 @@ export const login = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    // Log aktivitas login
     console.log(
       `[LOGIN SUCCESS] User ID: ${user.id}, Role: ${user.role}, Username: ${user.username}`
     );
 
-    // Kirim respons ke frontend
     res.json({
       token,
       role: user.role,

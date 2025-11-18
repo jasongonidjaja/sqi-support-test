@@ -23,15 +23,16 @@ const LoginPage = () => {
       const response = await api.post("/auth/login", form);
       const { token, role, username } = response.data;
 
-      localStorage.setItem("username", username);
+      // localStorage.setItem("username", username);
       localStorage.setItem("user", JSON.stringify({ token, role, username }));
 
       login(token, role, username);
       navigate("/calendar");
     } catch (err) {
       console.error("Login error:", err);
-      if (err.response?.status === 401) setError("Username atau password salah.");
-      else setError("Terjadi kesalahan saat login.");
+      if (err.response?.status === 401) setError("Incorrect username or password.");
+      else setError(err.response?.data?.message || "Server error, please try again.");
+
     }
   };
 
