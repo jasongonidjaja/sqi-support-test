@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Drawer,
   List,
@@ -30,11 +30,17 @@ const collapsedWidth = 72;
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // 👈 untuk deteksi path aktif
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role || "";
 
-  // 🔹 Menu utama
+  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const toggleCollapse = () => setCollapsed(!collapsed);
+  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+
+  // MENU
   const menuItems = [
     ...(role !== "sqi"
       ? [{ text: "Request Support SQI", icon: <AddCircleOutline />, path: "/create-task" }]
@@ -48,37 +54,25 @@ const Sidebar = () => {
           { text: "Add Support", icon: <SupportAgent />, path: "/create-support" },
         ]
       : []),
-      
-      { text: "Calendar", icon: <CalendarMonth />, path: "/calendar" },
 
-      { text: "Knowledge Center", icon: <ListAlt />, path: "/knowledge-center" },
+    { text: "Calendar", icon: <CalendarMonth />, path: "/calendar" },
+    { text: "Knowledge Center", icon: <ListAlt />, path: "/knowledge-center" },
   ];
 
-  // 🔹 Logout
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("username");
-    localStorage.removeItem("user");
+  const logout = () => {
+    localStorage.clear();
     navigate("/login");
   };
 
-  // 🔹 State
-  const [collapsed, setCollapsed] = React.useState(false);
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
-  const toggleCollapse = () => setCollapsed(!collapsed);
-
-  // 🔹 Isi Drawer
+  // =============== Drawer Content ===============
   const drawerContent = (
     <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* Header */}
+      {/* HEADER */}
       <Box
         sx={{
           p: 2,
-          backgroundColor: "#1976d2",
+          backgroundColor: "#0a1f3c",
           color: "white",
-          textAlign: collapsed ? "center" : "left",
           display: "flex",
           alignItems: "center",
           justifyContent: collapsed ? "center" : "space-between",
@@ -94,15 +88,17 @@ const Sidebar = () => {
             </Typography>
           </Box>
         )}
-        <IconButton size="small" onClick={toggleCollapse} sx={{ color: "white" }}>
+
+        <IconButton size="small" sx={{ color: "white" }} onClick={toggleCollapse}>
           {collapsed ? <ChevronRight /> : <ChevronLeft />}
         </IconButton>
       </Box>
 
-      {/* Menu */}
+      {/* MENU */}
       <List sx={{ flexGrow: 1 }}>
         {menuItems.map((item) => {
-          const isActive = location.pathname === item.path; // 👈 aktif jika path cocok
+          const isActive = location.pathname === item.path;
+
           return (
             <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
               <Tooltip title={collapsed ? item.text : ""} placement="right">
@@ -110,18 +106,18 @@ const Sidebar = () => {
                   onClick={() => navigate(item.path)}
                   sx={{
                     minHeight: 48,
-                    justifyContent: collapsed ? "center" : "initial",
+                    justifyContent: collapsed ? "center" : "flex-start",
                     px: collapsed ? 2 : 3,
-                    borderLeft: isActive ? "4px solid #1976d2" : "4px solid transparent",
-                    backgroundColor: isActive ? "rgba(25, 118, 210, 0.1)" : "transparent",
+                    borderLeft: isActive ? "4px solid #1e88e5" : "4px solid transparent",
+                    backgroundColor: isActive ? "rgba(30, 136, 229, 0.18)" : "transparent",
                     "&:hover": {
-                      backgroundColor: "rgba(25, 118, 210, 0.15)",
+                      backgroundColor: "rgba(21,101,192,0.18)",
                     },
                   }}
                 >
                   <ListItemIcon
                     sx={{
-                      color: isActive ? "#1976d2" : "#5f6368",
+                      color: isActive ? "#1e88e5" : "#e0e0e0",
                       minWidth: 0,
                       mr: collapsed ? 0 : 2,
                       justifyContent: "center",
@@ -129,11 +125,12 @@ const Sidebar = () => {
                   >
                     {item.icon}
                   </ListItemIcon>
+
                   {!collapsed && (
                     <ListItemText
                       primary={item.text}
                       primaryTypographyProps={{
-                        color: isActive ? "primary" : "inherit",
+                        color: isActive ? "#1e88e5" : "#e0e0e0",
                         fontWeight: isActive ? "bold" : "normal",
                       }}
                     />
@@ -147,20 +144,20 @@ const Sidebar = () => {
 
       <Divider />
 
-      {/* Logout */}
+      {/* LOGOUT */}
       <Tooltip title={collapsed ? "Logout" : ""} placement="right">
         <ListItem disablePadding sx={{ display: "block" }}>
           <ListItemButton
-            onClick={handleLogout}
+            onClick={logout}
             sx={{
               minHeight: 48,
-              justifyContent: collapsed ? "center" : "initial",
+              justifyContent: collapsed ? "center" : "flex-start",
               px: collapsed ? 2 : 3,
             }}
           >
             <ListItemIcon
               sx={{
-                color: "#d32f2f",
+                color: "#ef5350",
                 minWidth: 0,
                 mr: collapsed ? 0 : 2,
                 justifyContent: "center",
@@ -168,51 +165,59 @@ const Sidebar = () => {
             >
               <Logout />
             </ListItemIcon>
-            {!collapsed && <ListItemText primary="Logout" />}
+
+            {!collapsed && (
+              <ListItemText
+                primary="Logout"
+                primaryTypographyProps={{ color: "#ef5350", fontWeight: "bold" }}
+              />
+            )}
           </ListItemButton>
         </ListItem>
       </Tooltip>
     </Box>
   );
 
+  // =============== MAIN RETURN ===============
   return (
     <>
-      {/* Tombol toggle (mobile) */}
+      {/* MOBILE TOGGLE BUTTON */}
       <IconButton
         color="inherit"
         onClick={handleDrawerToggle}
         sx={{
           position: "fixed",
-          top: 10,
-          left: 10,
+          top: 12,
+          left: 12,
           display: { md: "none" },
-          zIndex: 1201,
+          zIndex: 2000,
         }}
       >
         <MenuIcon />
       </IconButton>
 
-      {/* Sidebar utama (desktop) */}
+      {/* DESKTOP SIDEBAR */}
       <Drawer
         variant="permanent"
-        open
         sx={{
           display: { xs: "none", md: "block" },
           width: collapsed ? collapsedWidth : expandedWidth,
-          flexShrink: 0,
-          transition: "width 0.3s",
+          transition: "0.3s",
           [`& .MuiDrawer-paper`]: {
             width: collapsed ? collapsedWidth : expandedWidth,
+            transition: "0.3s",
             boxSizing: "border-box",
-            transition: "width 0.3s",
             overflowX: "hidden",
+            backgroundColor: "#0a1f3c",
+            color: "white",
           },
         }}
+        open
       >
         {drawerContent}
       </Drawer>
 
-      {/* Sidebar mobile */}
+      {/* MOBILE SIDEBAR */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -222,7 +227,8 @@ const Sidebar = () => {
           display: { xs: "block", md: "none" },
           [`& .MuiDrawer-paper`]: {
             width: expandedWidth,
-            boxSizing: "border-box",
+            backgroundColor: "#0a1f3c",
+            color: "white",
           },
         }}
       >

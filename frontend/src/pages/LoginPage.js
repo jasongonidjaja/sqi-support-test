@@ -3,7 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { Container, TextField, Button, Typography, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
-import { setAuthData } from "../middleware/auth";
+import Aurora from "../components/Aurora";
 
 const LoginPage = () => {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -11,9 +11,8 @@ const LoginPage = () => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
+  const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,122 +23,132 @@ const LoginPage = () => {
       const { token, role, username } = response.data;
 
       localStorage.setItem("user", JSON.stringify({ token, role, username }));
-
       login(token, role, username);
+
       navigate("/calendar");
     } catch (err) {
       console.error("Login error:", err);
-      if (err.response?.status === 401) setError("Incorrect username or password.");
+      if (err.response?.status === 401)
+        setError("Incorrect username or password.");
       else setError(err.response?.data?.message || "Server error, please try again.");
     }
   };
 
   return (
-    <Container
-      maxWidth="xs"
-      sx={{
-        height: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#1976d2", // Background biru
-        margin: 0, // Pastikan tidak ada margin default
-        padding: 0, // Pastikan tidak ada padding default
-      }}
-    >
-      <Box sx={{
-        width: "100%",
-        textAlign: "center",
-        backgroundColor: "rgba(255, 255, 255, 0.8)", // Box transparan putih
-        padding: 4,
-        borderRadius: 4, // Membuat form lebih melengkung
-        boxShadow: 3, // Menambah efek bayangan
-        maxWidth: 400, // Menetapkan lebar maksimum untuk box
-        width: "100%", // Pastikan box menggunakan lebar penuh yang tersedia
-      }}>
-        <Typography
-          variant="h5"
-          fontWeight="bold"
-          mb={3}
-          sx={{ color: "#1976d2" }} // Biru utama
+    <>
+      {/* Aurora Effect */}
+      {/* <Aurora
+        colorStops={["#1A237E", "#3949AB", "#82B1FF"]}
+        amplitude={1.1}
+        blend={0.55}
+      /> */}
+
+      {/* Dark Blue Background */}
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          backgroundColor: "#133c75ff",
+          zIndex: -1,
+        }}
+      />
+
+      <Container
+        maxWidth="xs"
+        sx={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 3,
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            textAlign: "center",
+            background: "rgba(255, 255, 255, 0.15)",
+            backdropFilter: "blur(14px)",
+            padding: 4,
+            borderRadius: 4,
+            border: "1px solid rgba(255,255,255,0.2)",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+          }}
         >
-          Login
-        </Typography>
+          <Typography variant="h5" fontWeight="bold" mb={3} sx={{ color: "#E3F2FD" }}>
+            Welcome Back
+          </Typography>
 
-        <Box component="form" onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            label="Username"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-            margin="normal"
-            variant="outlined"
-            size="small"
-            InputLabelProps={{ style: { color: "#1976d2" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "#1976d2",
-                  borderRadius: 30, // Membuat sudut lebih melengkung
+          <Box component="form" onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="Username"
+              name="username"
+              value={form.username}
+              onChange={handleChange}
+              margin="normal"
+              variant="outlined"
+              size="small"
+              InputLabelProps={{ style: { color: "#BBDEFB" } }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": { borderColor: "#BBDEFB", borderRadius: 30 },
+                  "&:hover fieldset": { borderColor: "#E3F2FD" },
+                  "&.Mui-focused fieldset": { borderColor: "#90CAF9" },
                 },
-                "&:hover fieldset": { borderColor: "#115293" },
-                "&.Mui-focused fieldset": { borderColor: "#1976d2" },
-              },
-              borderRadius: 30,
-            }}
-          />
+              }}
+            />
 
-          <TextField
-            fullWidth
-            label="Password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            margin="normal"
-            variant="outlined"
-            size="small"
-            InputLabelProps={{ style: { color: "#1976d2" } }}
-            sx={{
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "#1976d2", 
-                  borderRadius: 30, // Membuat sudut lebih melengkung
-                 },
-                "&:hover fieldset": { borderColor: "#115293" },
-                "&.Mui-focused fieldset": { borderColor: "#1976d2" },
-              },
-              borderRadius: 30, // Membuat sudut lebih melengkung
-            }}
-          />
+            <TextField
+              fullWidth
+              label="Password"
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              margin="normal"
+              variant="outlined"
+              size="small"
+              InputLabelProps={{ style: { color: "#BBDEFB" } }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  color: "white",
+                  "& fieldset": { borderColor: "#BBDEFB", borderRadius: 30 },
+                  "&:hover fieldset": { borderColor: "#E3F2FD" },
+                  "&.Mui-focused fieldset": { borderColor: "#90CAF9" },
+                },
+              }}
+            />
 
-          {error && (
-            <Typography
-              variant="body2"
-              color="error"
-              sx={{ mt: 1, textAlign: "left" }}
+            {error && (
+              <Typography variant="body2" color="error" sx={{ mt: 1, textAlign: "left" }}>
+                {error}
+              </Typography>
+            )}
+
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                mt: 3,
+                width: "100%",
+                textTransform: "none",
+                paddingY: 1.3,
+                borderRadius: 30,
+                backgroundColor: "#2A3142",
+                "&:hover": { backgroundColor: "#1565c0" },
+              }}
             >
-              {error}
-            </Typography>
-          )}
-
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{
-              mt: 3,
-              width: "100%",
-              textTransform: "none",
-              backgroundColor: "#1976d2",
-              "&:hover": { backgroundColor: "#115293" },
-              paddingY: 1.3,
-              borderRadius: 30, // Membuat sudut lebih melengkung
-            }}
-          >
-            Login
-          </Button>
+              Login
+            </Button>
+          </Box>
         </Box>
-      </Box>
-    </Container>
+      </Container>
+    </>
   );
 };
 
