@@ -65,6 +65,27 @@ const DeploymentBoardPage = () => {
   setAlertOpen(true);
 };
 
+  const [users, setUsers] = useState([]);
+
+  // Ambil data pengguna dari API
+  const fetchUsers = useCallback(async () => {
+    try {
+      const userRes = await api.get("/users");
+      setUsers(userRes.data);  // Menyimpan data pengguna
+    } catch (err) {
+      console.error("Failed to fetch users:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  const getCreatedByName = (userId) => {
+    const user = users.find(u => u.id === userId);
+    return user ? user.name : "Unknown User";
+  };
+
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.role?.toLowerCase() || "guest";
   const [freezeDates, setFreezeDates] = useState([]);
@@ -527,7 +548,7 @@ const DeploymentBoardPage = () => {
               )}
 
               <Typography>
-                <strong>Created By:</strong> {selectedEvent.createdByUserId}
+                <strong>Created By:</strong> {selectedEvent.createdByUserName}
               </Typography>
               <Typography>
                 <strong>Risk Impact:</strong> {selectedEvent.riskImpact || "-"}

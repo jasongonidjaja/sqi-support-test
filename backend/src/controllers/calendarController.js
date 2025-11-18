@@ -2,8 +2,10 @@ import { Op } from "sequelize";
 import models from "../models/index.js";
 import { application } from "express";
 
-const { DeploymentRequest, Support, Application } = models;
+// Mengambil model yang dibutuhkan
+const { DeploymentRequest, Support, Application, User } = models;
 
+// Helper function untuk format tanggal menjadi ISO
 const toIsoDate = (value) => {
   if (!value) return null;
   const d = new Date(value);
@@ -33,6 +35,7 @@ export const getCalendarData = async (req, res) => {
       whereClause.implementDate = { [Op.between]: [s, e] };
     }
 
+    // Mengambil data DeploymentRequest dan Support secara bersamaan
     const [deployment, supports] = await Promise.all([
       DeploymentRequest.findAll({
         where: whereClause,
@@ -40,17 +43,30 @@ export const getCalendarData = async (req, res) => {
           {
             model: Application,
             as: "application",
-            attributes: ["id", "name"],
+            attributes: ["id", "name"], // Menyertakan nama aplikasi
+          },
+          {
+            model: User,  // Menambahkan relasi ke User untuk mengambil nama pengguna
+            as: "createdBy",
+            attributes: ["username"],  // Menyertakan kolom name dari User
           },
         ],
         order: [["implementDate", "ASC"]],
       }),
       Support.findAll({
         where: whereClause,
+        include: [
+          {
+            model: User,  // Menambahkan relasi ke User untuk mengambil nama pengguna
+            as: "createdBy",
+            attributes: ["username"],  // Menyertakan kolom name dari User
+          },
+        ],
         order: [["implementDate", "ASC"]],
       }),
     ]);
 
+    // Memetakan data DeploymentRequest
     const mappedDeployment = deployment.map((r) => ({
       id: r.id,
       releaseId: r.releaseId,
@@ -63,28 +79,33 @@ export const getCalendarData = async (req, res) => {
       status: r.status || null,
       sqiPicId: r.sqiPicId || null,
       createdByUserId: r.createdByUserId,
+      createdByUserName: r.createdBy?.username || "Unknown User", // Menyertakan nama pengguna
     }));
 
+    // Memetakan data Support
     const mappedSupports = supports.map((s) => ({
       id: s.id,
       releaseId: s.releaseId,
       type: "support",
       title: s.title,
       implementDate: toIsoDate(s.implementDate),
-      application: s.application,
-      impactedApplication: s.impactedApplication,
+      application: s.application?.name || null,
+      impactedApplication: s.impactedApplication || null,
       riskImpact: s.riskImpact || null,
       attachment: s.attachment || null,
       status: s.status || null,
       sqiPicId: s.sqiPicId || null,
       createdByUserId: s.createdByUserId,
-      note: s.note,
+      createdByUserName: s.createdBy?.username || "Unknown User", // Menyertakan nama pengguna
+      note: s.note || null,
     }));
 
+    // Menggabungkan hasil deployment dan supports, kemudian mengurutkannya
     const combined = [...mappedDeployment, ...mappedSupports].sort(
       (a, b) => new Date(a.implementDate) - new Date(b.implementDate)
     );
 
+    // Mengirimkan hasil ke frontend
     res.json({
       message: "Calendar data loaded (all dates)",
       total: combined.length,
@@ -99,4 +120,3 @@ export const getCalendarData = async (req, res) => {
     });
   }
 };
-

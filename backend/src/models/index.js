@@ -78,6 +78,16 @@ Support.belongsTo(User, {
   as: "createdBy",
 });
 
+// User ↔ Deployment Request
+User.hasMany(DeploymentRequest, {
+  foreignKey: "createdByUserId",
+  as: "createdRequests",
+});
+DeploymentRequest.belongsTo(User, {
+  foreignKey: "createdByUserId",
+  as: "createdBy",
+});
+
 // User ↔ KnowledgeCenter
 User.hasMany(KnowledgeCenter, {
   foreignKey: "createdByUserId",
