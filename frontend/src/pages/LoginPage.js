@@ -23,7 +23,6 @@ const LoginPage = () => {
       const response = await api.post("/auth/login", form);
       const { token, role, username } = response.data;
 
-      // localStorage.setItem("username", username);
       localStorage.setItem("user", JSON.stringify({ token, role, username }));
 
       login(token, role, username);
@@ -32,7 +31,6 @@ const LoginPage = () => {
       console.error("Login error:", err);
       if (err.response?.status === 401) setError("Incorrect username or password.");
       else setError(err.response?.data?.message || "Server error, please try again.");
-
     }
   };
 
@@ -44,15 +42,26 @@ const LoginPage = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "transparent", // tanpa warna
+        backgroundColor: "#1976d2", // Background biru
+        margin: 0, // Pastikan tidak ada margin default
+        padding: 0, // Pastikan tidak ada padding default
       }}
     >
-      <Box sx={{ width: "100%", textAlign: "center" }}>
+      <Box sx={{
+        width: "100%",
+        textAlign: "center",
+        backgroundColor: "rgba(255, 255, 255, 0.8)", // Box transparan putih
+        padding: 4,
+        borderRadius: 4, // Membuat form lebih melengkung
+        boxShadow: 3, // Menambah efek bayangan
+        maxWidth: 400, // Menetapkan lebar maksimum untuk box
+        width: "100%", // Pastikan box menggunakan lebar penuh yang tersedia
+      }}>
         <Typography
           variant="h5"
           fontWeight="bold"
           mb={3}
-          sx={{ color: "#1976d2" }} // biru utama
+          sx={{ color: "#1976d2" }} // Biru utama
         >
           Login
         </Typography>
@@ -70,10 +79,13 @@ const LoginPage = () => {
             InputLabelProps={{ style: { color: "#1976d2" } }}
             sx={{
               "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "#1976d2" },
+                "& fieldset": { borderColor: "#1976d2",
+                  borderRadius: 30, // Membuat sudut lebih melengkung
+                },
                 "&:hover fieldset": { borderColor: "#115293" },
                 "&.Mui-focused fieldset": { borderColor: "#1976d2" },
               },
+              borderRadius: 30,
             }}
           />
 
@@ -90,10 +102,13 @@ const LoginPage = () => {
             InputLabelProps={{ style: { color: "#1976d2" } }}
             sx={{
               "& .MuiOutlinedInput-root": {
-                "& fieldset": { borderColor: "#1976d2" },
+                "& fieldset": { borderColor: "#1976d2", 
+                  borderRadius: 30, // Membuat sudut lebih melengkung
+                 },
                 "&:hover fieldset": { borderColor: "#115293" },
                 "&.Mui-focused fieldset": { borderColor: "#1976d2" },
               },
+              borderRadius: 30, // Membuat sudut lebih melengkung
             }}
           />
 
@@ -117,6 +132,7 @@ const LoginPage = () => {
               backgroundColor: "#1976d2",
               "&:hover": { backgroundColor: "#115293" },
               paddingY: 1.3,
+              borderRadius: 30, // Membuat sudut lebih melengkung
             }}
           >
             Login

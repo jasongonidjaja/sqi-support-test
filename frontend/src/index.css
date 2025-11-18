@@ -47,3 +47,12 @@ code {
     padding-right: 2px !important;
 }
 
+/* biar login full satu layar */
+@media (min-width: 0px) {
+  .css-q145ub-MuiContainer-root {
+    max-width: none !important;
+    width: 100% !important;
+  }
+}
+
+
