@@ -81,7 +81,7 @@ module.exports = {
       status: {
         type: Sequelize.ENUM(
           "pending", 
-          "in_progress", 
+          "in progress", 
           "completed", 
           "approved", 
           "rejected"

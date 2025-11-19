@@ -31,7 +31,7 @@ export const getTasks = asyncHandler(async (req, res) => {
       // Urutan status sesuai gambar
       [
         sequelize.literal(
-          "FIELD(status, 'pending', 'in_progress', 'completed', 'approved', 'rejected')"
+          "FIELD(status, 'pending', 'in progress', 'completed', 'approved', 'rejected')"
         ),
       ],
       // Jika status sama → urutkan berdasarkan createdAt terbaru
@@ -221,7 +221,7 @@ export const assignSqiPic = asyncHandler(async (req, res) => {
   let statusChanged = false;
 
   if (task.status === 'pending') {
-    task.status = 'in_progress';
+    task.status = 'in progress';
     statusChanged = true;
   }
 

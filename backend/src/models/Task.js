@@ -59,7 +59,7 @@ const Task = sequelize.define(
     status: {
       type: DataTypes.ENUM(
         'pending',
-        'in_progress',
+        'in progress',
         'completed',
         'approved',
         'rejected'

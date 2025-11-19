@@ -26,7 +26,7 @@ export default {
             : null,
         createdByUserId: Math.floor(Math.random() * 10) + 1,
         attachment: null,
-        status: ["pending", "in_progress", "completed"][Math.floor(Math.random() * 3)],
+        status: ["pending", "in progress", "completed"][Math.floor(Math.random() * 3)],
         createdAt: new Date(),
         updatedAt: new Date(),
       });

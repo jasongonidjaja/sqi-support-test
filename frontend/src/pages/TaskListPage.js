@@ -111,7 +111,7 @@ const TaskListPage = () => {
       setTasks((prev) =>
         prev.map((task) =>
           task.id === taskId
-            ? { ...task, sqiPic: selectedPic || null, status: 'in_progress' }
+            ? { ...task, sqiPic: selectedPic || null, status: 'in progress' }
             : task
         )
       );
@@ -216,6 +216,7 @@ const TaskListPage = () => {
                       align="center"
                       sx={{
                         fontWeight: 'bold',
+                        fontSize: '1.1rem',
                         color: '#0F2A4A',
                         backgroundColor: 'background.paper',
                       }}
@@ -229,7 +230,11 @@ const TaskListPage = () => {
               <TableBody>
                 {tasks.length > 0 ? (
                   tasks.map((task) => (
-                    <TableRow key={task.id} hover>
+                    <TableRow
+                      key={task.id}
+                      hover
+                      sx={{ '& td': { fontSize: '1.1rem' } }} // 🔥 Tambahkan ini
+                    >
                       <TableCell>{task.title}</TableCell>
                       <TableCell>{task.description}</TableCell>
 
@@ -272,7 +277,7 @@ const TaskListPage = () => {
                               }
                             >
                               <MenuItem value="pending">Pending</MenuItem>
-                              <MenuItem value="in_progress">
+                              <MenuItem value="in progress">
                                 In Progress
                               </MenuItem>
                               <MenuItem value="completed">Completed</MenuItem>
