@@ -1,11 +1,11 @@
-import asyncHandler from "express-async-handler";
-import SupportType from "../models/SupportType.js";
+import asyncHandler from 'express-async-handler';
+import SupportType from '../models/SupportType.js';
 
 // Ambil semua Support Type
 export const getAllSupportTypes = asyncHandler(async (req, res) => {
   const types = await SupportType.findAll();
   res.status(200).json({
-    message: "Successfully retrieved support types data.",
+    message: 'Successfully retrieved support types data.',
     data: types,
   });
 });

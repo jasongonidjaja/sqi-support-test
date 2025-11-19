@@ -1,14 +1,14 @@
-import sequelize from "../config/database.js";
+import sequelize from '../config/database.js';
 
-import Task from "./Task.js";
-import Application from "./Application.js";
-import SupportType from "./SupportType.js";
-import SQIPic from "./SQIPic.js";
-import User from "./User.js";
-import Log from "./Log.js";            // <-- updated
-import DeploymentRequest from "./DeploymentRequest.js";
-import Support from "./Support.js";
-import KnowledgeCenter from "./KnowledgeCenter.js";
+import Task from './Task.js';
+import Application from './Application.js';
+import SupportType from './SupportType.js';
+import SQIPic from './SQIPic.js';
+import User from './User.js';
+import Log from './Log.js'; // <-- updated
+import DeploymentRequest from './DeploymentRequest.js';
+import Support from './Support.js';
+import KnowledgeCenter from './KnowledgeCenter.js';
 
 // =====================
 // Definisikan Relasi
@@ -16,52 +16,52 @@ import KnowledgeCenter from "./KnowledgeCenter.js";
 
 // Application ↔ Task
 Application.hasMany(Task, {
-  foreignKey: "applicationId",
-  as: "tasks"
+  foreignKey: 'applicationId',
+  as: 'tasks',
 });
 Task.belongsTo(Application, {
-  foreignKey: "applicationId",
-  as: "taskApplication"
+  foreignKey: 'applicationId',
+  as: 'taskApplication',
 });
 
 // SupportType ↔ Task
 SupportType.hasMany(Task, {
-  foreignKey: "supportTypeId",
-  as: "tasks"
+  foreignKey: 'supportTypeId',
+  as: 'tasks',
 });
 Task.belongsTo(SupportType, {
-  foreignKey: "supportTypeId",
-  as: "supportType"
+  foreignKey: 'supportTypeId',
+  as: 'supportType',
 });
 
 // SQIPic ↔ Task
 SQIPic.hasMany(Task, {
-  foreignKey: "sqiPicId",
-  as: "tasks"
+  foreignKey: 'sqiPicId',
+  as: 'tasks',
 });
 Task.belongsTo(SQIPic, {
-  foreignKey: "sqiPicId",
-  as: "sqiPic"
+  foreignKey: 'sqiPicId',
+  as: 'sqiPic',
 });
 
 // User ↔ Task (createdBy)
 User.hasMany(Task, {
-  foreignKey: "createdByUserId",
-  as: "createdTasks"
+  foreignKey: 'createdByUserId',
+  as: 'createdTasks',
 });
 Task.belongsTo(User, {
-  foreignKey: "createdByUserId",
-  as: "createdBy"
+  foreignKey: 'createdByUserId',
+  as: 'createdBy',
 });
 
 // Application ↔ DeploymentRequest
 Application.hasMany(DeploymentRequest, {
-  foreignKey: "applicationId",
-  as: "deploymentRequests",
+  foreignKey: 'applicationId',
+  as: 'deploymentRequests',
 });
 DeploymentRequest.belongsTo(Application, {
-  foreignKey: "applicationId",
-  as: "application",
+  foreignKey: 'applicationId',
+  as: 'application',
 });
 
 // ❌ HAPUS relasi User ↔ TaskLog karena tidak ada foreign key lagi
@@ -70,42 +70,42 @@ DeploymentRequest.belongsTo(Application, {
 
 // User ↔ Support
 User.hasMany(Support, {
-  foreignKey: "createdByUserId",
-  as: "createdSupports",
+  foreignKey: 'createdByUserId',
+  as: 'createdSupports',
 });
 Support.belongsTo(User, {
-  foreignKey: "createdByUserId",
-  as: "createdBy",
+  foreignKey: 'createdByUserId',
+  as: 'createdBy',
 });
 
 // User ↔ Deployment Request
 User.hasMany(DeploymentRequest, {
-  foreignKey: "createdByUserId",
-  as: "createdRequests",
+  foreignKey: 'createdByUserId',
+  as: 'createdRequests',
 });
 DeploymentRequest.belongsTo(User, {
-  foreignKey: "createdByUserId",
-  as: "createdBy",
+  foreignKey: 'createdByUserId',
+  as: 'createdBy',
 });
 
 // User ↔ KnowledgeCenter
 User.hasMany(KnowledgeCenter, {
-  foreignKey: "createdByUserId",
-  as: "createdKnowledgeCenters",
+  foreignKey: 'createdByUserId',
+  as: 'createdKnowledgeCenters',
 });
 KnowledgeCenter.belongsTo(User, {
-  foreignKey: "createdByUserId",
-  as: "createdBy",
+  foreignKey: 'createdByUserId',
+  as: 'createdBy',
 });
 
 // Application ↔ KnowledgeCenter
 Application.hasMany(KnowledgeCenter, {
-  foreignKey: "applicationId",
-  as: "knowledgeCenters", 
+  foreignKey: 'applicationId',
+  as: 'knowledgeCenters',
 });
 KnowledgeCenter.belongsTo(Application, {
-  foreignKey: "applicationId",
-  as: "application", 
+  foreignKey: 'applicationId',
+  as: 'application',
 });
 
 // =====================
@@ -120,7 +120,7 @@ const models = {
   DeploymentRequest,
   Support,
   KnowledgeCenter,
-  Log,     // <-- updated
+  Log, // <-- updated
 };
 
 export default models;

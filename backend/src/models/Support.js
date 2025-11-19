@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import { Sequelize, DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
 const Support = sequelize.define(
-  "Support",
+  'Support',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -11,7 +11,7 @@ const Support = sequelize.define(
     },
     releaseId: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     application: {
       type: DataTypes.STRING,
@@ -38,30 +38,30 @@ const Support = sequelize.define(
       allowNull: true, // lokasi file upload
     },
     riskImpact: {
-      type: DataTypes.ENUM("Low", "Medium", "High", "Major Release"),
+      type: DataTypes.ENUM('Low', 'Medium', 'High', 'Major Release'),
       allowNull: false,
     },
     createdByUserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "users",
-        key: "id",
+        model: 'users',
+        key: 'id',
       },
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn("NOW"),
+      defaultValue: Sequelize.fn('NOW'),
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn("NOW"),
+      defaultValue: Sequelize.fn('NOW'),
     },
   },
   {
-    tableName: "supports",
+    tableName: 'supports',
   }
 );
 

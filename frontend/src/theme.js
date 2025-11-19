@@ -1,93 +1,142 @@
+// theme.js
 import { createTheme } from "@mui/material/styles";
 
-const darkBlue = {
-  main: "#0D47A1",      // biru gelap elegan
-  light: "#5472D3",
-  dark: "#002171",
-};
-
-const slate = {
-  main: "#1A1F2B",      // abu gelap elegan (background)
-  light: "#2A3142",
-  dark: "#121620",
-};
-
-const accent = {
-  main: "#64B5F6",      // biru muda lembut (accent)
-};
+const mainBlue = "#0F2A4A";  // warna teks & border utama
 
 const theme = createTheme({
   palette: {
-    mode: "dark",
-    primary: darkBlue,
-    secondary: accent,
+    mode: "light",
 
+    // 🌤 Background terang
     background: {
-      default: slate.main,     // background halaman
-      paper: slate.light,      // background card
+      default: "#F9FBFF",   // putih kebiruan halus
+      paper: "#FFFFFF",
     },
 
+    // 🎨 Primary (button utama)
+    primary: {
+      main: "#1E88E5",
+      dark: "#1565C0",
+      light: "#64B5F6",
+    },
+
+    // 🔴 Error (iOS red)
+    error: {
+      main: "#FF3B30",
+    },
+
+    // ✨ Text warna #0F2A4A
     text: {
-      primary: "#E3E9F3",      // putih kebiruan elegan
-      secondary: "#AEB6C4",
+      primary: mainBlue,
+      secondary: "#3F5573",
     },
-  },
-
-  shape: {
-    borderRadius: 16,          // elegan, tidak terlalu bulat
   },
 
   typography: {
     fontFamily: `"Inter", "Roboto", "Helvetica", "Arial", sans-serif`,
-    h5: { fontWeight: 700 },
+    h3: { fontWeight: 700, color: mainBlue },
+    h5: { fontWeight: 700, color: mainBlue },
     button: { fontWeight: 600 },
   },
 
   components: {
+    // ===================================================
     // BUTTON
+    // ===================================================
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 20,
+          borderRadius: 30,
           textTransform: "none",
-          padding: "10px 20px",
-          borderColor: "#54d36dff",
+          padding: "12px 20px",
+          color: "#FFFFFF",        // teks tombol tetap putih
         },
       },
     },
 
-    // TEXTFIELD OUTLINE
+    // ===================================================
+    // TEXTFIELD / OUTLINED INPUT
+    // ===================================================
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 20,
-          backgroundColor: "rgba(255,255,255,0.04)",  // gelap elegan
+          borderRadius: 30,
+          color: mainBlue,     // warna teks input
+          backgroundColor: "#FFFFFF",
+          "& fieldset": {
+            borderColor: mainBlue,
+          },
+          "&:hover fieldset": {
+            borderColor: "#1E88E5",
+          },
+          "&.Mui-focused fieldset": {
+            borderColor: "#1565C0",
+            borderWidth: 2,
+          },
         },
-        notchedOutline: {
-          borderColor: "#5472D3",
-        },
+
+        // AUTOFILL FIX (supaya tetap warna biru gelap)
         input: {
-          color: "#E3E9F3",
+          "&:-webkit-autofill": {
+            WebkitTextFillColor: mainBlue,
+            WebkitBoxShadow: "0 0 0 1000px #FFFFFF inset",
+            transition: "background-color 9999s ease-in-out 0s",
+          },
         },
       },
     },
 
-    // LABEL INPUT
+    // ===================================================
+    // INPUT LABEL
+    // ===================================================
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          color: "#AEB6C4",
+          color: mainBlue,
+          "&.Mui-focused": {
+            color: "#1565C0",
+          },
         },
       },
     },
 
-    // CARD / BOX
+    // ===================================================
+    // PAPER / CARD
+    // ===================================================
     MuiPaper: {
       styleOverrides: {
         root: {
-          backgroundColor: slate.light,
+          background: "#FFFFFF",
+          backdropFilter: "blur(12px)",
           borderRadius: 20,
-          boxShadow: "0px 4px 30px rgba(0,0,0,0.4)",
+          border: `1px solid ${mainBlue}33`,
+          boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
+        },
+      },
+    },
+
+    // ===================================================
+    // DRAWER / SIDEBAR
+    // ===================================================
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: mainBlue,
+          color: "#E3F2FD",
+          borderRadius: 0,
+          borderRight: "1px solid rgba(255,255,255,0.2)",
+        },
+      },
+    },
+
+    // ===================================================
+    // LIST ITEM TEXT (menu sidebar)
+    // ===================================================
+    MuiListItemText: {
+      styleOverrides: {
+        primary: {
+          color: "#E3F2FD",
+          fontWeight: 500,
         },
       },
     },

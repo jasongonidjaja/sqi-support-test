@@ -1,8 +1,8 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
 const KnowledgeCenter = sequelize.define(
-  "KnowledgeCenter",
+  'KnowledgeCenter',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -20,23 +20,23 @@ const KnowledgeCenter = sequelize.define(
     applicationId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: { model: "applications", key: "id" },
-      onDelete: "SET NULL",
-      onUpdate: "CASCADE",
+      references: { model: 'applications', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     createdByUserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "users",
-        key: "id",
+        model: 'users',
+        key: 'id',
       },
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   },
   {
-    tableName: "knowledge_centers",
+    tableName: 'knowledge_centers',
     timestamps: true,
   }
 );

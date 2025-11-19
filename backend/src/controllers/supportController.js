@@ -1,9 +1,9 @@
-import { Op } from "sequelize";
-import multer from "multer";
-import fs from "fs";
-import path from "path";
-import models from "../models/index.js";
-import Log from "../models/Log.js"
+import { Op } from 'sequelize';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+import models from '../models/index.js';
+import Log from '../models/Log.js';
 
 const { Support } = models;
 
@@ -12,7 +12,7 @@ const { Support } = models;
 // ======================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, 'uploads/');
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
@@ -26,8 +26,16 @@ export const upload = multer({ storage });
 // ======================
 export const createSupport = async (req, res) => {
   try {
-    const { releaseId, application, title, implementDate, impactedApplication, note, riskImpact } = req.body;
-    const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
+    const {
+      releaseId,
+      application,
+      title,
+      implementDate,
+      impactedApplication,
+      note,
+      riskImpact,
+    } = req.body;
+    const attachmentPath = req.file ? req.file.path.replace(/\\/g, '/') : null;
 
     // Validasi tanggal implementasi
     const today = new Date();
@@ -35,11 +43,17 @@ export const createSupport = async (req, res) => {
     const selectedDate = new Date(implementDate);
 
     if (isNaN(selectedDate.getTime())) {
-      return res.status(400).json({ error: "Implementation date format is invalid." });
+      return res
+        .status(400)
+        .json({ error: 'Implementation date format is invalid.' });
     }
 
     if (selectedDate < today) {
-      return res.status(400).json({ error: "The implementation date must not be less than today." });
+      return res
+        .status(400)
+        .json({
+          error: 'The implementation date must not be less than today.',
+        });
     }
 
     const newSupport = await Support.create({
@@ -59,7 +73,7 @@ export const createSupport = async (req, res) => {
     await Log.create({
       username: req.user.username,
       title: newSupport.title,
-      action: "Support Created",
+      action: 'Support Created',
       oldValue: null,
       newValue: `Support Created with Release ID: ${newSupport.releaseId}`,
       support_releaseId: newSupport.releaseId,
@@ -67,13 +81,13 @@ export const createSupport = async (req, res) => {
     });
 
     res.status(201).json({
-      message: "Support successfully created.",
+      message: 'Support successfully created.',
       data: newSupport,
     });
   } catch (err) {
-    console.error("Error creating support:", err);
+    console.error('Error creating support:', err);
     res.status(500).json({
-      error: "Failed to create support.",
+      error: 'Failed to create support.',
       details: err.message,
     });
   }
@@ -132,7 +146,6 @@ export const createSupport = async (req, res) => {
 //   }
 // };
 
-
 // ======================
 // DOWNLOAD ATTACHMENT
 // ======================
@@ -142,29 +155,35 @@ export const downloadAttachment = async (req, res) => {
     const { filename } = req.params;
 
     if (!filename) {
-      return res.status(400).json({ error: "File name not found in parameters." });
+      return res
+        .status(400)
+        .json({ error: 'File name not found in parameters.' });
     }
 
-    const filePath = path.join(process.cwd(), "uploads", filename);
+    const filePath = path.join(process.cwd(), 'uploads', filename);
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: "File not found on server." });
+      return res.status(404).json({ error: 'File not found on server.' });
     }
 
     const extension = path.extname(filename).toLowerCase();
-    let mimeType = "application/octet-stream";
-    if (extension === ".csv") mimeType = "text/csv";
-    if (extension === ".xlsx") mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    let mimeType = 'application/octet-stream';
+    if (extension === '.csv') mimeType = 'text/csv';
+    if (extension === '.xlsx')
+      mimeType =
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-    res.setHeader("Content-Type", mimeType);
+    res.setHeader('Content-Type', mimeType);
     res.download(filePath, filename, (err) => {
       if (err) {
-        console.error("Error while sending file:", err);
-        res.status(500).json({ error: "Failed to download file." });
+        console.error('Error while sending file:', err);
+        res.status(500).json({ error: 'Failed to download file.' });
       }
     });
   } catch (err) {
-    console.error("Error in downloadAttachment:", err);
-    res.status(500).json({ error: "An error occurred while downloading the file." });
+    console.error('Error in downloadAttachment:', err);
+    res
+      .status(500)
+      .json({ error: 'An error occurred while downloading the file.' });
   }
 };

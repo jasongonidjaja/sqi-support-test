@@ -1,9 +1,9 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
-import bcrypt from "bcrypt"; // ← tambahkan ini
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
+import bcrypt from 'bcrypt'; // ← tambahkan ini
 
 const User = sequelize.define(
-  "User",
+  'User',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -23,12 +23,12 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isIn: [["sqi", "developer"]],
+        isIn: [['sqi', 'developer']],
       },
     },
   },
   {
-    tableName: "users",
+    tableName: 'users',
     hooks: {
       // 🔐 HASH PASSWORD BEFORE CREATE
       beforeCreate: async (user) => {
@@ -38,7 +38,7 @@ const User = sequelize.define(
 
       // 🔐 HASH PASSWORD BEFORE UPDATE (if changed)
       beforeUpdate: async (user) => {
-        if (user.changed("password")) {
+        if (user.changed('password')) {
           const salt = await bcrypt.genSalt(10);
           user.password = await bcrypt.hash(user.password, salt);
         }

@@ -1,6 +1,6 @@
-import { Op } from "sequelize";
-import models from "../models/index.js";
-import { application } from "express";
+import { Op } from 'sequelize';
+import models from '../models/index.js';
+import { application } from 'express';
 
 // Mengambil model yang dibutuhkan
 const { DeploymentRequest, Support, Application, User } = models;
@@ -10,7 +10,7 @@ const toIsoDate = (value) => {
   if (!value) return null;
   const d = new Date(value);
   if (isNaN(d)) return null;
-  return d.toISOString().split("T")[0];
+  return d.toISOString().split('T')[0];
 };
 
 /**
@@ -29,7 +29,7 @@ export const getCalendarData = async (req, res) => {
       const e = toIsoDate(weekEnd);
       if (!s || !e) {
         return res.status(400).json({
-          error: "weekStart / weekEnd must be a valid date (YYYY-MM-DD)",
+          error: 'weekStart / weekEnd must be a valid date (YYYY-MM-DD)',
         });
       }
       whereClause.implementDate = { [Op.between]: [s, e] };
@@ -42,27 +42,27 @@ export const getCalendarData = async (req, res) => {
         include: [
           {
             model: Application,
-            as: "application",
-            attributes: ["id", "name"], // Menyertakan nama aplikasi
+            as: 'application',
+            attributes: ['id', 'name'], // Menyertakan nama aplikasi
           },
           {
-            model: User,  // Menambahkan relasi ke User untuk mengambil nama pengguna
-            as: "createdBy",
-            attributes: ["username"],  // Menyertakan kolom name dari User
+            model: User, // Menambahkan relasi ke User untuk mengambil nama pengguna
+            as: 'createdBy',
+            attributes: ['username'], // Menyertakan kolom name dari User
           },
         ],
-        order: [["implementDate", "ASC"]],
+        order: [['implementDate', 'ASC']],
       }),
       Support.findAll({
         where: whereClause,
         include: [
           {
-            model: User,  // Menambahkan relasi ke User untuk mengambil nama pengguna
-            as: "createdBy",
-            attributes: ["username"],  // Menyertakan kolom name dari User
+            model: User, // Menambahkan relasi ke User untuk mengambil nama pengguna
+            as: 'createdBy',
+            attributes: ['username'], // Menyertakan kolom name dari User
           },
         ],
-        order: [["implementDate", "ASC"]],
+        order: [['implementDate', 'ASC']],
       }),
     ]);
 
@@ -70,7 +70,7 @@ export const getCalendarData = async (req, res) => {
     const mappedDeployment = deployment.map((r) => ({
       id: r.id,
       releaseId: r.releaseId,
-      type: "deployment",
+      type: 'deployment',
       title: r.title,
       implementDate: toIsoDate(r.implementDate),
       application: r.application?.name || null,
@@ -79,14 +79,14 @@ export const getCalendarData = async (req, res) => {
       status: r.status || null,
       sqiPicId: r.sqiPicId || null,
       createdByUserId: r.createdByUserId,
-      createdByUserName: r.createdBy?.username || "Unknown User", // Menyertakan nama pengguna
+      createdByUserName: r.createdBy?.username || 'Unknown User', // Menyertakan nama pengguna
     }));
 
     // Memetakan data Support
     const mappedSupports = supports.map((s) => ({
       id: s.id,
       releaseId: s.releaseId,
-      type: "support",
+      type: 'support',
       title: s.title,
       implementDate: toIsoDate(s.implementDate),
       application: s.application?.name || null,
@@ -96,7 +96,7 @@ export const getCalendarData = async (req, res) => {
       status: s.status || null,
       sqiPicId: s.sqiPicId || null,
       createdByUserId: s.createdByUserId,
-      createdByUserName: s.createdBy?.username || "Unknown User", // Menyertakan nama pengguna
+      createdByUserName: s.createdBy?.username || 'Unknown User', // Menyertakan nama pengguna
       note: s.note || null,
     }));
 
@@ -107,15 +107,15 @@ export const getCalendarData = async (req, res) => {
 
     // Mengirimkan hasil ke frontend
     res.json({
-      message: "Calendar data loaded (all dates)",
+      message: 'Calendar data loaded (all dates)',
       total: combined.length,
       count: combined.length,
       data: combined,
     });
   } catch (err) {
-    console.error("Error in getCalendarData:", err);
+    console.error('Error in getCalendarData:', err);
     res.status(500).json({
-      error: "Failed to load calendar data",
+      error: 'Failed to load calendar data',
       details: err.message,
     });
   }

@@ -5,16 +5,16 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "@mui/material/styles";
-import theme from "./theme";  // <-- import theme
+// import theme from "./theme"; 
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>          {/* <-- wrap di sini */}
+    {/* <ThemeProvider theme={theme}>        */}
       <AuthProvider>
         <App />
       </AuthProvider>
-    </ThemeProvider>
+    {/* </ThemeProvider> */}
   </React.StrictMode>
 );
 

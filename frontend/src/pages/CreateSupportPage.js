@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -8,39 +8,39 @@ import {
   MenuItem,
   Snackbar,
   Alert,
-} from "@mui/material";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { useNavigate } from "react-router-dom";
-import api from "../services/api";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
+} from '@mui/material';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 const CreateSupportPage = () => {
   const [form, setForm] = useState({
-    releaseId: "",
-    application: "",
-    title: "",
+    releaseId: '',
+    application: '',
+    title: '',
     implementDate: null,
-    impactedApplication: "",
-    note: "",
+    impactedApplication: '',
+    note: '',
     attachment: null,
-    riskImpact: "Low",
+    riskImpact: 'Low',
   });
 
   const [freezeDates, setFreezeDates] = useState([]);
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState("success");
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertSeverity, setAlertSeverity] = useState('success');
 
   const navigate = useNavigate();
 
-  // 🧊 Ambil freeze date dari API
+  // Ambil freeze date
   useEffect(() => {
     const fetchFreezeDates = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem('token');
 
-        const freezeRes = await api.get("/freeze-dates", {
+        const freezeRes = await api.get('/freeze-dates', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -54,22 +54,21 @@ const CreateSupportPage = () => {
           const end = new Date(range.endDate);
 
           for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-            expanded.push(d.toLocaleDateString("en-CA"));
+            expanded.push(d.toLocaleDateString('en-CA'));
           }
         });
 
         setFreezeDates(expanded);
       } catch (err) {
-        console.error("❌ Failed to fetch freeze dates:", err);
+        console.error('❌ Failed to fetch freeze dates:', err);
       }
     };
 
     fetchFreezeDates();
   }, []);
 
-  // 🔒 Disable tanggal freeze
   const isDateDisabled = (date) => {
-    const formatted = date.toLocaleDateString("en-CA");
+    const formatted = date.toLocaleDateString('en-CA');
     return freezeDates.includes(formatted);
   };
 
@@ -85,14 +84,14 @@ const CreateSupportPage = () => {
     setForm({ ...form, attachment: e.target.files[0] });
   };
 
-  const handleAlert = (message, severity = "success") => {
+  const handleAlert = (message, severity = 'success') => {
     setAlertMessage(message);
     setAlertSeverity(severity);
     setAlertOpen(true);
   };
 
   const handleCloseAlert = (_, reason) => {
-    if (reason === "clickaway") return;
+    if (reason === 'clickaway') return;
     setAlertOpen(false);
   };
 
@@ -100,85 +99,105 @@ const CreateSupportPage = () => {
     e.preventDefault();
 
     if (!form.implementDate) {
-      handleAlert("Implementation date is required!", "warning");
+      handleAlert('Implementation date is required!', 'warning');
       return;
     }
 
-    // Format tanggal (menghindari minus 1 hari)
     const d = new Date(form.implementDate);
     const implementDate = `${d.getFullYear()}-${String(
       d.getMonth() + 1
-    ).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    ).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-    // ❌ Tidak boleh freeze date
     if (freezeDates.includes(implementDate)) {
-      handleAlert("Selected date is within a freeze period!", "warning");
+      handleAlert('Selected date is within a freeze period!', 'warning');
       return;
     }
 
     const formData = new FormData();
-    formData.append("releaseId", form.releaseId);
-    formData.append("application", form.application);
-    formData.append("title", form.title);
-    formData.append("implementDate", implementDate);
-    formData.append("impactedApplication", form.impactedApplication);
-    formData.append("note", form.note);
-    formData.append("riskImpact", form.riskImpact);
+    formData.append('releaseId', form.releaseId);
+    formData.append('application', form.application);
+    formData.append('title', form.title);
+    formData.append('implementDate', implementDate);
+    formData.append('impactedApplication', form.impactedApplication);
+    formData.append('note', form.note);
+    formData.append('riskImpact', form.riskImpact);
 
     if (form.attachment) {
-      formData.append("attachment", form.attachment);
+      formData.append('attachment', form.attachment);
     }
 
     try {
-      await api.post("/supports", formData, {
+      await api.post('/supports', formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data',
         },
       });
-      // setTimeout(() => navigate("/calendar"), 2000);
-      navigate("/calendar", {
+
+      navigate('/calendar', {
         state: {
-          alertMessage: "Support successfully created!",
-          alertType: "success",
+          alertMessage: 'Support successfully created!',
+          alertType: 'success',
         },
       });
     } catch (err) {
-      navigate("/calendar", {
+      navigate('/calendar', {
         state: {
-          alertMessage: "Gagal membuat support",
-          alertType: "error",
+          alertMessage: 'Gagal membuat support',
+          alertType: 'error',
         },
       });
-      console.error("❌ Failed to create Support:", err);
+      console.error('❌ Failed to create Support:', err);
     }
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <>
+      {/* Background Gradasi */}
       <Box
-        component="main"
         sx={{
-          flexGrow: 1,
-          p: 0,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          backgroundColor: "transparent",
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(135deg, #E3F2FD, #FFFFFF)',
+          zIndex: -1,
+        }}
+      />
+
+      <Box
+        sx={{
+          minHeight: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          px: 2,
         }}
       >
-        <Paper elevation={3} sx={{ p: 4, width: 400, borderRadius: 2 }}>
+        <Paper
+          elevation={6}
+          sx={{
+            width: 420,
+            p: 4,
+            borderRadius: 4,
+            background: 'rgba(255,255,255,0.6)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(180,180,255,0.2)',
+            boxShadow: '0 10px 32px rgba(0,0,0,0.15)',
+          }}
+        >
           <Typography
-            variant="h6"
+            variant="h5"
+            fontWeight="bold"
             sx={{
-              mb: 2,
-              textAlign: "center",
-              color: "#1976d2",
-              fontWeight: "bold",
+              mb: 4,
+              textAlign: 'center',
+              color: '#1E88E5',
+              textShadow: '0 1px 1px rgba(0,0,0,0.15)',
             }}
           >
-            Add Support
+            Create Support Request
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit}>
@@ -188,8 +207,8 @@ const CreateSupportPage = () => {
               value={form.releaseId}
               onChange={handleChange}
               fullWidth
-              sx={{ mb: 2 }}
               required
+              sx={{ mb: 2 }}
             />
 
             <TextField
@@ -198,8 +217,8 @@ const CreateSupportPage = () => {
               value={form.application}
               onChange={handleChange}
               fullWidth
-              sx={{ mb: 2 }}
               required
+              sx={{ mb: 2 }}
             />
 
             <TextField
@@ -208,11 +227,11 @@ const CreateSupportPage = () => {
               value={form.title}
               onChange={handleChange}
               fullWidth
-              sx={{ mb: 2 }}
               required
+              sx={{ mb: 2 }}
             />
 
-            {/* 📅 DatePicker with Freeze Date Support */}
+            {/* Date Picker */}
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 label="Implement Date"
@@ -236,8 +255,8 @@ const CreateSupportPage = () => {
               value={form.impactedApplication}
               onChange={handleChange}
               fullWidth
-              sx={{ mb: 2 }}
               required
+              sx={{ mb: 2 }}
             />
 
             <TextField
@@ -271,22 +290,33 @@ const CreateSupportPage = () => {
               component="label"
               startIcon={<UploadFileIcon />}
               fullWidth
-              sx={{ mb: 2, textTransform: "none" }}
+              sx={{ mb: 2, textTransform: 'none' }}
             >
-              {form.attachment ? "Change File" : "Select Attachment File"}
+              {form.attachment ? 'Change File' : 'Select Attachment File'}
               <input type="file" hidden onChange={handleFileChange} />
             </Button>
 
             {form.attachment && (
               <Typography
                 variant="body2"
-                sx={{ mb: 2, color: "text.secondary", fontStyle: "italic" }}
+                sx={{ mb: 2, color: 'text.secondary', fontStyle: 'italic' }}
               >
                 📄 {form.attachment.name}
               </Typography>
             )}
 
-            <Button variant="contained" fullWidth type="submit">
+            <Button
+              variant="contained"
+              type="submit"
+              fullWidth
+              sx={{
+                backgroundColor: '#1E88E5',
+                borderRadius: 30,
+                textTransform: 'none',
+                py: 1.3,
+                '&:hover': { backgroundColor: '#1565C0' },
+              }}
+            >
               Save
             </Button>
           </Box>
@@ -296,19 +326,19 @@ const CreateSupportPage = () => {
           open={alertOpen}
           autoHideDuration={3000}
           onClose={handleCloseAlert}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
         >
           <Alert
             onClose={handleCloseAlert}
             severity={alertSeverity}
             variant="filled"
-            sx={{ width: "100%" }}
+            sx={{ width: '100%' }}
           >
             {alertMessage}
           </Alert>
         </Snackbar>
       </Box>
-    </Box>
+    </>
   );
 };
 

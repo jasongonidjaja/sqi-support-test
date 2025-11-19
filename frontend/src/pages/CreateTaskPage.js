@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Box,
   Typography,
@@ -7,29 +7,23 @@ import {
   Button,
   MenuItem,
   Paper,
-  Snackbar,
-  Alert,
-} from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
+} from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
 
 const CreateTaskPage = () => {
   const [supportTypes, setSupportTypes] = useState([]);
   const [applications, setApplications] = useState([]);
   const [sqiPics, setSqiPics] = useState([]);
   const [form, setForm] = useState({
-    title: "",
-    supportType: "",
-    customSupportType: "",
-    description: "",
-    applicationId: "",
-    sqiPicId: "",
+    title: '',
+    supportType: '',
+    customSupportType: '',
+    description: '',
+    applicationId: '',
+    sqiPicId: '',
     attachment: null,
   });
-
-  // 🔹 Tambahkan state untuk Snackbar
-  const [alertType, setAlertType] = useState("success"); // 'success' | 'error'
-  const [alertMessage, setAlertMessage] = useState("");
 
   const navigate = useNavigate();
 
@@ -37,21 +31,28 @@ const CreateTaskPage = () => {
     const fetchData = async () => {
       try {
         const [supportRes, appRes, picRes] = await Promise.all([
-          axios.get("http://localhost:4000/api/support-types", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          axios.get('http://localhost:4000/api/support-types', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
           }),
-          axios.get("http://localhost:4000/api/applications", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          axios.get('http://localhost:4000/api/applications', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
           }),
-          axios.get("http://localhost:4000/api/sqi-pics", {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          axios.get('http://localhost:4000/api/sqi-pics', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
           }),
         ]);
 
         setSupportTypes(supportRes.data?.data || []);
         setApplications(appRes.data?.data || []);
+        setSqiPics(picRes.data?.data || []);
       } catch (err) {
-        console.error("Failed to load dropdown data:", err);
+        console.error('Failed to load dropdown data:', err);
       }
     };
 
@@ -70,84 +71,104 @@ const CreateTaskPage = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("description", form.description);
-    formData.append("supportType", form.supportType);
+    formData.append('title', form.title);
+    formData.append('description', form.description);
+    formData.append('supportType', form.supportType);
     formData.append(
-      "customSupportType",
-      form.supportType === "Other" ? form.customSupportType : null
+      'customSupportType',
+      form.supportType === 'Other' ? form.customSupportType : ''
     );
-    formData.append("applicationId", form.applicationId);
-    formData.append("sqiPicId", form.sqiPicId);
+    formData.append('applicationId', form.applicationId);
+    formData.append('sqiPicId', form.sqiPicId);
 
     if (form.attachment) {
-      formData.append("attachment", form.attachment);
+      formData.append('attachment', form.attachment);
     }
 
     try {
-      await axios.post("http://localhost:4000/api/tasks", formData, {
+      await axios.post('http://localhost:4000/api/tasks', formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'multipart/form-data',
         },
       });
 
-      navigate("/task-list", {
-        state: {
-          alert: "Task created successfully!",
-          type: "success",
-        },
+      navigate('/task-list', {
+        state: { alert: 'Task created successfully!', type: 'success' },
       });
     } catch (err) {
-      console.error("Error creating task:", err);
-
-      navigate("/task-list", {
+      console.error('Error creating task:', err);
+      navigate('/task-list', {
         state: {
-          alert: "Failed to save task. Please try again.",
-          type: "error",
+          alert: 'Failed to save task. Please try again.',
+          type: 'error',
         },
       });
     }
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <>
+      {/* Light background */}
       <Box
-        component="main"
         sx={{
-          flexGrow: 1,
-          p: 0,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          backgroundColor: "transparent",
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(135deg, #E3F2FD, #FFFFFF)',
+          zIndex: -1,
+        }}
+      />
+
+      <Box
+        sx={{
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          px: 2,
         }}
       >
-        <Paper elevation={3} sx={{ p: 4, width: 400, borderRadius: 2 }}>
+        <Paper
+          elevation={6}
+          sx={{
+            width: 420,
+            p: 4,
+            borderRadius: 4,
+            background: 'rgba(255,255,255,0.6)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(180,180,255,0.2)',
+            boxShadow: '0 10px 32px rgba(0,0,0,0.15)',
+          }}
+        >
           <Typography
-            variant="h6"
+            variant="h5"
+            fontWeight="bold"
             sx={{
-              mb: 2,
-              textAlign: "center",
-              color: "#1976d2",
-              fontWeight: "bold",
+              mb: 4,
+              textAlign: 'center',
+              color: '#1E88E5',
+              textShadow: '0 1px 1px rgba(0,0,0,0.15)',
             }}
           >
             Request Support SQI
           </Typography>
 
           <Box component="form" onSubmit={handleSubmit}>
+            {/* Title */}
             <TextField
               label="Title"
               name="title"
               value={form.title}
               onChange={handleChange}
               fullWidth
-              sx={{ mb: 2 }}
               required
+              sx={{ mb: 2 }}
             />
 
+            {/* Support Type */}
             <TextField
               select
               label="Support Type"
@@ -155,8 +176,8 @@ const CreateTaskPage = () => {
               value={form.supportType}
               onChange={handleChange}
               fullWidth
-              sx={{ mb: 2 }}
               required
+              sx={{ mb: 2 }}
             >
               {supportTypes.map((type) => (
                 <MenuItem key={type.id} value={type.name}>
@@ -166,18 +187,19 @@ const CreateTaskPage = () => {
               <MenuItem value="Other">Other</MenuItem>
             </TextField>
 
-            {form.supportType === "Other" && (
+            {form.supportType === 'Other' && (
               <TextField
                 label="Custom Support Type"
                 name="customSupportType"
                 value={form.customSupportType}
                 onChange={handleChange}
                 fullWidth
-                sx={{ mb: 2 }}
                 required
+                sx={{ mb: 2 }}
               />
             )}
 
+            {/* Application */}
             <TextField
               select
               label="Application"
@@ -185,8 +207,8 @@ const CreateTaskPage = () => {
               value={form.applicationId}
               onChange={handleChange}
               fullWidth
-              sx={{ mb: 2 }}
               required
+              sx={{ mb: 2 }}
             >
               {applications.map((app) => (
                 <MenuItem key={app.id} value={app.id}>
@@ -195,6 +217,7 @@ const CreateTaskPage = () => {
               ))}
             </TextField>
 
+            {/* Description */}
             <TextField
               label="Description"
               name="description"
@@ -203,37 +226,51 @@ const CreateTaskPage = () => {
               multiline
               rows={3}
               fullWidth
-              sx={{ mb: 2 }}
               required
+              sx={{ mb: 2 }}
             />
 
+            {/* Attachment */}
             <Button
               variant="outlined"
               component="label"
               startIcon={<UploadFileIcon />}
               fullWidth
-              sx={{ mb: 2, textTransform: "none" }}
+              sx={{ mb: 2, textTransform: 'none' }}
             >
-              {form.attachment ? "Change File" : "Select Attachment File"}
-              <input type="file" hidden name="attachment" onChange={handleFileChange} />
+              {form.attachment ? 'Change File' : 'Select Attachment File'}
+              <input type="file" hidden onChange={handleFileChange} />
             </Button>
 
             {form.attachment && (
               <Typography
                 variant="body2"
-                sx={{ mb: 2, color: "text.secondary", fontStyle: "italic" }}
+                sx={{ mb: 2, color: 'text.secondary', fontStyle: 'italic' }}
               >
                 📄 {form.attachment.name}
               </Typography>
             )}
 
-            <Button variant="contained" fullWidth type="submit">
+            {/* Submit */}
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              sx={{
+                mt: 1,
+                backgroundColor: '#1E88E5',
+                borderRadius: 30,
+                textTransform: 'none',
+                py: 1.3,
+                '&:hover': { backgroundColor: '#1565C0' },
+              }}
+            >
               Save
             </Button>
           </Box>
         </Paper>
       </Box>
-    </Box>
+    </>
   );
 };
 

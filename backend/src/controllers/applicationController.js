@@ -1,11 +1,11 @@
-import asyncHandler from "express-async-handler";
-import Application from "../models/Application.js";
+import asyncHandler from 'express-async-handler';
+import Application from '../models/Application.js';
 
 // Ambil semua aplikasi
 export const getApplications = asyncHandler(async (req, res) => {
   const applications = await Application.findAll();
   res.status(200).json({
-    message: "Successfully retrieved the application list.",
+    message: 'Successfully retrieved the application list.',
     data: applications,
   });
 });

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import api from "../services/api";
+import React, { useEffect, useState } from 'react';
+import api from '../services/api';
 import {
   Box,
   Typography,
@@ -16,11 +16,11 @@ import {
   FormControl,
   Button,
   Pagination,
-} from "@mui/material";
-import DownloadIcon from "@mui/icons-material/Download";
-import { useLocation } from "react-router-dom";
-import Snackbar from "@mui/material/Snackbar";
-import Alert from "@mui/material/Alert";
+  Snackbar,
+  Alert,
+} from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
+import { useLocation } from 'react-router-dom';
 
 const TaskListPage = () => {
   const [tasks, setTasks] = useState([]);
@@ -29,16 +29,16 @@ const TaskListPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const location = useLocation();
+
   const [snackbar, setSnackbar] = useState({
     open: false,
-    message: "",
-    severity: "success",
+    message: '',
+    severity: 'success',
   });
 
+  const limit = 10;
 
-  const limit = 10; // jumlah data per halaman
-
-  const userData = JSON.parse(localStorage.getItem("user"));
+  const userData = JSON.parse(localStorage.getItem('user'));
   const userRole = userData?.role || null;
 
   useEffect(() => {
@@ -46,16 +46,12 @@ const TaskListPage = () => {
       setSnackbar({
         open: true,
         message: location.state.alert,
-        severity: location.state.type || "success",
+        severity: location.state.type || 'success',
       });
-
-      // Hapus state agar tidak repeat saat refresh
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
 
-
-  // Fetch semua task (dengan pagination)
   const fetchTasks = async (currentPage = 1) => {
     try {
       setLoading(true);
@@ -63,7 +59,7 @@ const TaskListPage = () => {
       setTasks(res.data.data || []);
       setTotalPages(res.data.totalPages || 1);
     } catch (err) {
-      console.error("❌ Gagal mengambil data task:", err);
+      console.error('❌ Error fetching tasks:', err);
       setTasks([]);
     } finally {
       setLoading(false);
@@ -74,82 +70,61 @@ const TaskListPage = () => {
     fetchTasks(page);
   }, [page]);
 
-  // Fetch daftar PIC SQI (hanya untuk role sqi)
   useEffect(() => {
     const fetchSqiPics = async () => {
-      if (userRole !== "sqi") return;
+      if (userRole !== 'sqi') return;
       try {
-        const res = await api.get("/sqi-pics");
+        const res = await api.get('/sqi-pics');
         setSqiPics(res.data?.data || res.data || []);
       } catch (err) {
-        console.error("❌ Gagal mengambil daftar PIC SQI:", err);
+        console.error('❌ Error fetching PIC SQI:', err);
         setSqiPics([]);
       }
     };
     fetchSqiPics();
   }, [userRole]);
 
-  // Update status
   const handleStatusChange = async (taskId, newStatus) => {
     try {
       await api.put(`/tasks/${taskId}`, { status: newStatus });
-
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === taskId ? { ...task, status: newStatus } : task
-        )
+      setTasks((prev) =>
+        prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t))
       );
-
-      // 🔥 SNACKBAR BERHASIL
       setSnackbar({
         open: true,
-        message: `Status berhasil diubah menjadi ${newStatus}`,
-        severity: "success",
+        message: `Status updated to ${newStatus}`,
+        severity: 'success',
       });
-
-    } catch (err) {
-      // 🔥 SNACKBAR ERROR
+    } catch {
       setSnackbar({
         open: true,
-        message: "Gagal mengubah status",
-        severity: "error",
+        message: 'Failed to update status',
+        severity: 'error',
       });
     }
   };
 
-
-  // Assign PIC SQI
   const handleAssignSQI = async (taskId, sqiPicId) => {
     try {
       await api.put(`/tasks/${taskId}/assign`, { sqi_pic_id: sqiPicId });
-
       const selectedPic = sqiPics.find((p) => p.id === sqiPicId);
-
-      setTasks((prevTasks) =>
-        prevTasks.map((task) =>
+      setTasks((prev) =>
+        prev.map((task) =>
           task.id === taskId
-            ? {
-                ...task,
-                sqiPic: selectedPic || null,
-                status: "in_progress",
-              }
+            ? { ...task, sqiPic: selectedPic || null, status: 'in_progress' }
             : task
         )
       );
-
-      // 🔥 SNACKBAR BERHASIL
       setSnackbar({
         open: true,
-        message: `PIC SQI berhasil di-assign ke ${selectedPic?.name}`,
-        severity: "success",
+        message: `Assigned to ${selectedPic?.name}`,
+        severity: 'success',
       });
-
-    } catch (err) {
-      // 🔥 SNACKBAR ERROR
+    } catch {
       setSnackbar({
         open: true,
-        message: "Gagal assign PIC SQI",
-        severity: "error",
+        message: 'Failed to assign PIC SQI',
+        severity: 'error',
       });
     }
   };
@@ -158,10 +133,10 @@ const TaskListPage = () => {
     return (
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
         }}
       >
         <CircularProgress size={50} />
@@ -170,212 +145,223 @@ const TaskListPage = () => {
   }
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <>
+      {/* Background gradien — gunakan zIndex 0 */}
       <Box
-        component="main"
         sx={{
-          flexGrow: 1,
-          p: 3,
-          minHeight: "100vh",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          position: 'fixed',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(135deg, #E3F2FD, #FFFFFF)',
+          zIndex: 0,
         }}
-      >
-        <Typography
-          variant="h5"
-          fontWeight="bold"
-          sx={{ color: "#1976d2", mb: 3, textAlign: "center", mt: 2 }}
-        >
-          Support SQI List
-        </Typography>
+      />
 
-        <TableContainer
-          component={Paper}
+      {/* Konten utama — beri zIndex lebih tinggi agar terlihat di atas background */}
+      <Box sx={{ display: 'flex', position: 'relative', zIndex: 1 }}>
+        <Box
+          component="main"
           sx={{
-            borderRadius: 2,
-            boxShadow: 3,
-            width: "95%",
-            maxWidth: 1300,
-            overflowX: "auto",
+            flexGrow: 1,
+            p: 3,
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            // opsional: padding top agar tidak nempel ke atas
+            pt: 6,
           }}
         >
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: "#1976d2" }}>
-                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Title
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Description
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Support Type
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Application
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  PIC SQI
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Status
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Attachment
-                </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", color: "#fff" }}>
-                  Created Date
-                </TableCell>
-              </TableRow>
-            </TableHead>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            sx={{
+              mb: 4,
+              textAlign: 'center',
+              color: '#1E88E5',
+              textShadow: '0 1px 1px rgba(0,0,0,0.15)',
+            }}
+          >
+            Support SQI List
+          </Typography>
 
-
-            <TableBody>
-              {tasks.length > 0 ? (
-                tasks.map((task) => (
-                  <TableRow
-                    key={task.id}
-                    sx={{
-                      "&:hover": { backgroundColor: "rgba(0,0,0,0.05)" },
-                    }}
-                  >
-                    <TableCell>{task.title}</TableCell>
-                    <TableCell>{task.description}</TableCell>
-                    <TableCell>
-                      {task.supportType
-                        ? task.supportType.name
-                        : task.customSupportType || "—"}
+          <TableContainer
+            component={Paper}
+            sx={{
+              borderRadius: 2,
+              width: '95%',
+              maxWidth: 1300,
+              overflowX: 'auto',
+              // opsional: sedikit transparansi agar gradien tetap terasa di pinggir
+              background:
+                'linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95))',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+            }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow>
+                  {[
+                    'Title',
+                    'Description',
+                    'Support Type',
+                    'Application',
+                    'PIC SQI',
+                    'Status',
+                    'Attachment',
+                    'Created Date',
+                  ].map((head) => (
+                    <TableCell
+                      key={head}
+                      align="center"
+                      sx={{
+                        fontWeight: 'bold',
+                        color: 'text.primary',
+                        backgroundColor: 'background.paper',
+                      }}
+                    >
+                      {head}
                     </TableCell>
-                    <TableCell>{task.taskApplication?.name || "—"}</TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
 
-                    <TableCell>
-                      {userRole === "sqi" ? (
-                        <FormControl fullWidth size="small">
-                          <Select
-                            value={task.sqiPic?.id ?? ""}
-                            onChange={(e) =>
-                              handleAssignSQI(task.id, e.target.value)
-                            }
-                          >
-                            {sqiPics.map((pic) => (
-                              <MenuItem key={pic.id} value={pic.id}>
-                                {pic.name}
+              <TableBody>
+                {tasks.length > 0 ? (
+                  tasks.map((task) => (
+                    <TableRow key={task.id} hover>
+                      <TableCell>{task.title}</TableCell>
+                      <TableCell>{task.description}</TableCell>
+
+                      <TableCell>
+                        {task.supportType
+                          ? task.supportType.name
+                          : task.customSupportType || '—'}
+                      </TableCell>
+
+                      <TableCell>{task.taskApplication?.name || '—'}</TableCell>
+
+                      <TableCell>
+                        {userRole === 'sqi' ? (
+                          <FormControl fullWidth size="small">
+                            <Select
+                              value={task.sqiPic?.id ?? ''}
+                              onChange={(e) =>
+                                handleAssignSQI(task.id, e.target.value)
+                              }
+                            >
+                              {sqiPics.map((pic) => (
+                                <MenuItem key={pic.id} value={pic.id}>
+                                  {pic.name}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        ) : (
+                          task.sqiPic?.name || '—'
+                        )}
+                      </TableCell>
+
+                      <TableCell>
+                        {userRole === 'sqi' ? (
+                          <FormControl fullWidth size="small">
+                            <Select
+                              value={task.status}
+                              onChange={(e) =>
+                                handleStatusChange(task.id, e.target.value)
+                              }
+                            >
+                              <MenuItem value="pending">Pending</MenuItem>
+                              <MenuItem value="in_progress">
+                                In Progress
                               </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      ) : (
-                        task.sqiPic?.name || "—"
-                      )}
-                    </TableCell>
+                              <MenuItem value="completed">Completed</MenuItem>
+                              <MenuItem value="approved">Approved</MenuItem>
+                              <MenuItem value="rejected">Rejected</MenuItem>
+                            </Select>
+                          </FormControl>
+                        ) : (
+                          task.status
+                        )}
+                      </TableCell>
 
-                    <TableCell>
-                      {userRole === "sqi" ? (
-                        <FormControl fullWidth size="small">
-                          <Select
-                            value={task.status}
-                            onChange={(e) =>
-                              handleStatusChange(task.id, e.target.value)
-                            }
+                      <TableCell>
+                        {task.attachment ? (
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={<DownloadIcon />}
+                            component="a"
+                            href={`http://localhost:4000/${task.attachment.replace(
+                              /\\/g,
+                              '/'
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                            sx={{ textTransform: 'none' }}
                           >
-                            <MenuItem value="pending">Pending</MenuItem>
-                            <MenuItem value="in_progress">
-                              In Progress
-                            </MenuItem>
-                            <MenuItem value="completed">Completed</MenuItem>
-                            <MenuItem value="approved">Approved</MenuItem>
-                            <MenuItem value="rejected">Rejected</MenuItem>
-                          </Select>
-                        </FormControl>
-                      ) : (
-                        task.status
-                      )}
-                    </TableCell>
+                            Download
+                          </Button>
+                        ) : (
+                          '—'
+                        )}
+                      </TableCell>
 
-                    <TableCell>
-                      {task.attachment ? (
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          size="small"
-                          startIcon={<DownloadIcon />}
-                          component="a"
-                          href={`http://localhost:4000/${task.attachment.replace(
-                            /\\/g,
-                            "/"
-                          )}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download
-                          sx={{
-                            textTransform: "none",
-                            fontWeight: 500,
-                          }}
-                        >
-                          Download
-                        </Button>
-                      ) : (
-                        "—"
-                      )}
-                    </TableCell>
-
-                    <TableCell>
-                      {new Date(task.createdAt).toLocaleString("id-ID", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      <TableCell>
+                        {new Date(task.createdAt).toLocaleString('id-ID', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      align="center"
+                      sx={{ py: 4, color: 'text.secondary' }}
+                    >
+                      No SQI support requests yet
                     </TableCell>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    align="center"
-                    sx={{ color: "#757575", py: 4 }}
-                  >
-                    No SQI support requests yet
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
-        {/* 🔹 Pagination Section */}
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={(e, newPage) => setPage(newPage)}
-            color="primary"
-            size="medium"
-            sx={{
-              "& .MuiPaginationItem-root": { fontWeight: 500 },
-            }}
-          />
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={(e, newPage) => setPage(newPage)}
+              color="primary"
+            />
+          </Box>
         </Box>
-      </Box>
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          variant="filled"
-          sx={{ width: "100%" }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+          <Alert
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </>
   );
 };
 

@@ -2,7 +2,7 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden; /* penting: mencegah scroll */
+  /* overflow: hidden; */
 }
 
 body {
@@ -62,7 +62,7 @@ code {
   }
 }
 
-/* biar form field transparent bg nya */
+/* Fix autofill Chrome globally */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -72,9 +72,7 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  border: 0;
-  -webkit-text-fill-color: black !important;
+  -webkit-text-fill-color: #E3F2FD !important;
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
   transition: background-color 9999s ease-in-out 0s;
-  box-shadow: 0 0 0px 1000px transparent inset !important;
 }
-

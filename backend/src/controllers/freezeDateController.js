@@ -1,4 +1,4 @@
-import FreezeDate from "../models/FreezeDate.js";
+import FreezeDate from '../models/FreezeDate.js';
 
 /**
  * Ambil semua Freeze Date
@@ -6,23 +6,22 @@ import FreezeDate from "../models/FreezeDate.js";
 export const getAllFreezeDates = async (req, res) => {
   try {
     const freezeDates = await FreezeDate.findAll({
-      order: [["startDate", "ASC"]],
+      order: [['startDate', 'ASC']],
     });
 
-    const formatted = freezeDates.map(fd => ({
+    const formatted = freezeDates.map((fd) => ({
       id: fd.id,
-      startDate: fd.startDate ? fd.startDate.toISOString().split("T")[0] : null,
-      endDate: fd.endDate ? fd.endDate.toISOString().split("T")[0] : null,
+      startDate: fd.startDate ? fd.startDate.toISOString().split('T')[0] : null,
+      endDate: fd.endDate ? fd.endDate.toISOString().split('T')[0] : null,
       reason: fd.reason,
     }));
 
     res.json(formatted);
   } catch (error) {
-    console.error("Error fetching freeze dates:", error);
-    res.status(500).json({ error: "Failed to fetch freeze dates" });
+    console.error('Error fetching freeze dates:', error);
+    res.status(500).json({ error: 'Failed to fetch freeze dates' });
   }
 };
-
 
 /**
  * Tambah Freeze Date baru
@@ -42,31 +41,37 @@ export const createFreezeDate = async (req, res) => {
     if (new Date(endDate) < new Date(startDate)) {
       return res
         .status(400)
-        .json({ error: "Tanggal akhir tidak boleh sebelum tanggal awal." });
+        .json({ error: 'Tanggal akhir tidak boleh sebelum tanggal awal.' });
     }
 
     // Validasi ENUM
-    const validReasons = ["EOM", "EOY", "Cuti Bersama", "Tanggal Cantik", "Others"];
+    const validReasons = [
+      'EOM',
+      'EOY',
+      'Cuti Bersama',
+      'Tanggal Cantik',
+      'Others',
+    ];
     if (reason && !validReasons.includes(reason)) {
       return res.status(400).json({
-        error: `Reason tidak valid. Pilihan: ${validReasons.join(", ")}`,
+        error: `Reason tidak valid. Pilihan: ${validReasons.join(', ')}`,
       });
     }
 
     const newFreeze = await FreezeDate.create({
       startDate,
       endDate,
-      reason: reason || "Others",
+      reason: reason || 'Others',
       createdByUserId,
     });
 
     res.status(201).json({
-      message: "Freeze date berhasil ditambahkan.",
+      message: 'Freeze date berhasil ditambahkan.',
       data: newFreeze,
     });
   } catch (err) {
-    console.error("Error creating freeze date:", err);
-    res.status(500).json({ error: "Gagal menambahkan freeze date." });
+    console.error('Error creating freeze date:', err);
+    res.status(500).json({ error: 'Gagal menambahkan freeze date.' });
   }
 };
 
@@ -79,14 +84,14 @@ export const deleteFreezeDate = async (req, res) => {
 
     const freeze = await FreezeDate.findByPk(id);
     if (!freeze) {
-      return res.status(404).json({ error: "Freeze date tidak ditemukan." });
+      return res.status(404).json({ error: 'Freeze date tidak ditemukan.' });
     }
 
     await freeze.destroy();
 
-    res.status(200).json({ message: "Freeze date berhasil dihapus." });
+    res.status(200).json({ message: 'Freeze date berhasil dihapus.' });
   } catch (err) {
-    console.error("Error deleting freeze date:", err);
-    res.status(500).json({ error: "Gagal menghapus freeze date." });
+    console.error('Error deleting freeze date:', err);
+    res.status(500).json({ error: 'Gagal menghapus freeze date.' });
   }
 };

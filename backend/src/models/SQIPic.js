@@ -1,20 +1,22 @@
-import {
-  DataTypes
-} from "sequelize";
-import sequelize from "../config/database.js";
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
-const SQIPic = sequelize.define("SQIPic", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
-    primaryKey: true,
+const SQIPic = sequelize.define(
+  'SQIPic',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-}, {
-  tableName: "sqi_pics",
-});
+  {
+    tableName: 'sqi_pics',
+  }
+);
 
 export default SQIPic;

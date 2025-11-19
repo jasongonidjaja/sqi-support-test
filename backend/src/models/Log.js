@@ -1,8 +1,8 @@
-import { Sequelize, DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import { Sequelize, DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
 const Log = sequelize.define(
-  "Log",
+  'Log',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -53,11 +53,11 @@ const Log = sequelize.define(
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn("NOW"),
+      defaultValue: Sequelize.fn('NOW'),
     },
   },
   {
-    tableName: "logs",
+    tableName: 'logs',
     timestamps: false,
   }
 );

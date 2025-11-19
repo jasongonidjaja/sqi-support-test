@@ -1,9 +1,9 @@
 // src/models/Task.js
-import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
 const Task = sequelize.define(
-  "Task",
+  'Task',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -27,43 +27,49 @@ const Task = sequelize.define(
     applicationId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: { model: "applications", key: "id" },
-      onDelete: "SET NULL",
-      onUpdate: "CASCADE",
+      references: { model: 'applications', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     supportTypeId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: { model: "support_types", key: "id" },
-      onDelete: "SET NULL",
-      onUpdate: "CASCADE",
+      references: { model: 'support_types', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     sqiPicId: {
       type: DataTypes.INTEGER,
       allowNull: true,
-      references: { model: "sqi_pics", key: "id" },
-      onDelete: "SET NULL",
-      onUpdate: "CASCADE",
+      references: { model: 'sqi_pics', key: 'id' },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE',
     },
     createdByUserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      references: { model: "users", key: "id" },
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
+      references: { model: 'users', key: 'id' },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
     attachment: {
       type: DataTypes.STRING,
       allowNull: true,
     },
     status: {
-      type: DataTypes.ENUM("pending", "in_progress", "completed", "approved", "rejected"),
+      type: DataTypes.ENUM(
+        'pending',
+        'in_progress',
+        'completed',
+        'approved',
+        'rejected'
+      ),
       allowNull: false,
-      defaultValue: "pending",
+      defaultValue: 'pending',
     },
   },
   {
-    tableName: "tasks",
+    tableName: 'tasks',
     timestamps: true,
   }
 );

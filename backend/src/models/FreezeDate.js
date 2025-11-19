@@ -1,8 +1,8 @@
-import { DataTypes } from "sequelize";
-import sequelize from "../config/database.js";
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/database.js';
 
 const FreezeDate = sequelize.define(
-  "FreezeDate",
+  'FreezeDate',
   {
     id: {
       type: DataTypes.INTEGER,
@@ -18,22 +18,28 @@ const FreezeDate = sequelize.define(
       allowNull: false,
     },
     reason: {
-      type: DataTypes.ENUM("EOM", "EOY", "Cuti Bersama", "Tanggal Cantik", "Others"),
+      type: DataTypes.ENUM(
+        'EOM',
+        'EOY',
+        'Cuti Bersama',
+        'Tanggal Cantik',
+        'Others'
+      ),
       allowNull: false,
     },
     createdByUserId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "users",
-        key: "id",
+        model: 'users',
+        key: 'id',
       },
-      onDelete: "CASCADE",
-      onUpdate: "CASCADE",
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     },
   },
   {
-    tableName: "freeze_dates",
+    tableName: 'freeze_dates',
     timestamps: true,
   }
 );

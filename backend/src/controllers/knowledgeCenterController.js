@@ -1,14 +1,14 @@
-import { Op } from "sequelize";
-import KnowledgeCenter from "../models/KnowledgeCenter.js";
-import Application from "../models/Application.js";
+import { Op } from 'sequelize';
+import KnowledgeCenter from '../models/KnowledgeCenter.js';
+import Application from '../models/Application.js';
 
 /**
  * Ambil semua data Knowledge Center (dengan live search & filter aplikasi)
  */
 export const getAllKnowledge = async (req, res) => {
   try {
-    const search = req.query.search || "";
-    const application = req.query.application || "";
+    const search = req.query.search || '';
+    const application = req.query.application || '';
 
     const whereClause = {};
 
@@ -22,8 +22,8 @@ export const getAllKnowledge = async (req, res) => {
     const includeClause = [
       {
         model: Application,
-        as: "application",
-        attributes: ["id", "name"],
+        as: 'application',
+        attributes: ['id', 'name'],
         where: application
           ? { id: application } // filter berdasarkan id (bukan nama)
           : undefined,
@@ -33,7 +33,7 @@ export const getAllKnowledge = async (req, res) => {
     const knowledge = await KnowledgeCenter.findAll({
       where: whereClause,
       include: includeClause,
-      order: [["updatedAt", "DESC"]],
+      order: [['updatedAt', 'DESC']],
     });
 
     // Ubah hasil agar lebih ringkas
@@ -47,15 +47,16 @@ export const getAllKnowledge = async (req, res) => {
     }));
 
     res.status(200).json({
-      message: "Knowledge Center data retrieved successfully.",
+      message: 'Knowledge Center data retrieved successfully.',
       data: result,
     });
   } catch (err) {
-    console.error("Error fetching knowledge:", err);
-    res.status(500).json({ error: "Failed to retrieve Knowledge Center data." });
+    console.error('Error fetching knowledge:', err);
+    res
+      .status(500)
+      .json({ error: 'Failed to retrieve Knowledge Center data.' });
   }
 };
-
 
 /**
  * Tambah entry baru
@@ -75,10 +76,9 @@ export const createKnowledge = async (req, res) => {
     res.status(201).json(knowledge);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Gagal menambahkan knowledge" });
+    res.status(500).json({ message: 'Gagal menambahkan knowledge' });
   }
 };
-
 
 /**
  * Update entry
@@ -89,13 +89,13 @@ export const updateKnowledge = async (req, res) => {
     const { problem, solution } = req.body;
 
     const entry = await KnowledgeCenter.findByPk(id);
-    if (!entry) return res.status(404).json({ error: "Entry not found." });
+    if (!entry) return res.status(404).json({ error: 'Entry not found.' });
 
     await entry.update({ problem, solution });
-    res.status(200).json({ message: "Entry updated.", data: entry });
+    res.status(200).json({ message: 'Entry updated.', data: entry });
   } catch (err) {
-    console.error("Error updating knowledge:", err);
-    res.status(500).json({ error: "Failed to update entry." });
+    console.error('Error updating knowledge:', err);
+    res.status(500).json({ error: 'Failed to update entry.' });
   }
 };
 
@@ -107,12 +107,12 @@ export const deleteKnowledge = async (req, res) => {
     const { id } = req.params;
 
     const entry = await KnowledgeCenter.findByPk(id);
-    if (!entry) return res.status(404).json({ error: "Entry not found." });
+    if (!entry) return res.status(404).json({ error: 'Entry not found.' });
 
     await entry.destroy();
-    res.status(200).json({ message: "Entry deleted." });
+    res.status(200).json({ message: 'Entry deleted.' });
   } catch (err) {
-    console.error("Error deleting knowledge:", err);
-    res.status(500).json({ error: "Failed to delete entry." });
+    console.error('Error deleting knowledge:', err);
+    res.status(500).json({ error: 'Failed to delete entry.' });
   }
 };

@@ -1,13 +1,13 @@
-import React, { useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-import { Container, TextField, Button, Typography, Box } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import api from "../services/api";
-import Aurora from "../components/Aurora";
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
+import Aurora from '../components/Aurora';
 
 const LoginPage = () => {
-  const [form, setForm] = useState({ username: "", password: "" });
-  const [error, setError] = useState("");
+  const [form, setForm] = useState({ username: '', password: '' });
+  const [error, setError] = useState('');
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -16,21 +16,24 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     try {
-      const response = await api.post("/auth/login", form);
+      const response = await api.post('/auth/login', form);
       const { token, role, username } = response.data;
 
-      localStorage.setItem("user", JSON.stringify({ token, role, username }));
+      localStorage.setItem('user', JSON.stringify({ token, role, username }));
       login(token, role, username);
 
-      navigate("/calendar");
+      navigate('/calendar');
     } catch (err) {
-      console.error("Login error:", err);
+      console.error('Login error:', err);
       if (err.response?.status === 401)
-        setError("Incorrect username or password.");
-      else setError(err.response?.data?.message || "Server error, please try again.");
+        setError('Incorrect username or password.');
+      else
+        setError(
+          err.response?.data?.message || 'Server error, please try again.'
+        );
     }
   };
 
@@ -46,12 +49,12 @@ const LoginPage = () => {
       {/* Dark Blue Background */}
       <Box
         sx={{
-          position: "fixed",
+          position: 'fixed',
           top: 0,
           left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "#133c75ff",
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#0F2A4A',
           zIndex: -1,
         }}
       />
@@ -59,26 +62,44 @@ const LoginPage = () => {
       <Container
         maxWidth="xs"
         sx={{
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
+          height: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
           zIndex: 3,
         }}
       >
-        <Box
+        <Typography
+          variant="h3"
+          fontWeight="bold"
           sx={{
-            width: "100%",
-            textAlign: "center",
-            background: "rgba(255, 255, 255, 0.15)",
-            backdropFilter: "blur(14px)",
-            padding: 4,
-            borderRadius: 4,
-            border: "1px solid rgba(255,255,255,0.2)",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
+            color: '#E3F2FD',
+            textAlign: 'center',
+            mb: 10,
           }}
         >
-          <Typography variant="h5" fontWeight="bold" mb={3} sx={{ color: "#E3F2FD" }}>
+          SQI Support
+        </Typography>
+
+        <Box
+          sx={{
+            width: '100%',
+            textAlign: 'center',
+            background: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(14px)',
+            padding: 4,
+            borderRadius: 3,
+            border: '1px solid rgba(255,255,255,0.2)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          }}
+        >
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            mb={3}
+            sx={{ color: '#E3F2FD' }}
+          >
             Welcome Back
           </Typography>
 
@@ -92,13 +113,13 @@ const LoginPage = () => {
               margin="normal"
               variant="outlined"
               size="small"
-              InputLabelProps={{ style: { color: "#BBDEFB" } }}
+              InputLabelProps={{ style: { color: '#BBDEFB' } }}
               sx={{
-                "& .MuiOutlinedInput-root": {
-                  color: "white",
-                  "& fieldset": { borderColor: "#BBDEFB", borderRadius: 30 },
-                  "&:hover fieldset": { borderColor: "#E3F2FD" },
-                  "&.Mui-focused fieldset": { borderColor: "#90CAF9" },
+                '& .MuiOutlinedInput-root': {
+                  color: 'white',
+                  '& fieldset': { borderColor: '#BBDEFB', borderRadius: 30 },
+                  '&:hover fieldset': { borderColor: '#E3F2FD' },
+                  '&.Mui-focused fieldset': { borderColor: '#90CAF9' },
                 },
               }}
             />
@@ -113,19 +134,28 @@ const LoginPage = () => {
               margin="normal"
               variant="outlined"
               size="small"
-              InputLabelProps={{ style: { color: "#BBDEFB" } }}
+              InputLabelProps={{ style: { color: '#BBDEFB' } }}
               sx={{
-                "& .MuiOutlinedInput-root": {
-                  color: "white",
-                  "& fieldset": { borderColor: "#BBDEFB", borderRadius: 30 },
-                  "&:hover fieldset": { borderColor: "#E3F2FD" },
-                  "&.Mui-focused fieldset": { borderColor: "#90CAF9" },
+                '& .MuiOutlinedInput-root': {
+                  color: 'white',
+                  '& fieldset': { borderColor: '#BBDEFB', borderRadius: 30 },
+                  '&:hover fieldset': { borderColor: '#E3F2FD' },
+                  '&.Mui-focused fieldset': { borderColor: '#90CAF9' },
                 },
               }}
             />
 
             {error && (
-              <Typography variant="body2" color="error" sx={{ mt: 1, textAlign: "left" }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  mt: 1,
+                  textAlign: 'left',
+                  color: '#FF3B30', // warna alert yang lebih terlihat
+                  fontWeight: 700,
+                  textShadow: '0 0 3px rgba(0,0,0,0.4)', // opsional: biar makin jelas
+                }}
+              >
                 {error}
               </Typography>
             )}
@@ -135,12 +165,12 @@ const LoginPage = () => {
               variant="contained"
               sx={{
                 mt: 3,
-                width: "100%",
-                textTransform: "none",
+                width: '100%',
+                textTransform: 'none',
                 paddingY: 1.3,
                 borderRadius: 30,
-                backgroundColor: "#2A3142",
-                "&:hover": { backgroundColor: "#1565c0" },
+                backgroundColor: '#1E88E5',
+                '&:hover': { backgroundColor: '#1565C0' },
               }}
             >
               Login

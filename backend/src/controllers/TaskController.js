@@ -1,41 +1,39 @@
-import asyncHandler from "../middleware/asyncHandler.js";
-import Task from "../models/Task.js";
-import Application from "../models/Application.js";
-import SQIPic from "../models/SQIPic.js";
-import SupportType from "../models/SupportType.js";
-import User from "../models/User.js";
-import Log from "../models/Log.js";
-import TaskStatus from "../constants/taskStatus.js";
+import asyncHandler from '../middleware/asyncHandler.js';
+import Task from '../models/Task.js';
+import Application from '../models/Application.js';
+import SQIPic from '../models/SQIPic.js';
+import SupportType from '../models/SupportType.js';
+import User from '../models/User.js';
+import Log from '../models/Log.js';
+import TaskStatus from '../constants/taskStatus.js';
 
 /* ===============================
    GET semua task
    =============================== */
 export const getTasks = asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page) || 1;       // halaman aktif
-  const limit = parseInt(req.query.limit) || 10;    // jumlah data per halaman
+  const page = parseInt(req.query.page) || 1; // halaman aktif
+  const limit = parseInt(req.query.limit) || 10; // jumlah data per halaman
   const offset = (page - 1) * limit;
 
   const whereCondition =
-    req.user.role === "developer"
-      ? { createdByUserId: req.user.userId }
-      : {};
+    req.user.role === 'developer' ? { createdByUserId: req.user.userId } : {};
 
   // Gunakan findAndCountAll untuk pagination
   const { count, rows: tasks } = await Task.findAndCountAll({
     where: whereCondition,
     include: [
-      { model: Application, as: "taskApplication" },
-      { model: SQIPic, as: "sqiPic" },
-      { model: SupportType, as: "supportType" },
-      { model: User, as: "createdBy", attributes: ["id", "username", "role"] },
+      { model: Application, as: 'taskApplication' },
+      { model: SQIPic, as: 'sqiPic' },
+      { model: SupportType, as: 'supportType' },
+      { model: User, as: 'createdBy', attributes: ['id', 'username', 'role'] },
     ],
-    order: [["createdAt", "DESC"]],
+    order: [['createdAt', 'DESC']],
     limit,
     offset,
   });
 
   res.status(200).json({
-    message: "Successfully retrieved task data.",
+    message: 'Successfully retrieved task data.',
     totalData: count,
     totalPages: Math.ceil(count / limit),
     currentPage: page,
@@ -59,17 +57,21 @@ export const createTask = asyncHandler(async (req, res) => {
   } = req.body;
 
   if (!title || !description || !applicationId) {
-    const error = new Error("Required fields cannot be empty: title, description, applicationId.");
+    const error = new Error(
+      'Required fields cannot be empty: title, description, applicationId.'
+    );
     error.statusCode = 400;
     throw error;
   }
 
-  const attachmentPath = req.file ? req.file.path.replace(/\\/g, "/") : null;
+  const attachmentPath = req.file ? req.file.path.replace(/\\/g, '/') : null;
 
   // Tentukan supportTypeId
   let supportTypeId = null;
-  if (supportType && supportType !== "Other") {
-    const existingType = await SupportType.findOne({ where: { name: supportType } });
+  if (supportType && supportType !== 'Other') {
+    const existingType = await SupportType.findOne({
+      where: { name: supportType },
+    });
     if (existingType) supportTypeId = existingType.id;
   }
 
@@ -77,25 +79,26 @@ export const createTask = asyncHandler(async (req, res) => {
     title,
     description,
     supportTypeId,
-    customSupportType: supportType === "Other" ? customSupportType : null,
+    customSupportType: supportType === 'Other' ? customSupportType : null,
     applicationId,
     sqiPicId: sqiPicId || null,
     createdByUserId: req.user.userId,
     attachment: attachmentPath,
     status,
   });
-  console.log("REQ USER", req.user);
+  console.log('REQ USER', req.user);
 
   await Log.create({
     username: req.user.username,
     title: newTask.title,
-    action: "Task Created",
+    action: 'Task Created',
     oldValue: null,
     newValue: status,
   });
 
-
-  res.status(201).json({ message: "Task created successfully.", data: newTask });
+  res
+    .status(201)
+    .json({ message: 'Task created successfully.', data: newTask });
 });
 
 /* ===============================
@@ -106,26 +109,29 @@ export const getTaskById = asyncHandler(async (req, res) => {
 
   const task = await Task.findByPk(id, {
     include: [
-      { model: Application, as: "taskApplication" },
-      { model: SQIPic, as: "sqiPic" },
-      { model: SupportType, as: "supportType" },
-      { model: User, as: "createdBy", attributes: ["id", "username", "role"] },
+      { model: Application, as: 'taskApplication' },
+      { model: SQIPic, as: 'sqiPic' },
+      { model: SupportType, as: 'supportType' },
+      { model: User, as: 'createdBy', attributes: ['id', 'username', 'role'] },
     ],
   });
 
   if (!task) {
-    const error = new Error("Task not found.");
+    const error = new Error('Task not found.');
     error.statusCode = 404;
     throw error;
   }
 
-  if (req.user.role === "developer" && task.createdByUserId !== req.user.userId) {
-    const error = new Error("You are not authorized to view this task.");
+  if (
+    req.user.role === 'developer' &&
+    task.createdByUserId !== req.user.userId
+  ) {
+    const error = new Error('You are not authorized to view this task.');
     error.statusCode = 403;
     throw error;
   }
 
-  res.status(200).json({ message: "Task found.", data: task });
+  res.status(200).json({ message: 'Task found.', data: task });
 });
 
 /* ===============================
@@ -137,14 +143,16 @@ export const updateTaskStatus = asyncHandler(async (req, res) => {
 
   const validStatuses = Object.values(TaskStatus);
   if (!validStatuses.includes(status)) {
-    const error = new Error(`Status tidak valid. Must be one of these: ${validStatuses.join(", ")}.`);
+    const error = new Error(
+      `Status tidak valid. Must be one of these: ${validStatuses.join(', ')}.`
+    );
     error.statusCode = 400;
     throw error;
   }
 
   const task = await Task.findByPk(id);
   if (!task) {
-    const error = new Error("Task not found.");
+    const error = new Error('Task not found.');
     error.statusCode = 404;
     throw error;
   }
@@ -155,10 +163,10 @@ export const updateTaskStatus = asyncHandler(async (req, res) => {
   await task.save();
 
   await Log.create({
-    username: req.user.username,     
-    title: task.title,               
-    action: "Status Change",
-    oldValue: oldStatus,            
+    username: req.user.username,
+    title: task.title,
+    action: 'Status Change',
+    oldValue: oldStatus,
     newValue: status,
   });
 
@@ -176,21 +184,23 @@ export const assignSqiPic = asyncHandler(async (req, res) => {
   const { sqi_pic_id } = req.body;
 
   if (!sqi_pic_id) {
-    const error = new Error("Please include the SQI PIC ID that will be assigned.");
+    const error = new Error(
+      'Please include the SQI PIC ID that will be assigned.'
+    );
     error.statusCode = 400;
     throw error;
   }
 
   const task = await Task.findByPk(id);
   if (!task) {
-    const error = new Error("Task not found.");
+    const error = new Error('Task not found.');
     error.statusCode = 404;
     throw error;
   }
 
   const sqiPic = await SQIPic.findByPk(sqi_pic_id);
   if (!sqiPic) {
-    const error = new Error("PIC SQI not found.");
+    const error = new Error('PIC SQI not found.');
     error.statusCode = 404;
     throw error;
   }
@@ -201,8 +211,8 @@ export const assignSqiPic = asyncHandler(async (req, res) => {
   const oldStatus = task.status;
   let statusChanged = false;
 
-  if (task.status === "pending") {
-    task.status = "in_progress";
+  if (task.status === 'pending') {
+    task.status = 'in_progress';
     statusChanged = true;
   }
 
@@ -214,8 +224,8 @@ export const assignSqiPic = asyncHandler(async (req, res) => {
   await Log.create({
     username: req.user.username,
     title: task.title,
-    action: "PIC Assigned",
-    oldValue: oldPic ? `PIC ID: ${oldPic}` : "None",
+    action: 'PIC Assigned',
+    oldValue: oldPic ? `PIC ID: ${oldPic}` : 'None',
     newValue: `PIC ID: ${sqi_pic_id}`,
   });
 
@@ -224,7 +234,7 @@ export const assignSqiPic = asyncHandler(async (req, res) => {
     await Log.create({
       username: req.user.username,
       title: task.title,
-      action: "Status Change",
+      action: 'Status Change',
       oldValue: oldStatus,
       newValue: task.status,
     });
@@ -235,4 +245,3 @@ export const assignSqiPic = asyncHandler(async (req, res) => {
     data: task,
   });
 });
-
