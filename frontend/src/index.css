@@ -82,15 +82,16 @@ select:-webkit-autofill:focus {
 .fc .fc-timegrid-slot-label,
 .fc .fc-toolbar-title {
   color: #0F2A4A !important;
+  font-size: 1.1rem;
 }
 
 /* Warna garis grid day view */
 .fc-theme-standard td,
 .fc-theme-standard th {
-  border-color: #0c2038 !important;
+  border-color: #a1c3ee !important;
 }
 
 /* Jika ingin border luar kalender juga hitam */
 .fc .fc-scrollgrid {
-  border-color: #0c2038 !important;
+  border-color: #a1c3ee !important;
 }

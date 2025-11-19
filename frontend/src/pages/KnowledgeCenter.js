@@ -209,7 +209,7 @@ const KnowledgeCenter = () => {
           {/* HEADER */}
           <Box
             sx={{
-              backgroundColor: '#1976d2',
+              backgroundColor: '#0F2A4A',
               color: 'white',
               py: 8,
               textAlign: 'center',
