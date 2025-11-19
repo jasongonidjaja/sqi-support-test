@@ -166,6 +166,8 @@ const CreateTaskPage = () => {
               fullWidth
               required
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             />
 
             {/* Support Type */}
@@ -178,6 +180,8 @@ const CreateTaskPage = () => {
               fullWidth
               required
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             >
               {supportTypes.map((type) => (
                 <MenuItem key={type.id} value={type.name}>
@@ -209,6 +213,8 @@ const CreateTaskPage = () => {
               fullWidth
               required
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             >
               {applications.map((app) => (
                 <MenuItem key={app.id} value={app.id}>
@@ -228,6 +234,8 @@ const CreateTaskPage = () => {
               fullWidth
               required
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             />
 
             {/* Attachment */}
@@ -236,7 +244,12 @@ const CreateTaskPage = () => {
               component="label"
               startIcon={<UploadFileIcon />}
               fullWidth
-              sx={{ mb: 2, textTransform: 'none' }}
+              sx={{
+                mb: 2,
+                textTransform: 'none',
+                fontSize: '1.1rem', // <<< ukuran teks diperbesar
+                py: 1.2, // biar proporsional
+              }}
             >
               {form.attachment ? 'Change File' : 'Select Attachment File'}
               <input type="file" hidden onChange={handleFileChange} />
@@ -245,7 +258,12 @@ const CreateTaskPage = () => {
             {form.attachment && (
               <Typography
                 variant="body2"
-                sx={{ mb: 2, color: 'text.secondary', fontStyle: 'italic' }}
+                sx={{
+                  mb: 2,
+                  color: 'text.secondary',
+                  fontStyle: 'italic',
+                  fontSize: '1.1rem', // <<< ukuran teks diperbesar
+                }}
               >
                 📄 {form.attachment.name}
               </Typography>
@@ -262,6 +280,7 @@ const CreateTaskPage = () => {
                 borderRadius: 30,
                 textTransform: 'none',
                 py: 1.3,
+                fontSize: '1.1rem', // <<< ukuran teks diperbesar
                 '&:hover': { backgroundColor: '#1565C0' },
               }}
             >

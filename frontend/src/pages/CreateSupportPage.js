@@ -209,6 +209,8 @@ const CreateSupportPage = () => {
               fullWidth
               required
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             />
 
             <TextField
@@ -219,6 +221,8 @@ const CreateSupportPage = () => {
               fullWidth
               required
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             />
 
             <TextField
@@ -229,6 +233,8 @@ const CreateSupportPage = () => {
               fullWidth
               required
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             />
 
             {/* Date Picker */}
@@ -257,6 +263,8 @@ const CreateSupportPage = () => {
               fullWidth
               required
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             />
 
             <TextField
@@ -268,6 +276,8 @@ const CreateSupportPage = () => {
               rows={3}
               fullWidth
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             />
 
             <TextField
@@ -278,6 +288,8 @@ const CreateSupportPage = () => {
               onChange={handleChange}
               fullWidth
               sx={{ mb: 2 }}
+              InputProps={{ sx: { fontSize: '1.1rem' } }}
+              InputLabelProps={{ sx: { fontSize: '1.1rem' } }}
             >
               <MenuItem value="Low">Low</MenuItem>
               <MenuItem value="Medium">Medium</MenuItem>
@@ -285,12 +297,18 @@ const CreateSupportPage = () => {
               <MenuItem value="Major Release">Major Release</MenuItem>
             </TextField>
 
+            {/* Attachment */}
             <Button
               variant="outlined"
               component="label"
               startIcon={<UploadFileIcon />}
               fullWidth
-              sx={{ mb: 2, textTransform: 'none' }}
+              sx={{
+                mb: 2,
+                textTransform: 'none',
+                fontSize: '1.1rem', // <<< ukuran teks diperbesar
+                py: 1.2, // biar proporsional
+              }}
             >
               {form.attachment ? 'Change File' : 'Select Attachment File'}
               <input type="file" hidden onChange={handleFileChange} />
@@ -299,21 +317,29 @@ const CreateSupportPage = () => {
             {form.attachment && (
               <Typography
                 variant="body2"
-                sx={{ mb: 2, color: 'text.secondary', fontStyle: 'italic' }}
+                sx={{
+                  mb: 2,
+                  color: 'text.secondary',
+                  fontStyle: 'italic',
+                  fontSize: '1.1rem', // <<< ukuran teks diperbesar
+                }}
               >
                 📄 {form.attachment.name}
               </Typography>
             )}
 
+            {/* Submit */}
             <Button
-              variant="contained"
               type="submit"
+              variant="contained"
               fullWidth
               sx={{
+                mt: 1,
                 backgroundColor: '#1E88E5',
                 borderRadius: 30,
                 textTransform: 'none',
                 py: 1.3,
+                fontSize: '1.1rem', // <<< ukuran teks diperbesar
                 '&:hover': { backgroundColor: '#1565C0' },
               }}
             >

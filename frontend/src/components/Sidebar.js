@@ -96,15 +96,57 @@ const Sidebar = () => {
         }}
       >
         {!collapsed && (
-          <Box>
-            <Typography variant="h6" fontWeight="bold">
-              SQI Support
-            </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.7 }}>
-              {role ? role.toUpperCase() : 'GUEST'}
-            </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box
+              sx={{
+                width: 42,
+                height: 42,
+                borderRadius: '50%',
+                backgroundColor: '#E3F2FD',
+                backdropFilter: 'blur(6px)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <img
+                src="/logo-cts-e.png"
+                alt="CTS Logo"
+                style={{ width: 24, height: 24 }}
+              />
+            </Box>
+
+            <Box>
+              <Typography variant="h6" fontWeight="bold">
+                SQI Support
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.7 }}>
+                {role ? role.toUpperCase() : 'GUEST'}
+              </Typography>
+            </Box>
           </Box>
         )}
+
+        {/* {collapsed && (
+          <Box
+            sx={{
+              width: 42,
+              height: 42,
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255,255,255,0.25)',
+              backdropFilter: 'blur(6px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <img
+              src="/logo-cts-e.png"
+              alt="CTS Logo"
+              style={{ width: 24, height: 24 }}
+            />
+          </Box>
+        )} */}
 
         <IconButton
           size="small"
