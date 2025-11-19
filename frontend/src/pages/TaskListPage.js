@@ -92,7 +92,7 @@ const TaskListPage = () => {
       );
       setSnackbar({
         open: true,
-        message: `Status updated to ${newStatus}`,
+        message: 'Status updated successfully!',
         severity: 'success',
       });
     } catch {
@@ -117,7 +117,7 @@ const TaskListPage = () => {
       );
       setSnackbar({
         open: true,
-        message: `Assigned to ${selectedPic?.name}`,
+        message: 'PIC assigned successfully!',
         severity: 'success',
       });
     } catch {
@@ -153,7 +153,7 @@ const TaskListPage = () => {
           inset: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(135deg, #E3F2FD, #FFFFFF)',
+          backgroundColor: '#eaf5fcff',
           zIndex: 0,
         }}
       />
@@ -193,7 +193,6 @@ const TaskListPage = () => {
               width: '95%',
               maxWidth: 1300,
               overflowX: 'auto',
-              // opsional: sedikit transparansi agar gradien tetap terasa di pinggir
               background:
                 'linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.95))',
               boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
@@ -217,7 +216,7 @@ const TaskListPage = () => {
                       align="center"
                       sx={{
                         fontWeight: 'bold',
-                        color: 'text.primary',
+                        color: '#0F2A4A',
                         backgroundColor: 'background.paper',
                       }}
                     >

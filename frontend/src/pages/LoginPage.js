@@ -54,7 +54,7 @@ const LoginPage = () => {
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: '#0F2A4A',
+          backgroundColor: '#E3F2FD',
           zIndex: -1,
         }}
       />
@@ -70,11 +70,16 @@ const LoginPage = () => {
           zIndex: 3,
         }}
       >
+        <img
+          src="/logo-cts-e.png"
+          alt="Logo"
+          style={{ width: 100, marginBottom: 20 }}
+        />
         <Typography
           variant="h3"
           fontWeight="bold"
           sx={{
-            color: '#E3F2FD',
+            color: '#0F2A4A',
             textAlign: 'center',
             mb: 10,
           }}
@@ -98,7 +103,7 @@ const LoginPage = () => {
             variant="h5"
             fontWeight="bold"
             mb={3}
-            sx={{ color: '#E3F2FD' }}
+            sx={{ color: '#0F2A4A' }}
           >
             Welcome Back
           </Typography>
@@ -113,13 +118,13 @@ const LoginPage = () => {
               margin="normal"
               variant="outlined"
               size="small"
-              InputLabelProps={{ style: { color: '#BBDEFB' } }}
+              InputLabelProps={{ style: { color: '#0F2A4A' } }}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  color: 'white',
-                  '& fieldset': { borderColor: '#BBDEFB', borderRadius: 30 },
-                  '&:hover fieldset': { borderColor: '#E3F2FD' },
-                  '&.Mui-focused fieldset': { borderColor: '#90CAF9' },
+                  color: '#0F2A4A',
+                  '& fieldset': { borderColor: '#0F2A4A', borderRadius: 30 },
+                  '&:hover fieldset': { borderColor: '#0F2A4A' },
+                  '&.Mui-focused fieldset': { borderColor: '#0F2A4A' },
                 },
               }}
             />
@@ -134,13 +139,13 @@ const LoginPage = () => {
               margin="normal"
               variant="outlined"
               size="small"
-              InputLabelProps={{ style: { color: '#BBDEFB' } }}
+              InputLabelProps={{ style: { color: '#0F2A4A' } }}
               sx={{
                 '& .MuiOutlinedInput-root': {
-                  color: 'white',
-                  '& fieldset': { borderColor: '#BBDEFB', borderRadius: 30 },
-                  '&:hover fieldset': { borderColor: '#E3F2FD' },
-                  '&.Mui-focused fieldset': { borderColor: '#90CAF9' },
+                  color: '#0F2A4A',
+                  '& fieldset': { borderColor: '#0F2A4A', borderRadius: 30 },
+                  '&:hover fieldset': { borderColor: '#0F2A4A' },
+                  '&.Mui-focused fieldset': { borderColor: '#0F2A4A' },
                 },
               }}
             />
@@ -151,9 +156,9 @@ const LoginPage = () => {
                 sx={{
                   mt: 1,
                   textAlign: 'left',
-                  color: '#FF3B30', // warna alert yang lebih terlihat
-                  fontWeight: 700,
-                  textShadow: '0 0 3px rgba(0,0,0,0.4)', // opsional: biar makin jelas
+                  color: '#FF3B30',
+                  fontWeight: 600,
+                  // textShadow: '0 0 3px rgba(0,0,0,0.4)',
                 }}
               >
                 {error}

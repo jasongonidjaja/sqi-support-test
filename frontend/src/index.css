@@ -72,7 +72,25 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-  -webkit-text-fill-color: #E3F2FD !important;
+  -webkit-text-fill-color: #0F2A4A !important;
   -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
   transition: background-color 9999s ease-in-out 0s;
+}
+
+.fc .fc-daygrid-day-number,
+.fc .fc-col-header-cell-cushion,
+.fc .fc-timegrid-slot-label,
+.fc .fc-toolbar-title {
+  color: #0F2A4A !important;
+}
+
+/* Warna garis grid day view */
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border-color: #0c2038 !important;
+}
+
+/* Jika ingin border luar kalender juga hitam */
+.fc .fc-scrollgrid {
+  border-color: #0c2038 !important;
 }

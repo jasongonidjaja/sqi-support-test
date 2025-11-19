@@ -21,6 +21,8 @@ import {
   Select,
   FormControl,
   InputLabel,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import EditIcon from '@mui/icons-material/Edit';
@@ -28,6 +30,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import SearchIcon from '@mui/icons-material/Search';
 
 const KnowledgeCenter = () => {
+  const [alert, setAlert] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
+
   const [data, setData] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
@@ -110,6 +118,13 @@ const KnowledgeCenter = () => {
     setSolution('');
     setOpenAddModal(false);
     fetchData(search, selectedApp);
+    setOpenAddModal(false);
+    setAlert({
+      open: true,
+      message: 'Successfully created!',
+      severity: 'success',
+    });
+    fetchData(search, selectedApp);
   };
 
   // Open edit modal
@@ -129,6 +144,13 @@ const KnowledgeCenter = () => {
     });
     setOpenEditModal(false);
     fetchData(search, selectedApp);
+    setOpenEditModal(false);
+    setAlert({
+      open: true,
+      message: 'Successfully updated!',
+      severity: 'success',
+    });
+    fetchData(search, selectedApp);
   };
 
   // Open delete confirm
@@ -143,6 +165,14 @@ const KnowledgeCenter = () => {
     await api.delete(`/knowledge-center/${deleteId}`);
     setOpenConfirm(false);
     setOpenEditModal(false);
+    fetchData(search, selectedApp);
+    setOpenConfirm(false);
+    setOpenEditModal(false);
+    setAlert({
+      open: true,
+      message: 'Successfully deleted!',
+      severity: 'success',
+    });
     fetchData(search, selectedApp);
   };
 
@@ -161,7 +191,7 @@ const KnowledgeCenter = () => {
           inset: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(135deg, #E3F2FD, #FFFFFF)',
+          backgroundColor: '#eaf5fcff',
           zIndex: 0,
         }}
       />
@@ -212,6 +242,7 @@ const KnowledgeCenter = () => {
                     minWidth: 180,
                     backgroundColor: 'white',
                     borderRadius: 2,
+                    color: '#0c2038',
                   }}
                 >
                   <MenuItem value="">
@@ -256,7 +287,7 @@ const KnowledgeCenter = () => {
               boxShadow: 3,
             }}
           >
-            <Typography variant="h5" fontWeight="bold" mb={3}>
+            <Typography variant="h5" fontWeight="bold" mb={3} color="#0F2A4A">
               List of Problems
             </Typography>
 
@@ -348,6 +379,7 @@ const KnowledgeCenter = () => {
                       borderRadius: 2,
                       '&.Mui-expanded': { mb: 2 },
                       boxShadow: 1,
+                      color: '#0c2038',
                     }}
                   >
                     <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -438,6 +470,20 @@ const KnowledgeCenter = () => {
           </Dialog>
         </Box>
       </Box>
+      <Snackbar
+        open={alert.open}
+        autoHideDuration={3000}
+        onClose={() => setAlert({ ...alert, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert
+          severity={alert.severity}
+          variant="filled"
+          onClose={() => setAlert({ ...alert, open: false })}
+        >
+          {alert.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

@@ -6,19 +6,19 @@ import SupportType from '../models/SupportType.js';
 import User from '../models/User.js';
 import Log from '../models/Log.js';
 import TaskStatus from '../constants/taskStatus.js';
+import sequelize from '../config/database.js'; // atau path sesuai projectmu
 
 /* ===============================
    GET semua task
    =============================== */
 export const getTasks = asyncHandler(async (req, res) => {
-  const page = parseInt(req.query.page) || 1; // halaman aktif
-  const limit = parseInt(req.query.limit) || 10; // jumlah data per halaman
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
 
   const whereCondition =
     req.user.role === 'developer' ? { createdByUserId: req.user.userId } : {};
 
-  // Gunakan findAndCountAll untuk pagination
   const { count, rows: tasks } = await Task.findAndCountAll({
     where: whereCondition,
     include: [
@@ -27,7 +27,16 @@ export const getTasks = asyncHandler(async (req, res) => {
       { model: SupportType, as: 'supportType' },
       { model: User, as: 'createdBy', attributes: ['id', 'username', 'role'] },
     ],
-    order: [['createdAt', 'DESC']],
+    order: [
+      // Urutan status sesuai gambar
+      [
+        sequelize.literal(
+          "FIELD(status, 'pending', 'in_progress', 'completed', 'approved', 'rejected')"
+        ),
+      ],
+      // Jika status sama → urutkan berdasarkan createdAt terbaru
+      ['createdAt', 'DESC'],
+    ],
     limit,
     offset,
   });

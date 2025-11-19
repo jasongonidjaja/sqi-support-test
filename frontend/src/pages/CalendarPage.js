@@ -315,7 +315,7 @@ const DeploymentBoardPage = () => {
       const textStyle =
         ev.extendedProps.status === 'cancel'
           ? { textDecoration: 'line-through', color: '#9e9e9e' }
-          : { color: '#333' };
+          : { color: '#0c2038' };
 
       return (
         <div
@@ -337,9 +337,12 @@ const DeploymentBoardPage = () => {
             style={{
               width: '8px',
               height: '8px',
+              minWidth: '8px',
+              minHeight: '8px',
               borderRadius: '50%',
               backgroundColor: color,
               display: 'inline-block',
+              flexShrink: 0,
             }}
           />
           <span style={textStyle}>{ev.title}</span>
@@ -360,7 +363,7 @@ const DeploymentBoardPage = () => {
         {/* Hari dan label freeze */}
         <div
           style={{
-            fontSize: '0.8rem',
+            fontSize: '1rem',
             fontWeight: 'bold',
             margin: '4px 0px',
             textAlign: 'center',
@@ -395,7 +398,7 @@ const DeploymentBoardPage = () => {
         {deployment.length > 0 && (
           <div
             style={{
-              borderBottom: supports.length > 0 ? '1px solid #e0e0e0' : 'none',
+              borderBottom: supports.length > 0 ? '1px solid #0c2038' : 'none',
               paddingBottom: '4px',
               marginBottom: '4px',
             }}
@@ -459,7 +462,7 @@ const DeploymentBoardPage = () => {
           inset: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(135deg, #E3F2FD, #FFFFFF)',
+          backgroundColor: '#eaf5fcff',
           zIndex: 0,
         }}
       />
@@ -545,10 +548,21 @@ const DeploymentBoardPage = () => {
 
         {/* Dialog detail */}
         <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth>
-          <DialogTitle>Event Detail</DialogTitle>
+          <DialogTitle
+            sx={{ color: '#0F2A4A', fontWeight: 'bold', textAlign: 'center' }}
+          >
+            Event Detail
+          </DialogTitle>
           <DialogContent dividers>
             {selectedEvent ? (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1,
+                  color: '#0c2038',
+                }}
+              >
                 <Typography>
                   <strong>Release ID:</strong> {selectedEvent.releaseId}
                 </Typography>

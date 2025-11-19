@@ -143,7 +143,7 @@ const CreateDeploymentRequestPage = () => {
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'linear-gradient(135deg, #E3F2FD, #FFFFFF)',
+          backgroundColor: '#eaf5fcff',
           zIndex: -1,
         }}
       />
